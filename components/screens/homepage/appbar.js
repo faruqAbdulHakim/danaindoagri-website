@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 
 export default function AppBar() {
 
+  // list of navigation, except registration
   const navLinkList = [
     {
       text: 'Beranda',
@@ -56,7 +57,7 @@ function DesktopNav({ navLinkList }) {
     })}
   </ul>
   <div className='hidden lg:inline'>
-    <Link href='/'>
+    <Link href='/register'>
       <a className='border px-4 py-2 border-white rounded-md text-white 
       hover:bg-primary hover:border-primary active:opacity-50 flex items-center transition-all'>
         <FiUser size={20} className='mr-2'/> Daftar
@@ -113,7 +114,7 @@ function MobileNav({ navLinkList }) {
         {navLinkList.map((navLink, idx) => {
           return <MobileNavLink key={idx} text={navLink.text} urlPath={navLink.urlPath} />
         })}
-        <MobileNavLink text='Daftar' urlPath='/'/>
+        <MobileNavLink text='Daftar' urlPath='/register'/>
       </motion.div>
     </div>
   </>
