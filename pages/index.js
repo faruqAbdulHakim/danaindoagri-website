@@ -8,8 +8,9 @@ import Footer from '@/components/screens/homepage/footer';
 
 import Image from 'next/image';
 import HeroSection from '@/components/screens/homepage/hero-section';
+import authMiddleware from '@/utils/middleware/auth-middleware';
 
-export default function Home() {
+export default function Home({ User }) {
   return (
     <>
     <div className='relative bg-white overflow-hidden'>
@@ -33,7 +34,7 @@ export default function Home() {
       </div>
       {/* content */}
       <div className='relative z-0'>
-        <AppBar />
+        <AppBar User={User} />
         <main>
           <HeroSection />
           <FirstSection />
@@ -47,4 +48,16 @@ export default function Home() {
     </div>
     </>
   )
+}
+
+export async function getServerSideProps({ req, res }) {
+  const { User } = await authMiddleware(req, res);
+  if (User) {
+    return {
+      props: {User}
+    }
+  }
+  return {
+    props: {},
+  }
 }

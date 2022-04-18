@@ -5,6 +5,7 @@ import { FiX } from 'react-icons/fi';
 import OneCard from '@/components/layouts/one-card'
 import Decoration from '@/components/screens/login/decoration'
 import LoginForm from '@/components/screens/login/login-form'
+import authMiddleware from '@/utils/middleware/auth-middleware';
 
 export default function Login() {
   return <>
@@ -30,4 +31,20 @@ export default function Login() {
       </div>
     </OneCard>
   </>
+}
+
+export async function getServerSideProps({ req, res }) {
+  const { User } = await authMiddleware(req, res);
+  if (User) {
+    return {
+      redirect: {
+        destination: '/dashboard',
+        permanent: false,
+      },
+      props: {},
+    }
+  }
+  return {
+    props: {},
+  }
 }

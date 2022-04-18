@@ -5,6 +5,7 @@ import { FiX } from 'react-icons/fi';
 import OneCard from '@/components/layouts/one-card';
 import Decoration from '@/components/screens/register/decoration';
 import RegisterForm from '@/components/screens/register/register-form';
+import authMiddleware from '@/utils/middleware/auth-middleware';
 
 export default function Register() {
   return <>
@@ -30,4 +31,20 @@ export default function Register() {
       </div>
     </OneCard>
   </>
+}
+
+export async function getServerSideProps({ req, res }) {
+  const { User } = await authMiddleware(req, res);
+  if (User) {
+    return {
+      redirect: {
+        destination: '/dashboard',
+        permanent: false,
+      },
+      props: {},
+    }
+  }
+  return {
+    props: {},
+  }
 }

@@ -5,7 +5,9 @@ import { useState } from 'react';
 import { FiUser, FiMenu, FiX } from 'react-icons/fi';
 import { motion } from 'framer-motion';
 
-export default function AppBar() {
+// TODO: mobilenav show authenticated User
+
+export default function AppBar({ User }) {
 
   // list of navigation, except registration
   const navLinkList = [
@@ -39,17 +41,17 @@ export default function AppBar() {
         </div>
         <nav className='flex-1 flex justify-between items-center'>
           {/* Desktop Nav */}
-          <DesktopNav navLinkList={navLinkList}/>
+          <DesktopNav navLinkList={navLinkList} User={User}/>
 
           {/* Mobile/Tablet Nav */}
-          <MobileNav navLinkList={navLinkList}/>
+          <MobileNav navLinkList={navLinkList} User={User}/>
         </nav>
       </div>
     </header>
   </>
 }
 
-function DesktopNav({ navLinkList }) {
+function DesktopNav({ navLinkList, User }) {
   return <>
   <ul className='hidden lg:flex gap-6'>
     {navLinkList.map((navLink, idx) => {
@@ -57,12 +59,23 @@ function DesktopNav({ navLinkList }) {
     })}
   </ul>
   <div className='hidden lg:inline'>
+    {User ?
+    <Link href='/dashboard'>
+      <a className='px-4 py-2 text-white hover:opacity-40 active:opacity-70 flex items-center gap-2 transition-all'>
+        <Image src='/assets/images/avatar.png' alt='' width={30} height={30} className='rounded-full'/>
+        <p>
+          {User.fullName}
+        </p>
+      </a>
+    </Link>
+    :
     <Link href='/register'>
       <a className='border px-4 py-2 border-white rounded-md text-white 
       hover:bg-primary hover:border-primary active:opacity-50 flex items-center transition-all'>
         <FiUser size={20} className='mr-2'/> Daftar
       </a>
     </Link>
+      }
   </div>
   </>
 }
@@ -83,7 +96,7 @@ function NavLink({ text, urlPath, idx}) {
   </>
 }
 
-function MobileNav({ navLinkList }) {
+function MobileNav({ navLinkList, User }) {
   const [isOpen, setIsOpen] = useState(false);
 
   const buttonHandler = () => {

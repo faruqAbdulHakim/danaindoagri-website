@@ -1,15 +1,19 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import Router from 'next/router';
 import { useState } from 'react';
 
 import CommonLabel from '@/components/common/common-label';
 import CommonInput from '@/components/common/common-input';
+import API_ENDPOINT from '@/global/api-endpoint';
 
 export default function LoginForm() {
   const [formValues, setFormValues] = useState({
     email: '',
     password: ''
   });
+  const [formError, setFormError] = useState('');
+  const [isSubmiting, setIsSubmiting] = useState(false);
 
   const inputHandler = (event) => {
     setFormValues({
@@ -20,7 +24,31 @@ export default function LoginForm() {
 
   const submitHandler = (event) => {
     event.preventDefault();
-    alert(JSON.stringify(formValues));
+    
+    setIsSubmiting(true);
+
+    if (formError !== '') setFormError('');
+
+    fetch(API_ENDPOINT.LOGIN, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify(formValues),
+    }).then((res) => {
+      return res.json();
+    }).then((resJson) => {
+      if (resJson.status === 400) {
+        setFormError(resJson.message);
+      } else if (resJson.status === 300) {
+        Router.push(resJson['location']);
+      }
+    }).catch(() => {
+      setFormError('Terjadi Kesalahan di sisi Server!!!');
+    }).finally(() => {
+      setIsSubmiting(false);
+    })
+
   }
 
   return <>
@@ -30,6 +58,11 @@ export default function LoginForm() {
       </div>
       <div className='max-w-[340px] mx-auto mt-8'>
         <h1 className='text-3xl'>Masuk</h1>
+
+        {/* error message (return from server) */}
+        {formError && <p className='text-red-600'>{formError}</p>}
+
+        {/* Login Form */}
         <form className='flex flex-col gap-4 mt-4' onSubmit={submitHandler}>
           <div className='flex flex-col'>
             <CommonLabel text='Email' id='email'/>
@@ -50,7 +83,10 @@ export default function LoginForm() {
           <button
             type='submit'
             className='bg-primary text-white rounded-md ring-2 ring-primary uppercase 
-            tracking-wider px-4 py-3 font-semibold hover:opacity-70 active:opacity-40 transition-all'
+            tracking-wider px-4 py-3 font-semibold hover:opacity-70 active:opacity-40 
+            disabled:bg-slate-600 disabled:ring-slate-600 disabled:hover:opacity-100 disabled:active:opacity-100
+            transition-all'
+            disabled={isSubmiting}
           >
             Masuk
           </button>

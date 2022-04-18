@@ -4,6 +4,7 @@ import { useState } from 'react';
 import CommonInput from '@/components/common/common-input';
 import CommonSelect from '@/components/common/common-select';
 import CommonLabel from '@/components/common/common-label';
+import API_ENDPOINT from '@/global/api-endpoint';
 import RegisterSuccessModal from './register-success-modal';
 
 export default function RegisterForm() {
@@ -21,6 +22,7 @@ export default function RegisterForm() {
   });
   const [formError, setFormError] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
+  const [isSubmiting, setIsSubmiting] = useState(false);
 
   const getTodayDate = () => {
     const todayTime = new Date();
@@ -39,11 +41,31 @@ export default function RegisterForm() {
 
   const submitHandler = (event) => {
     event.preventDefault();
-    if (formError !== '') {
-      setFormError ('');
-    }
-    alert(JSON.stringify(formValues));
-    setIsSuccess(true);
+
+    setIsSubmiting(true);
+    
+    if (formError !== '') setFormError('');
+
+    fetch(API_ENDPOINT.REGISTER, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify(formValues),
+    }).then((res) => {
+      return res.json();
+    }).then((resJson) => {
+      if (resJson.status === 400) {
+        setFormError(resJson.message);
+      } else if (resJson.status === 201) {
+        setIsSuccess(true);
+      }
+    }).catch(() => {
+      setFormError('Terjadi Kesalahan di sisi Server!!!');
+    }).finally(() => {
+      setIsSubmiting(false);
+    })
+
   }
 
   return <>
@@ -132,9 +154,12 @@ export default function RegisterForm() {
                 <button 
                 type='submit'
                 className='bg-primary text-white px-4 py-3 rounded-md mt-4 ring-2 ring-primary
-                uppercase tracking-wider hover:opacity-70 active:opacity-30 transition-all'
+                uppercase tracking-wider hover:opacity-70 active:opacity-30 disabled:bg-slate-600 
+                disabled:ring-slate-600 disabled:hover:opacity-100 disabled:active:opacity-100
+                transition-all'
+                disabled={isSubmiting}
               >
-                Daftar
+                {isSubmiting ? 'Mendaftarkan...' : 'Daftar'}
               </button>
             </>
           }
