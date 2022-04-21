@@ -2,14 +2,12 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
 
-import { FiUser, FiMenu, FiX } from 'react-icons/fi';
+import { FiMenu, FiX } from 'react-icons/fi';
 import { motion } from 'framer-motion';
 
-// TODO: mobilenav show authenticated User
+export default function CommonAppbar({ User }) {
 
-export default function AppBar({ User }) {
-
-  // list of navigation, except registration
+  // list of navigation, except registration and login
   const navLinkList = [
     {
       text: 'Beranda',
@@ -69,12 +67,20 @@ function DesktopNav({ navLinkList, User }) {
       </a>
     </Link>
     :
-    <Link href='/register'>
-      <a className='border px-4 py-2 border-white rounded-md text-white 
-      hover:bg-primary hover:border-primary active:opacity-50 flex items-center transition-all'>
-        <FiUser size={20} className='mr-2'/> Daftar
-      </a>
-    </Link>
+    <div className='flex items-center border border-white rounded-md overflow-hidden'>
+      <Link href='/register'>
+        <a className='px-4 py-2 text-white
+        hover:bg-primary hover:border-primary active:opacity-50 flex items-center transition-all'>
+          Daftar
+        </a>
+      </Link>
+      <Link href='/login'>
+        <a className='px-4 py-2 text-white border-l
+        hover:bg-primary hover:border-primary active:opacity-50 flex items-center transition-all'>
+          Masuk
+        </a>
+      </Link>
+    </div>
       }
   </div>
   </>
@@ -127,7 +133,16 @@ function MobileNav({ navLinkList, User }) {
         {navLinkList.map((navLink, idx) => {
           return <MobileNavLink key={idx} text={navLink.text} urlPath={navLink.urlPath} />
         })}
-        <MobileNavLink text='Daftar' urlPath='/register'/>
+        {User ?
+        <>
+          <MobileNavLink text='Dashboard' urlPath='/dashboard'/>
+        </>
+        :
+        <>
+          <MobileNavLink text='Daftar' urlPath='/register'/>
+          <MobileNavLink text='Masuk' urlPath='/login'/>
+        </>
+        }
       </motion.div>
     </div>
   </>

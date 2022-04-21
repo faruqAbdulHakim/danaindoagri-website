@@ -1,10 +1,10 @@
-import AppBar from '@/components/screens/homepage/appbar';
+import CommonAppbar from '@/components/common/common-appbar';
 import FirstSection from '@/components/screens/homepage/first-section';
 import SecondSection from '@/components/screens/homepage/second-section';
 import ThirdSection from '@/components/screens/homepage/third-section';
 import FourthSection from '@/components/screens/homepage/fourth-section';
 import FifthSection from '@/components/screens/homepage/fifth-section';
-import Footer from '@/components/screens/homepage/footer';
+import CommonFooter from '@/components/common/common-footer';
 
 import Image from 'next/image';
 import HeroSection from '@/components/screens/homepage/hero-section';
@@ -34,7 +34,7 @@ export default function Home({ User }) {
       </div>
       {/* content */}
       <div className='relative z-0'>
-        <AppBar User={User} />
+        <CommonAppbar User={User} />
         <main>
           <HeroSection />
           <FirstSection />
@@ -43,7 +43,7 @@ export default function Home({ User }) {
           <FourthSection />
           <FifthSection />
         </main>
-        <Footer />
+        <CommonFooter />
       </div>
     </div>
     </>

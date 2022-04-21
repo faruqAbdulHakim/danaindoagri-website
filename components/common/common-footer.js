@@ -3,7 +3,7 @@ import Image from 'next/image';
 
 import { FiUser } from 'react-icons/fi';
 
-export default function Footer() {
+export default function CommonFooter() {
   return <>
     <footer className='mt-32'>
       <div className='px-4 max-w-screen-lg lg:mx-auto'>

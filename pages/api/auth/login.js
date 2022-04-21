@@ -22,9 +22,9 @@ export default async function handler(req, res) {
   }
 
   ///// login
-  const {data: User, error} = await AuthHelper.login(formLogin);
-  if (error) {
-    return res.status(400).json({status: 400, message: 'Email belum terdaftar.'});
+  const {data: User} = await AuthHelper.login(formLogin);
+  if (!User) {
+    return res.status(400).json({status: 400, message: 'Email tidak ditemukan.'});
   }
 
   // check is password valid
@@ -35,7 +35,7 @@ export default async function handler(req, res) {
 
   // generate jwt for session auth
   const { accessToken, refreshToken, newSessionToken } = AuthHelper.generateJwtToken(User);
-  const { error: updateTokenError } = await AuthHelper.updateSessionToken(User['id'], newSessionToken);
+  const { error: updateTokenError } = await AuthHelper.updateSessionToken(User.id, newSessionToken);
   if (updateTokenError) {
     return res.status(400).json({status: 400, message: 'Terjadi kesalahan di sisi server. ERR:[UPDATE TOKEN ERROR]'})
   }
