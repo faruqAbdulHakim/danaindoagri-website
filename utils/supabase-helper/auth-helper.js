@@ -15,21 +15,18 @@ const {
 
 const AuthHelper = {
   userRegister: async (formRegister) => {
-    const { data, error } = await supabase.from(TABLE_NAME.USERS)
-      .insert([formRegister]);
-    if (error) return {error};
-    const userId = data[0]['id']
-
+    // get customer role ID
     const { data: role, error: roleError } = await supabase.from(TABLE_NAME.ROLE)
-      .select('id')
-      .eq('roleName', ROLE_NAME.CUSTOMERS)
-      .single();
+    .select('id')
+    .eq('roleName', ROLE_NAME.CUSTOMERS)
+    .single();
     if (roleError) return {error: roleError};
-    const roleId = role.id;
+    formRegister.roleId = role.id;
 
-    const { error: userRoleError } = await supabase.from(TABLE_NAME.USERS_ROLE)
-      .insert([{userId, roleId}]);
-    if ( userRoleError ) return {error: userRoleError};
+    // register
+    const { data, error: registerError } = await supabase.from(TABLE_NAME.USERS)
+      .insert([formRegister]);
+    if (registerError) return {error: registerError};
 
     return {data};
   },
