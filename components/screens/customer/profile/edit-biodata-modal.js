@@ -1,12 +1,12 @@
 import Router from 'next/router';
 import { useRef, useState } from 'react';
 
-import { FiX, FiCheck } from 'react-icons/fi';
-
 import CommonModal from '@/components/common/common-modal';
 import API_ENDPOINT from '@/global/api-endpoint';
+import CommonErrorModal from '@/components/common/common-error-modal';
+import CommonSuccessModal from '@/components/common/common-success-modal';
 
-export default function EditDataModal({ headingText, defaultValue, closeModalHandler, name }) {
+export default function EditBiodataModal({ headingText, defaultValue, closeModalHandler, name }) {
   const inputRef = useRef(null);
   const [isSubmiting, setIsSubmiting] = useState(false);
   const [isEditSuccess, setIsEditSucces] = useState(false);
@@ -30,6 +30,8 @@ export default function EditDataModal({ headingText, defaultValue, closeModalHan
         setIsEditSucces(true);
       } else if (resJson.status === 400) {
         setEditError(resJson.message);
+      } else if (resJson.status === 300) {
+        Router.push(resJson.location);
       }
     }).catch(() => {
     }).finally(() => {
@@ -39,40 +41,13 @@ export default function EditDataModal({ headingText, defaultValue, closeModalHan
 
   return <>
     {editError &&
-    <CommonModal>
-      <div className='w-full min-w-[340px] flex flex-col items-center py-4'>
-        <p className='text-center w-3/4'>
-          Terjadi kesalahan. <span className='text-red-500'>{editError}</span>.
-        </p>
-        <button 
-          className='text-white bg-red-500 mt-4 rounded-full shadow-md shadow-red-500/50 
-          hover:opacity-70 active:opacity-40 transition-all duration-200'
-          onClick={() => setEditError('')}
-        >
-          <FiX size={48} className='p-2'/>
-        </button>
-      </div>
-    </CommonModal>
+    <CommonErrorModal onClick={() => setEditError('')} text={editError}/>
     }
+
     {isEditSuccess &&
-    <CommonModal>
-      <div className='w-full min-w-[340px] flex flex-col items-center py-4'>
-        <p className='text-center w-3/4 text-lg font-semibold'>
-          Data Berhasil Diubah
-        </p>
-        <button 
-          type='button'
-          className='text-white bg-primary mt-4 rounded-full shadow-md shadow-primary/50 
-          hover:opacity-70 active:opacity-40 transition-all duration-200'
-          onClick={() => {
-            Router.reload()
-          }}
-        >
-          <FiCheck size={48} className='p-2'/>
-        </button>
-      </div>
-    </CommonModal>
+    <CommonSuccessModal onClick={() => {Router.reload()}} text="Data berhasil diubah"/>
     }
+
     {!editError && !isEditSuccess &&
     <CommonModal>
       <form className='sm:px-16 sm:py-8' onSubmit={formSubmitHandler}>

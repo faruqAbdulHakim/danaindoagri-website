@@ -58,7 +58,7 @@ function DesktopNav({ navLinkList, User }) {
   </ul>
   <div className='hidden lg:inline'>
     {User ?
-    <Link href='/dashboard'>
+    <Link href='/org/dashboard'>
       <a className='px-4 py-2 text-white hover:opacity-40 active:opacity-70 flex items-center gap-2 transition-all'>
         <Image src='/assets/images/avatar.png' alt='' width={30} height={30} className='rounded-full'/>
         <p>
@@ -135,7 +135,7 @@ function MobileNav({ navLinkList, User }) {
         })}
         {User ?
         <>
-          <MobileNavLink text='Dashboard' urlPath='/dashboard'/>
+          <MobileNavLink text='Dashboard' urlPath='/org/dashboard'/>
         </>
         :
         <>

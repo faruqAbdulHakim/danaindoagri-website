@@ -43,26 +43,10 @@ export default function CtaCard({ User }) {
           </Link>
         </div>
         <div className='flex justify-around mt-5'>
-          <Link href='/'>
-            <a className='flex flex-col text-primary opacity-80 hover:opacity-70 active:opacity-40'>
-              <IoWallet size={26}/>
-            </a>
-          </Link>
-          <Link href='/'>
-            <a className='flex flex-col hover:text-primary hover:opacity-70 active:opacity-40'>
-              <IoCheckmarkCircle size={26}/>
-            </a>
-          </Link>
-          <Link href='/'>
-            <a className='flex flex-col hover:text-primary hover:opacity-70 active:opacity-40'>
-              <FaTruck size={26}/>
-            </a>
-          </Link>
-          <Link href='/'>
-            <a className='flex flex-col hover:text-primary hover:opacity-70 active:opacity-40'>
-              <IoStar size={26}/>
-            </a>
-          </Link>
+          <IoWallet size={26} className='text-primary'/>
+          <IoCheckmarkCircle size={26} className=''/>
+          <FaTruck size={26} className=''/>
+          <IoStar size={26} className=''/>
         </div>
       </div>
 

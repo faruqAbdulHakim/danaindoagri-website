@@ -5,8 +5,11 @@ import authMiddleware from '@/utils/middleware/auth-middleware'
 import UserProfile from '@/components/screens/customer/profile/user-profile';
 import CtaCard from '@/components/screens/customer/profile/cta-card';
 import CommonFooter from '@/components/common/common-footer';
+import CONFIG from '@/global/config';
 
-// TODO : User Verification
+const { ROLE_NAME } = CONFIG.SUPABASE;
+
+// TODO : GET LAST TRANSACTION
 
 export default function Profile({ User }) {
   return <>
@@ -27,7 +30,7 @@ export default function Profile({ User }) {
       {/* content */}
       <div className='relative'>
         <CommonAppbar User={User} />
-        <main className='flex flex-wrap flex-col sm:flex-row p-4 max-w-screen-xl mx-auto gap-10'>
+        <main className='flex flex-wrap flex-col md:flex-row p-4 max-w-screen-xl mx-auto gap-10'>
           {/* left side */}
           <div className='w-full max-w-[340px] mx-auto'>
             <CtaCard User={User} />
@@ -54,6 +57,17 @@ export async function getServerSideProps({ req, res }) {
       props: {},
     }
   }
+
+  if (User?.role?.roleName !== ROLE_NAME.CUSTOMERS) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false,
+      },
+      props: {},
+    }
+  }
+
   return {
     props: {
       User
