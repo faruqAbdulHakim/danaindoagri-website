@@ -10,6 +10,9 @@ const CONFIG = {
     },
     ROLE_NAME: {
       CUSTOMERS: 'customer',
+      MARKETING: 'marketing',
+      PRODUCTION: 'produksi',
+      OWNER: 'pemilik usaha',
     },
     RESOURCE_NAME: {
       USERS: 'users',

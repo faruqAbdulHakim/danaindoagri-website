@@ -2,10 +2,12 @@ import authMiddleware from '@/utils/middleware/auth-middleware';
 import CONFIG from '@/global/config';
 import OrganizationLayout from '@/components/layouts/organization-layout';
 
-export default function Dashboard({ User }) {
+import UserProfile from '@/components/screens/org/profile/user-profile';
+
+export default function Profile({ User }) {
   return <>
     <OrganizationLayout User={User}>
-
+      <UserProfile User={User}/>
     </OrganizationLayout>
   </>
 }

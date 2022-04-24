@@ -128,6 +128,7 @@ function MobileNav({ navLinkList, User }) {
       <motion.div
       animate={isOpen? 'open' : 'close'} 
       variants={variants}
+      initial={{opacity: 0}}
       className='absolute top-8 right-0 flex flex-col rounded-md divide-y 
       bg-white shadow-md overflow-hidden origin-top-right'>
         {navLinkList.map((navLink, idx) => {

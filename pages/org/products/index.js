@@ -2,7 +2,7 @@ import authMiddleware from '@/utils/middleware/auth-middleware';
 import CONFIG from '@/global/config';
 import OrganizationLayout from '@/components/layouts/organization-layout';
 
-export default function Dashboard({ User }) {
+export default function Products({ User }) {
   return <>
     <OrganizationLayout User={User}>
 
@@ -39,4 +39,3 @@ export async function getServerSideProps({ req, res }) {
     },
   }
 }
-

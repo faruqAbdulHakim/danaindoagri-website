@@ -2,7 +2,7 @@ import authMiddleware from '@/utils/middleware/auth-middleware';
 import CONFIG from '@/global/config';
 import OrganizationLayout from '@/components/layouts/organization-layout';
 
-export default function Dashboard({ User }) {
+export default function manageMarketing({ User }) {
   return <>
     <OrganizationLayout User={User}>
 
@@ -23,10 +23,10 @@ export async function getServerSideProps({ req, res }) {
   }
   
   const { ROLE_NAME } = CONFIG.SUPABASE;
-  if (User?.role?.roleName === ROLE_NAME.CUSTOMERS) {
+  if (User?.role?.roleName !== ROLE_NAME.OWNER) {
     return {
       redirect: {
-        destination: '/customer/profile',
+        destination: '/',
         permanent: false,
       },
       props: {},

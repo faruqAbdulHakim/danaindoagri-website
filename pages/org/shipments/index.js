@@ -2,7 +2,7 @@ import authMiddleware from '@/utils/middleware/auth-middleware';
 import CONFIG from '@/global/config';
 import OrganizationLayout from '@/components/layouts/organization-layout';
 
-export default function Dashboard({ User }) {
+export default function Shipments({ User }) {
   return <>
     <OrganizationLayout User={User}>
 
