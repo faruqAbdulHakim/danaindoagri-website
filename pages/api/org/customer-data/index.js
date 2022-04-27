@@ -6,7 +6,7 @@ const { ROLE_NAME, TABLE_NAME } = CONFIG.SUPABASE;
 
 export default async function handler(req, res) {
   const { query, method, cookies } = req;
-  const { accessToken, refreshToken } = req.cookies;
+  const { accessToken, refreshToken } = cookies;
   const searchQuery = query.searchQuery || '';
 
   if (method !== 'GET') {
