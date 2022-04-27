@@ -1,11 +1,12 @@
 import authMiddleware from '@/utils/middleware/auth-middleware';
 import CONFIG from '@/global/config';
 import OrganizationLayout from '@/components/layouts/organization-layout';
+import CustomerDataScreen from '@/components/screens/org/customer-data/customer-data-screen';
 
 export default function CustomerData({ User }) {
   return <>
     <OrganizationLayout User={User}>
-
+      <CustomerDataScreen />
     </OrganizationLayout>
   </>
 }

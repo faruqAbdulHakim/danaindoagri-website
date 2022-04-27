@@ -5,8 +5,6 @@ const CONFIG = {
     TABLE_NAME: {
       USERS: 'users',
       ROLE: 'role',
-      RESOURCE: 'resource',
-      RESOURCE_ROLE: 'resourcesRole',
     },
     ROLE_NAME: {
       CUSTOMERS: 'customer',
