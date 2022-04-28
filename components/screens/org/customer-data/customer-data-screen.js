@@ -4,54 +4,46 @@ import Router from 'next/router';
 
 import { FiSearch, FiX } from 'react-icons/fi';
 
-import API_ENDPOINT from '@/global/api-endpoint';
 import CommonErrorModal from '@/components/common/common-error-modal';
 import CommonModal from '@/components/common/common-modal';
+import CONFIG from '@/global/config';
+import userFetcher from '@/utils/functions/users-fetcher';
+
+const { ROLE_NAME } = CONFIG.SUPABASE;
 
 export default function CustomerDataScreen() {
   const searchInputRef = useRef(null);
-  const [customerDataList, setCustomerDataList] = useState([]);
+  const [customerList, setCustomerList] = useState([]);
+  const [isFetching, setIsFetching] = useState(true);
   const [isError, setIsError] = useState('');
   const [userDetail, setUserDetail] = useState(null);
-
+  
   const searchFormSubitHandler = (event) => {
     event.preventDefault();
-    setCustomerDataList([]);
-    const searchInputVal = searchInputRef.current.value;
-
-    fetch(API_ENDPOINT.GET_CUSTOMER_DATA + `?searchQuery=${searchInputVal}`).then((res) => {
-      return res.json();
-    }).then((resJson) => {
-      if (resJson.status === 200) {
-        setCustomerDataList(resJson.data);
-      } else if (resJson.status === 300) {
-        Router.push(resJson.location);
-      } else {
-        setIsError(resJson.message)
-      }
-    }).catch((error) => {
-      setIsError(error.message)
-    })
+    setIsFetching(true);
+    userFetcher(ROLE_NAME.CUSTOMERS, searchInputRef.current.value).then(({data, error, route}) => {
+      if (route) Router.push(route);
+      else if (error) setIsError(error);
+      else setCustomerList(data);
+    }).finally(() => {
+      setIsFetching(false);
+    });
   }
 
   useEffect(() => {
-    fetch(API_ENDPOINT.GET_CUSTOMER_DATA).then((res) => {
-      return res.json();
-    }).then((resJson) => {
-      if (resJson.status === 200) {
-        setCustomerDataList(resJson.data);
-      } else if (resJson.status === 300) {
-        Router.push(resJson.location);
-      } else {
-        setIsError(resJson.message)
-      }
-    }).catch((error) => {
-      setIsError(error.message)
-    })
+    setIsFetching(true);
+    userFetcher(ROLE_NAME.CUSTOMERS, searchInputRef.current.value).then(({data, error, route}) => {
+      if (route) Router.push(route);
+      else if (error) setIsError(error);
+      else setCustomerList(data);
+    }).finally(() => {
+      setIsFetching(false);
+    });
   }, [])
 
   return <>
-    <div className='p-6 bg-white/80 backdrop-blur-md rounded-r-3xl h-full shadow-black/5 flex flex-col'>
+    <div className='p-6 bg-white/80 backdrop-blur-md rounded-r-3xl 
+    h-full max-h-[calc(100vh-140px)] shadow-black/5'>
       <div>
         <form className='flex flex-wrap gap-2' onSubmit={searchFormSubitHandler}>
           <input ref={searchInputRef} type='text' placeholder='Cari berdasarkan nama...' 
@@ -67,13 +59,19 @@ export default function CustomerDataScreen() {
         </form>
       </div>    
 
-      <p className='mt-3'>Menampilkan 5 pencarian teratas</p>
-      <div className='flex-1 border border-slate-400 shadow-md rounded-md p-4 space-y-4'>
-        {customerDataList.map((item, idx) => {
-          return <CustomerCard key={idx} fullName={item.fullName} email={item.email} address={item.address} 
-          detailButtonHandler={() => setUserDetail(item)} 
-          />
-        })}
+      <div className='h-full mt-4'>
+        <div className='border border-slate-300 shadow-md rounded-md p-4 space-y-4 h-full overflow-auto'>
+          {
+            isFetching ?
+              <p className='text-center'>Memuat data ...</p>
+            :
+              customerList.map((item, idx) => {
+                return <CustomerCard key={idx} fullName={item.fullName} email={item.email} address={item.address} 
+                detailButtonHandler={() => setUserDetail(item)} 
+                />
+              })
+          }
+        </div>
       </div>  
     </div>
     {
@@ -95,7 +93,7 @@ function CustomerCard({ fullName, email, address, detailButtonHandler }) {
       objectFit='cover' className='rounded-full'/>
     </div>
     <div className='flex-1 flex justify-between gap-8 flex-wrap'>
-      <div className='flex-1 flex items-center justify-between'>
+      <div className='flex-1 flex items-center justify-between gap-1'>
         <p className='w-full'>
           {fullName}
         </p>
