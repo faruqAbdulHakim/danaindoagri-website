@@ -1,13 +1,14 @@
 import Image from 'next/image';
 import { useState, useRef, useEffect } from 'react';
 import Router from 'next/router';
+import Link from 'next/link';
 
 import { FiSearch } from 'react-icons/fi';
 
 import CONFIG from '@/global/config';
-import userFetcher from '@/utils/functions/users-fetcher';
 import CommonErrorModal from '@/components/common/common-error-modal';
-import Link from 'next/link';
+import UserFetcher from '@/utils/functions/users-fetcher';
+
 
 const { ROLE_NAME } = CONFIG.SUPABASE;
 
@@ -23,7 +24,7 @@ export default function EmployeeDataScreen( { role } ) {
   const searchFormSubitHandler = (event) => {
     event.preventDefault();
     setIsFetching(true);
-    userFetcher(role, searchInputRef.current.value).then(({data, error, route}) => {
+    UserFetcher.getUserByRole(role, searchInputRef.current.value).then(({data, error, route}) => {
       if (route) Router.push(route);
       else if (error) setIsError(error);
       else setEmployeeList(data);
@@ -34,7 +35,7 @@ export default function EmployeeDataScreen( { role } ) {
 
   useEffect(() => {
     setIsFetching(true);
-    userFetcher(role, searchInputRef.current.value).then(({data, error, route}) => {
+    UserFetcher.getUserByRole(role, searchInputRef.current.value).then(({data, error, route}) => {
       if (route) Router.push(route);
       else if (error) setIsError(error);
       else setEmployeeList(data);

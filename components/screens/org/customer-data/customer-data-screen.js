@@ -7,7 +7,7 @@ import { FiSearch, FiX } from 'react-icons/fi';
 import CommonErrorModal from '@/components/common/common-error-modal';
 import CommonModal from '@/components/common/common-modal';
 import CONFIG from '@/global/config';
-import userFetcher from '@/utils/functions/users-fetcher';
+import UserFetcher from '@/utils/functions/users-fetcher';
 
 const { ROLE_NAME } = CONFIG.SUPABASE;
 
@@ -21,7 +21,7 @@ export default function CustomerDataScreen() {
   const searchFormSubitHandler = (event) => {
     event.preventDefault();
     setIsFetching(true);
-    userFetcher(ROLE_NAME.CUSTOMERS, searchInputRef.current.value).then(({data, error, route}) => {
+    UserFetcher.getUserByRole(ROLE_NAME.CUSTOMERS, searchInputRef.current.value).then(({data, error, route}) => {
       if (route) Router.push(route);
       else if (error) setIsError(error);
       else setCustomerList(data);
@@ -32,7 +32,7 @@ export default function CustomerDataScreen() {
 
   useEffect(() => {
     setIsFetching(true);
-    userFetcher(ROLE_NAME.CUSTOMERS, searchInputRef.current.value).then(({data, error, route}) => {
+    UserFetcher.getUserByRole(ROLE_NAME.CUSTOMERS, searchInputRef.current.value).then(({data, error, route}) => {
       if (route) Router.push(route);
       else if (error) setIsError(error);
       else setCustomerList(data);

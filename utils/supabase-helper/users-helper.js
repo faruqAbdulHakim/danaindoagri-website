@@ -11,10 +11,26 @@ const UsersHelper = {
     .eq(`${TABLE_NAME.ROLE}.roleName`, roleName)
     .eq('deleted', false)
     .ilike('fullName', `%${searchQuery}%`)
-    .limit(limit)
+    .limit(limit);
   
     return { data, error}
   },
+
+  getRoleIdByRoleName: async (roleName) => {
+    const { data, error } = await supabase.from(TABLE_NAME.ROLE)
+      .select('id')
+      .eq('roleName', roleName)
+      .single();
+
+    return { data: data.id, error };
+  },
+
+  addUser: async (form) => {
+    const { data, error } = await supabase.from(TABLE_NAME.USERS)
+      .insert([form])
+    
+    return { data, error };
+  }
 }
 
 export default UsersHelper;
