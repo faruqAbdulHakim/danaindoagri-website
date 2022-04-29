@@ -1,3 +1,5 @@
+import bcrypt from 'bcrypt';
+
 import CONFIG from '@/global/config';
 import UsersHelper from '@/utils/supabase-helper/users-helper';
 import AuthHelper from '@/utils/supabase-helper/auth-helper';
@@ -52,12 +54,13 @@ export default async function handler(req, res) {
 
   delete body.passwordConfirmation;
   delete body.roleName;
+  body.password = bcrypt.hashSync(body.password, 10);
   body.roleId = roleId;
   body.isVerified = true;
 
+  // method post: add employee
   if (method === 'POST') {
     const { error } = await UsersHelper.addUser(body);
-    console.log(body, error)
     if (error) {
       return res.status(400).json({status: 400, message: 'Gagal menambahkan karyawan'});
     }
@@ -67,6 +70,11 @@ export default async function handler(req, res) {
   // method put: edit employee
   else if (method === 'PUT') {
     console.log('Masuk method PUT')
+  }
+
+  // method delete: delete employee
+  else if (method === 'DELETE') {
+
   }
 
   res.status(400).json({status: 400, message: 'Invalid Method'});
