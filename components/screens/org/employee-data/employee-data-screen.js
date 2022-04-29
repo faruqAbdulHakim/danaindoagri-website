@@ -110,10 +110,13 @@ function EmployeeCard({ employee, role }) {
       </div>
       <hr  className='mt-2'/>
       <div className='flex flex-col justify-center items-center mt-2 gap-2'>
-        <button type='button' className='border rounded-full px-4 py-2 min-w-[120px] 
-          hover:bg-primary hover:text-white hover:opacity-70 active:opacity-40 transition-all'>
-          Ubah
-        </button>
+        <Link href={`/org/owner/edit-employee/${employee.id}`}>
+          <a type='button' className='border rounded-full px-4 py-2 min-w-[120px] 
+            hover:bg-primary hover:text-white hover:opacity-70 active:opacity-40 
+            text-center transition-all'>
+            Ubah
+          </a>
+        </Link>
         <button type='button' className='bg-primary text-white rounded-full px-4 py-2 min-w-[120px]
           hover:opacity-70 active:opacity-40 transition-all'>
           Hapus

@@ -7,7 +7,8 @@ const API_ENDPOINT = {
   USERS_CHANGE_ADDRESS: '/api/users/change-address',
   GET_USERS: (roleQuery, searchQuery) => 
     `/api/users/get-users?roleQuery=${roleQuery}&searchQuery=${searchQuery || ''}`,
-  MANAGE_EMPLOYEE: '/api/owner/manage-employee',
+  MANAGE_EMPLOYEE: (editType, employeeId) => 
+    `/api/owner/manage-employee?editType=${editType || ''}&employeeId=${employeeId || ''}`,
 }
 
 export default API_ENDPOINT;

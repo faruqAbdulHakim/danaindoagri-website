@@ -14,7 +14,7 @@ import CONFIG from '@/global/config';
 
 const { ROLE_NAME } = CONFIG.SUPABASE;
 
-export default function ManageEmployeeScreen() {
+export default function AddEmployeeScreen() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isFetching, setIsFetching] = useState(false);

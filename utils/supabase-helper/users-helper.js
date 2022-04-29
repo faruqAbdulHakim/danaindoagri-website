@@ -5,6 +5,22 @@ import CONFIG from '@/global/config';
 const { TABLE_NAME } = CONFIG.SUPABASE;
 
 const UsersHelper = {
+  getUserById: async (userId, includeDeleted) => {
+    if (includeDeleted) {
+      const { data, error } = await supabase.from(TABLE_NAME.USERS)
+        .select('*')
+        .eq('id', userId)
+        .single();
+      return { data, error }
+    }
+    const { data, error } = await supabase.from(TABLE_NAME.USERS)
+      .select(`*, ${TABLE_NAME.ROLE}(*)`)
+      .eq('id', userId)
+      .eq('deleted', false)
+      .single();
+    return { data, error }
+  },
+
   getUserByRole: async (roleName, searchQuery, limit) => {
     const { data, error } = await supabase.from(TABLE_NAME.USERS)
     .select(`*, ${TABLE_NAME.ROLE}!inner(roleName)`)
@@ -13,7 +29,7 @@ const UsersHelper = {
     .ilike('fullName', `%${searchQuery}%`)
     .limit(limit);
   
-    return { data, error}
+    return { data, error };
   },
 
   getRoleIdByRoleName: async (roleName) => {
@@ -29,6 +45,14 @@ const UsersHelper = {
     const { data, error } = await supabase.from(TABLE_NAME.USERS)
       .insert([form])
     
+    return { data, error };
+  },
+
+  updateUserById: async (form, userId) => {
+    const { data, error } = await supabase.from(TABLE_NAME.USERS)
+      .update(form)
+      .match({ id: userId });
+
     return { data, error };
   }
 }

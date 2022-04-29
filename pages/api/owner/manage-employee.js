@@ -7,7 +7,7 @@ import AuthHelper from '@/utils/supabase-helper/auth-helper';
 const { ROLE_NAME } = CONFIG.SUPABASE;
 
 export default async function handler(req, res) {
-  const { headers, body, method, cookies } = req;
+  const { headers, body, method, cookies, query } = req;
   const { accessToken, refreshToken } = cookies;
 
   if (headers['content-type'] !== 'application/json') {
@@ -17,20 +17,7 @@ export default async function handler(req, res) {
   const isSomeFormNull = Object.values(body).some((value) => value === '');
 
   if (isSomeFormNull) {
-    return res.status(400).json({status: 400, message: 'Harap lengkapi formulir pendaftaran'});
-  }
-
-  if (body.password.length < 8) {
-    return res.status(400).json({status: 400, message: 'Panjang password minimal 8 karakter'});
-  }
-
-  if (body.password !== body.passwordConfirmation) {
-    return res.status(400).json({status: 400, message: 'Konfirmasi password tidak sesuai'});
-  }
-
-  const isRegistered = await AuthHelper.isRegistered(body.email)
-  if (isRegistered) {
-    return res.status(400).json({status: 400, message: 'Email sudah terdaftar'})
+    return res.status(400).json({status: 400, message: 'Harap lengkapi formulir'});
   }
 
   const { User, error: getUserError } = await AuthHelper.getUser(accessToken, refreshToken);
@@ -47,19 +34,32 @@ export default async function handler(req, res) {
     return res.status(300).json({status: 300, message: 'Anda tidak memiliki hak akses'});
   }
 
-  const { data: roleId, error: getRoleError } = await UsersHelper.getRoleIdByRoleName(body?.roleName);
-  if (getRoleError) {
-    return res.status(400).json({status: 400, message: '[Server] Gagal menemukan'})
-  }
-
-  delete body.passwordConfirmation;
-  delete body.roleName;
-  body.password = bcrypt.hashSync(body.password, 10);
-  body.roleId = roleId;
-  body.isVerified = true;
-
   // method post: add employee
   if (method === 'POST') {
+    if (body.password.length < 8) {
+      return res.status(400).json({status: 400, message: 'Panjang password minimal 8 karakter'});
+    }
+
+    if (body.password !== body.passwordConfirmation) {
+      return res.status(400).json({status: 400, message: 'Konfirmasi password tidak sesuai'});
+    }
+    
+    const isRegistered = await AuthHelper.isRegistered(body.email)
+    if (isRegistered) {
+      return res.status(400).json({status: 400, message: 'Email sudah terdaftar'})
+    }
+
+    const { data: roleId, error: getRoleError } = await UsersHelper.getRoleIdByRoleName(body?.roleName);
+    if (getRoleError) {
+      return res.status(400).json({status: 400, message: '[Server] Gagal menemukan roleId'})
+    }
+
+    delete body.passwordConfirmation;
+    delete body.roleName;
+    body.password = bcrypt.hashSync(body.password, 10);
+    body.roleId = roleId;
+    body.isVerified = true;
+
     const { error } = await UsersHelper.addUser(body);
     if (error) {
       return res.status(400).json({status: 400, message: 'Gagal menambahkan karyawan'});
@@ -69,7 +69,33 @@ export default async function handler(req, res) {
 
   // method put: edit employee
   else if (method === 'PUT') {
-    console.log('Masuk method PUT')
+    const { editType, employeeId } = query;
+    if (editType === 'biodata') {
+      const { data: roleId, error: getRoleError } = await UsersHelper.getRoleIdByRoleName(body?.roleName);
+      if (getRoleError) {
+        return res.status(400).json({status: 400, message: '[Server] Gagal menemukan roleId'})
+      }
+
+      delete body.roleName;
+      body.roleId = roleId;
+    }
+    else if (editType === 'password') {
+      if (body.password.length < 8) {
+        return res.status(400).json({status: 400, message: 'Panjang password minimal 8 karakter'});
+      }
+  
+      if (body.password !== body.passwordConfirmation) {
+        return res.status(400).json({status: 400, message: 'Konfirmasi password tidak sesuai'});
+      }
+
+      delete body.passwordConfirmation;
+      body.password = bcrypt.hashSync(body.password, 10)
+    }
+    const { data, error } = await UsersHelper.updateUserById(body, employeeId);
+    if (error) {
+      return res.status(400).json({status: 400, message: '[SERVER] Gagal mengubah data'})
+    }
+    return res.status(200).json({status: 200, message: 'Berhasil mengubah data karyawan'});
   }
 
   // method delete: delete employee
