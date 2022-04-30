@@ -21,7 +21,7 @@ const UserFetcher = {
 
   addEmployee: async (formValues) => {
     let data, error, route;
-    await fetch(API_ENDPOINT.MANAGE_EMPLOYEE, {
+    await fetch(API_ENDPOINT.MANAGE_EMPLOYEE(), {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
