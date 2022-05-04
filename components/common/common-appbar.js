@@ -5,6 +5,10 @@ import { useState } from 'react';
 import { FiMenu, FiX } from 'react-icons/fi';
 import { motion } from 'framer-motion';
 
+import CONFIG from '@/global/config';
+
+const { BUCKETS } = CONFIG.SUPABASE;
+
 export default function CommonAppbar({ User }) {
 
   // list of navigation, except registration and login
@@ -50,6 +54,8 @@ export default function CommonAppbar({ User }) {
 }
 
 function DesktopNav({ navLinkList, User }) {
+  const [imageError, setImageError] = useState(false);
+
   return <>
   <ul className='hidden lg:flex gap-6'>
     {navLinkList.map((navLink, idx) => {
@@ -60,7 +66,13 @@ function DesktopNav({ navLinkList, User }) {
     {User ?
     <Link href='/org/dashboard'>
       <a className='px-4 py-2 text-white hover:opacity-40 active:opacity-70 flex items-center gap-2 transition-all'>
-        <Image src='/assets/images/avatar.png' alt='' width={30} height={30} className='rounded-full'/>
+        {
+          imageError ?
+          <Image src='/assets/images/avatar.png' alt='' width={30} height={30} className='rounded-full'/>
+          :
+          <Image src={`${BUCKETS.AVATARS.AVATAR_BASE_URL}/avatar${User.id}`} alt='' height={30} width={30}
+          onError={() => setImageError(true)} unoptimized={true} className='rounded-full bg-white'/>
+        }
         <p>
           {User.fullName}
         </p>

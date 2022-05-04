@@ -1,17 +1,29 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { useState } from 'react';
 
 import { BsPatchCheckFill, BsXOctagonFill } from 'react-icons/bs';
 import { IoDocumentText, IoWallet, IoCheckmarkCircle, IoStar } from 'react-icons/io5';
 import { FaTruck } from 'react-icons/fa';
 import { FiChevronRight } from 'react-icons/fi';
 
+import CONFIG from '@/global/config';
+
+const { BUCKETS } = CONFIG.SUPABASE;
+
 export default function CtaCard({ User }) {
+  const [imageError, setImageError] = useState(false);
+
   return <>
     <div className='bg-slate-100 h-full p-6 rounded-md shadow-xl shadow-black/5'>
       <div className='flex items-start gap-4'>
         <div>
-          <Image src='/assets/images/avatar.png' alt='' height={48} width={48} className='rounded-md'/>
+          { imageError ?
+            <Image src='/assets/images/avatar.png' alt='' height={48} width={48} className='rounded-md'/>
+            :
+            <Image src={`${BUCKETS.AVATARS.AVATAR_BASE_URL}/avatar${User.id}`} alt='' height={48} width={48}
+              onError={() => setImageError(true)} unoptimized={true}/>
+          }
         </div>
         <div>
           <p className='text-slate-700'>{User?.fullName}</p>

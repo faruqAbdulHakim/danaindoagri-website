@@ -1,9 +1,16 @@
 import Image from 'next/image';
-import { useState } from 'react';
+import Router from 'next/router';
+import { useState, useRef } from 'react';
 
 import { FiEdit } from 'react-icons/fi';
 
 import EditBiodataModal from './edit-biodata-modal';
+import CommonSuccessModal from '@/components/common/common-success-modal';
+import CommonErrorModal from '@/components/common/common-error-modal';
+import UserFetcher from '@/utils/functions/users-fetcher';
+import CONFIG from '@/global/config';
+
+const { BUCKETS } = CONFIG.SUPABASE;
 
 export default function BiodataTab({ User }) {
   const [isEdit, setIsEdit] = useState('');
@@ -18,7 +25,7 @@ export default function BiodataTab({ User }) {
   return <>
     <div className='sm:flex gap-8'>
       <div>
-        <UserImage />
+        <UserImage User={User} />
       </div>
       <div className='flex flex-col gap-4 w-max mx-auto sm:mx-0'>
         
@@ -149,14 +156,52 @@ export default function BiodataTab({ User }) {
   </>
 }
 
-function UserImage() {
+function UserImage({ User }) {
+  const [imageError, setImageError] = useState(false);
+  const [error, setError] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [fetching, setFetching] = useState(false);
+
+  const fileInputRef = useRef(null);
+
+  const fileInputChange = (event) => {
+    const file = event.target.files[0];
+    setFetching(true);
+    UserFetcher.updateAvatar(User.id, file).then(({ data, error, route }) => {
+      if (route) Router.push(route);
+      else if (error) setError(error);
+      else if (data) setSuccess(data);
+    }).finally(() => {
+      setFetching(false);
+    });
+  }
+
   return <>
     <div className='bg-white p-4 rounded-md shadow-xl shadow-black/5 w-max mx-auto'>
       <div className='relative h-40 w-40 sm:h-44 sm:w-44 font-thin rounded-md overflow-hidden'>
-        <Image src='/assets/images/avatar.png' alt='' layout='fill' objectFit='cover'/>
+        {
+          imageError ?
+          <Image src='/assets/images/avatar.png' alt='' layout='fill' objectFit='cover'/>
+          :
+          <Image src={`${BUCKETS.AVATARS.AVATAR_BASE_URL}/avatar${User.id}`} alt='' layout='fill' objectFit='cover'
+            onError={() => setImageError(true)} unoptimized={true}/>
+        }
       </div>
-      <button className='mt-3 w-full py-2 border hover:bg-slate-100 rounded-md'>Ubah foto</button>
+      <button className='mt-3 w-full py-2 border hover:bg-slate-100 rounded-md'
+        onClick={() => fileInputRef.current.click()} disabled={fetching}>
+        Ubah foto
+      </button>
+      <input ref={fileInputRef} type='file' className='hidden' accept='image/jpeg,image/png'
+        onChange={fileInputChange}/>
     </div>
+    {
+      success && 
+      <CommonSuccessModal onClick={() => Router.reload()} text={success} />
+    }
+    {
+      error &&
+      <CommonErrorModal onClick={() => Router.reload()} text={error} />
+    }
   </>
 }
 

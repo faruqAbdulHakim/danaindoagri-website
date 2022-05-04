@@ -5,6 +5,8 @@ const API_ENDPOINT = {
   USERS_PROFILE_UPDATE: '/api/users/update',
   USERS_CHANGE_PASSWORD: '/api/users/change-password',
   USERS_CHANGE_ADDRESS: '/api/users/change-address',
+  USERS_UPDATE_AVATAR: (userId) => 
+    `/api/users/update-avatar?userId=${userId}`,
   GET_USERS: (roleQuery, searchQuery) => 
     `/api/users/get-users?roleQuery=${roleQuery}&searchQuery=${searchQuery || ''}`,
   MANAGE_EMPLOYEE: (editType, employeeId) => 

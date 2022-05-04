@@ -2,7 +2,7 @@ import supabase from '../supabase';
 
 import CONFIG from '@/global/config';
 
-const { TABLE_NAME } = CONFIG.SUPABASE;
+const { TABLE_NAME, BUCKETS } = CONFIG.SUPABASE;
 
 const UsersHelper = {
   getUserById: async (userId, includeDeleted) => {
@@ -54,7 +54,18 @@ const UsersHelper = {
       .match({ id: userId });
 
     return { data, error };
-  }
+  },
+
+  updateUserAvatar: async (filename, filetype, file) => {
+    const { data, error } = await supabase.storage
+      .from(BUCKETS.AVATARS.BUCKETS_NAME)
+      .upload(filename, file, {
+        upsert: true,
+        contentType: filetype,
+      });
+
+    return { data, error };
+  },
 }
 
 export default UsersHelper;

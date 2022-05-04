@@ -12,8 +12,11 @@ const CONFIG = {
       PRODUCTION: 'produksi',
       OWNER: 'pemilik usaha',
     },
-    RESOURCE_NAME: {
-      USERS: 'users',
+    BUCKETS: {
+      AVATARS: {
+        BUCKETS_NAME: 'avatars',
+        AVATAR_BASE_URL: 'https://zjksleeilkmawgxpibva.supabase.co/storage/v1/object/public/avatars',
+      },
     },
   },
   JWT: {

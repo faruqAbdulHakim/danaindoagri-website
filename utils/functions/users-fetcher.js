@@ -70,6 +70,27 @@ const UserFetcher = {
     })
     return {data, error, route};
   },
+
+  updateAvatar: async (userId, file) => {
+    let data, error, route;
+    const formData = new FormData();
+    formData.append('file', file);
+    console.log('masuk')
+    await fetch(API_ENDPOINT.USERS_UPDATE_AVATAR(userId), {
+      method: 'PUT',
+      body: formData,
+    }).then((res) => {
+      return res.json();
+    }).then((resJson) => {
+      if (resJson.status === 200) data = resJson.message;
+      else if (resJson.status === 300) route = resJson.location;
+      else error = resJson.message;
+    }).catch((e) => {
+      error = e.message;
+    })
+    console.log('keluar')
+    return { data, error, route };
+  },
 }
 
 export default UserFetcher;
