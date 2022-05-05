@@ -1,11 +1,14 @@
 import authMiddleware from '@/utils/middleware/auth-middleware';
 import CONFIG from '@/global/config';
 import OrganizationLayout from '@/components/layouts/organization-layout';
+import ProductList from '@/components/screens/org/products/products-list';
+
+const { ROLE_NAME } = CONFIG.SUPABASE;
 
 export default function Products({ User }) {
   return <>
     <OrganizationLayout User={User}>
-
+      <ProductList />
     </OrganizationLayout>
   </>
 }
@@ -22,11 +25,20 @@ export async function getServerSideProps({ req, res }) {
     }
   }
   
-  const { ROLE_NAME } = CONFIG.SUPABASE;
-  if (User?.role?.roleName === ROLE_NAME.CUSTOMERS) {
+  const roleName = User?.role?.roleName;
+  if (roleName === ROLE_NAME.CUSTOMERS) {
     return {
       redirect: {
         destination: '/customer/profile',
+        permanent: false,
+      },
+      props: {},
+    }
+  }
+  if (roleName !== ROLE_NAME.MARKETING) {
+    return {
+      redirect: {
+        destination: '/',
         permanent: false,
       },
       props: {},
