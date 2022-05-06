@@ -5,6 +5,7 @@ const CONFIG = {
     TABLE_NAME: {
       USERS: 'users',
       ROLE: 'role',
+      PRODUCTS: 'products',
     },
     ROLE_NAME: {
       CUSTOMERS: 'customer',
@@ -16,6 +17,10 @@ const CONFIG = {
       AVATARS: {
         BUCKETS_NAME: 'avatars',
         AVATAR_BASE_URL: 'https://zjksleeilkmawgxpibva.supabase.co/storage/v1/object/public/avatars',
+      },
+      PRODUCTS: {
+        BUCKETS_NAME: 'products',
+        PRODUCTS_BASE_URL: 'https://zjksleeilkmawgxpibva.supabase.co/storage/v1/object/public/products'
       },
     },
   },

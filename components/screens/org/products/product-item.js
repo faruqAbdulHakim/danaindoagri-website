@@ -1,12 +1,18 @@
 import Image from 'next/image';
 import Link from 'next/link';
 
+import CONFIG from '@/global/config';
+
+const { PRODUCTS_BASE_URL } = CONFIG.SUPABASE.BUCKETS.PRODUCTS;
+
 export default function ProductItem({ product }) {
   return <>
-    <div className='bg-slate-50 hover:bg-slate-100
+    <div className='bg-slate-100 hover:bg-slate-200
       rounded-lg p-6 max-w-[280px] w-full transition-all'>
-      <div className='h-32 w-32 relative rounded-full overflow-hidden mx-auto'>
-        <Image src={product.imgUrl} alt='' layout='fill' objectFit='cover' objectPosition='center'
+      <div className='h-32 w-32 relative rounded-full overflow-hidden mx-auto bg-white'>
+        <Image src={`${PRODUCTS_BASE_URL}/${product.imgUrl}`} alt='' layout='fill' 
+          objectFit='cover' objectPosition='center'
+          unoptimized={true}
         />
       </div>
       <h2 className='text-center mt-8 font-semibold'>

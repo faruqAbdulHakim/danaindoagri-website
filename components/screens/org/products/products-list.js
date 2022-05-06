@@ -1,63 +1,34 @@
 import Link from 'next/link';
+import Router from 'next/router';
 import { useState, useEffect } from 'react';
 
 import { FiSearch } from 'react-icons/fi';
 
 import ProductItem from './product-item';
+import ProductsFetcher from '@/utils/functions/products-fetcher';
+import CommonErrorModal from '@/components/common/common-error-modal';
 
 export default function ProductList() {
   const [searchVal, setSearchVal] = useState('');
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
+  const [fetching, setFetching] = useState(true);
+  const [error, setError] = useState('');
 
   const searchInputHandler = (event) => {
     setSearchVal(event.target.value);
   }
 
   useEffect(() => {
-    const DUMMY_DATA = [
-      {
-        id: 1,
-        name: 'Pupuk Organik Cair',
-        size: '200 ml',
-        stock: 230,
-        price: 150000,
-        imgUrl: 'https://picsum.photos/200',
-      },
-      {
-        id: 2,
-        name: 'Pupuk Organik Kering',
-        size: '200 ml',
-        stock: 230,
-        price: 150000,
-        imgUrl: 'https://picsum.photos/200',
-      },
-      {
-        id: 3,
-        name: 'Pupuk Xpander',
-        size: '200 ml',
-        stock: 230,
-        price: 150000,
-        imgUrl: 'https://picsum.photos/200',
-      },
-      {
-        id: 4,
-        name: 'Mobil Honda',
-        size: '200 ml',
-        stock: 230,
-        price: 150000,
-        imgUrl: 'https://picsum.photos/200',
-      },
-      {
-        id: 5,
-        name: 'Pupuk wow',
-        size: '200 ml',
-        stock: 230,
-        price: 150000,
-        imgUrl: 'https://picsum.photos/200',
-      },
-    ];
-    setProducts(DUMMY_DATA);
+    ProductsFetcher.fetchAllProducts().then(({ data, error, route }) => {
+      if (data) setProducts(data);
+      else if (error) setError(error);
+      else if (route) Router.push(route);
+    }).catch((e) => {
+      setError(e.message);
+    }).finally(() => {
+      setFetching(false);
+    });
   }, []);
 
   useEffect(() => {
@@ -83,7 +54,7 @@ export default function ProductList() {
             <FiSearch />
           </div>
         </form>
-        <Link href='/'>
+        <Link href='/org/products/add-product'>
           <a className='bg-primary text-white px-4 py-2 block leading-relaxed rounded-lg
             hover:opacity-70 active:opacity-40 transition-all'>
             Tambah Produk
@@ -93,12 +64,20 @@ export default function ProductList() {
       <div className='mt-4 grid md:grid-cols-2 xl:grid-cols-3 justify-items-center gap-8
         max-h-[calc(100vh-240px)] overflow-auto border rounded-lg p-4 bg-white/40 shadow-md'>
         {
+          fetching &&
+          <p>Loading ... </p>
+        }
+        {
           filteredProducts.map((product) => {
             return <ProductItem product={product} key={product.id}/>
           })
         }
       </div>
     </div>
+    {
+      error &&
+      <CommonErrorModal text={error} onClick={() => setError('')}/>
+    }
   </>
 }
 

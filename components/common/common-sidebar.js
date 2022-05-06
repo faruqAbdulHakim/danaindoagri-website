@@ -62,7 +62,7 @@ function generateNavLink(NavLink, pathname) {
   return <>
     {Object.entries(NavLink).map(([key, val]) => {
       const { Icon } = val;
-      const isActive = pathname === val.location;
+      const isActive = pathname.includes(val.location);
       return <div key={key} className='relative'>
         {isActive &&
         <div className='bg-white h-2 w-full absolute -top-2 left-0'>

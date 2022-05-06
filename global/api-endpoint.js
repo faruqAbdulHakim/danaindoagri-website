@@ -11,6 +11,8 @@ const API_ENDPOINT = {
     `/api/users/get-users?roleQuery=${roleQuery}&searchQuery=${searchQuery || ''}`,
   MANAGE_EMPLOYEE: (editType, employeeId) => 
     `/api/owner/manage-employee?editType=${editType || ''}&employeeId=${employeeId || ''}`,
+  GET_PRODUCTS: '/api/products',
+  ADD_PRODUCT: '/api/products',
 }
 
 export default API_ENDPOINT;
