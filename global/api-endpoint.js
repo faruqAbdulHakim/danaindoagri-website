@@ -13,6 +13,8 @@ const API_ENDPOINT = {
     `/api/owner/manage-employee?editType=${editType || ''}&employeeId=${employeeId || ''}`,
   GET_PRODUCTS: '/api/products',
   ADD_PRODUCT: '/api/products',
+  UPDATE_PRODUCT: (productId, productImgUrl) => 
+    `/api/products?productId=${productId || ''}&productImgUrl=${productImgUrl || ''}`,
 }
 
 export default API_ENDPOINT;

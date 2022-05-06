@@ -10,7 +10,7 @@ const ProductsFetcher = {
     }).then((resJson) => {
       if (resJson.status === 200) data = resJson.data;
       else if (resJson.status === 400) error = resJson.message;
-      else if (resJson.status === 300) route = resJson.route;
+      else if (resJson.status === 300) route = resJson.location;
     }).catch((e) => {
       error = e.message;
     })
@@ -29,7 +29,25 @@ const ProductsFetcher = {
     }).then((resJson) => {
       if (resJson.status === 201) data = resJson.message;
       else if (resJson.status === 400) error = resJson.message;
-      else if (resJson.status === 300) route = resJson.route;
+      else if (resJson.status === 300) route = resJson.location;
+    }).catch((e) => {
+      error = e.message;
+    })
+
+    return { data, error, route };
+  },
+
+  updateProduct: async (productId, productImgUrl, formData) => {
+    let data, error, route;
+    await fetch(API_ENDPOINT.UPDATE_PRODUCT(productId, productImgUrl), {
+      method: 'PUT',
+      body: formData,
+    }).then((res) => {
+      return res.json();
+    }).then((resJson) => {
+      if (resJson.status === 200) data = resJson.message;
+      else if (resJson.status === 400) error = resJson.message;
+      else if (resJson.status === 300) route = resJson.location;
     }).catch((e) => {
       error = e.message;
     })

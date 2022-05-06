@@ -69,7 +69,7 @@ export default function ProductList() {
         }
         {
           filteredProducts.map((product) => {
-            return <ProductItem product={product} key={product.id}/>
+            return <ProductItem Product={product} key={product.id}/>
           })
         }
       </div>

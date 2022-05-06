@@ -94,6 +94,71 @@ handler.post(async (req, res) => {
   }
 })
 
+handler.put(async (req, res) => {
+  try {
+    const { files, body, cookies, query } = req;
+
+    const { accessToken, refreshToken } = cookies;
+    const { User, error: getUserError } = await AuthHelper.getUser(accessToken, refreshToken);
+    if (getUserError) {
+      res.setHeader('set-cookie', [
+        `accessToken=delete; Path=/; Max-Age=0`,
+        `refreshToken=delete; Path=/; Max-Age=0`
+      ]);
+      return res.status(300).json({status: 300, message: 'JWT ERROR', location: '/login'})
+    }
+    const role = User?.role?.roleName;
+    if (role !== ROLE_NAME.MARKETING) {
+      return res.status(300).json({status: 300, message: 'Tidak Memiliki hak akses', location: '/'})
+    }
+
+    if (Object.entries(files).length === 0) {
+      return res.status(400).json({status: 400, message: 'Pilih foto terlebih dahulu'})
+    }
+
+    const someBodyIsNull = Object.values(body).some((val) => val === '');
+    if (someBodyIsNull) {
+      return res.status(400).json({status: 400, message: 'Lengkapi formulir'});
+    }
+
+    const {filepath, mimetype, size} = files.file;
+    if (size > 1024 * 1024) {
+      return res.status(400).json({status: 400, message: 'Maksimal file gambar berukuran 1MB'});
+    }
+
+    // update image = 1) delete image, 2) upload image
+    const { productId, productImgUrl } = query;
+    if (productImgUrl === '') {
+      return res.status(400).json({status: 400, message: '[SERVER] productImgUrl undefined'})
+    }
+
+    const { error: deleteImageError } = await ProductsHelper.deleteImage(productImgUrl);
+    if (deleteImageError) {
+      return res.status(400).json({status: 400, message: 'Gagal mengubah data [DELETE IMAGE ERROR]'})
+    }
+
+    const fileName = `products${new Date().getTime()}`;
+    const rawData = fs.readFileSync(filepath);
+    const { data, error: uploadImageError } = await ProductsHelper.uploadImage(rawData, fileName, mimetype);
+    if (uploadImageError) {
+      return res.status(400).json({status: 400, message: 'Gagal mengupload gambar produk'});
+    }
+    const Product = {
+      ...body,
+      imgUrl: data.Key.split('/').pop(),
+    };
+
+    const { error: updateProductError } = await ProductsHelper.updateProduct(productId, Product);
+    if (updateProductError) {
+      return res.status(400).json({status: 400, message: 'Gagal mengubah data produk ke tabel database'});
+    }
+
+    res.status(200).json({status: 200, message: 'Berhasil mengubah data produk'});
+  } catch (e) {
+    res.status(400).json({status: 400, message: e.message});
+  }
+})
+
 export const config = {
   api: {
     bodyParser: false,

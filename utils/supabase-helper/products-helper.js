@@ -11,6 +11,16 @@ const ProductsHelper = {
     return { data, error };
   },
 
+  
+  getProductById: async(productId) => {
+    const { data, error } = await supabase.from(TABLE_NAME.PRODUCTS)
+      .select('*')
+      .eq('id', productId)
+      .single();
+    
+    return { data, error };
+  },
+
 
   uploadImage: async (file, filename, filetype) => {
     const { data, error } = await supabase.storage
@@ -24,10 +34,28 @@ const ProductsHelper = {
   },
 
 
+  deleteImage: async (productImgUrl) => {
+    const { data, error } = await supabase.storage
+      .from(BUCKETS.PRODUCTS.BUCKETS_NAME)
+      .remove([productImgUrl]);
+    
+    return { data, error };
+  },
+
+
   addProduct: async (Product) => {
     const { data, error } = await supabase.from(TABLE_NAME.PRODUCTS)
       .insert([Product]);
 
+    return { data, error };
+  },
+
+  
+  updateProduct: async(productId, Product) => {
+    const { data, error } = await supabase.from(TABLE_NAME.PRODUCTS)
+      .update(Product)
+      .match({ id: productId });
+    
     return { data, error };
   }
 }
