@@ -68,7 +68,7 @@ export default function EditProductForm({ Product }) {
       <form className='bg-white/20 rounded-lg border shadow-md p-6 h-full max-h-[calc(100vh-140px)] overflow-auto'
         onSubmit={submitHandler}>
         <h1 className='text-2xl font-semibold'>
-          Tambah Produk
+          Ubah Produk
         </h1>
         <div className='flex gap-6 mt-6'>
           <div className='p-4 shadow-lg rounded-lg h-max'>
