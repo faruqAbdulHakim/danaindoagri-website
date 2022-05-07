@@ -7,7 +7,8 @@ const { PRODUCTS_BASE_URL } = CONFIG.SUPABASE.BUCKETS.PRODUCTS;
 
 export default function ProductItem({ Product }) {
   return <>
-    <div className='bg-slate-100 hover:bg-slate-200
+  <Link href={`/org/products/${Product.id}`}>
+    <a className='bg-slate-100 hover:shadow-md
       rounded-lg p-6 max-w-[280px] w-full transition-all'>
       <div className='h-32 w-32 relative rounded-full overflow-hidden mx-auto bg-white'>
         <Image src={`${PRODUCTS_BASE_URL}/${Product.imgUrl}`} alt='' layout='fill' 
@@ -39,6 +40,7 @@ export default function ProductItem({ Product }) {
           </a>
         </Link>
       </div>
-    </div>
+    </a>
+  </Link>
   </>
 }
