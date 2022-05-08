@@ -7,8 +7,11 @@ import { FiSearch } from 'react-icons/fi';
 import ProductItem from './product-item';
 import ProductsFetcher from '@/utils/functions/products-fetcher';
 import CommonErrorModal from '@/components/common/common-error-modal';
+import CONFIG from '@/global/config';
 
-export default function ProductList() {
+const { ROLE_NAME } = CONFIG.SUPABASE;
+
+export default function ProductList({ userRole }) {
   const [searchVal, setSearchVal] = useState('');
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
@@ -54,13 +57,17 @@ export default function ProductList() {
             <FiSearch />
           </div>
         </form>
-        <Link href='/org/products/add-product'>
-          <a className='bg-primary text-white px-4 py-2 block leading-relaxed rounded-lg
-            hover:opacity-70 active:opacity-40 transition-all'>
-            Tambah Produk
-          </a>
-        </Link>
+        {
+          userRole === ROLE_NAME.MARKETING &&
+          <Link href='/org/products/add-product'>
+            <a className='bg-primary text-white px-4 py-2 block leading-relaxed rounded-lg
+              hover:opacity-70 active:opacity-40 transition-all'>
+              Tambah Produk
+            </a>
+          </Link>
+        }
       </div>
+
       <div className='mt-4 grid md:grid-cols-2 xl:grid-cols-3 justify-items-center gap-8
         max-h-[calc(100vh-240px)] overflow-auto border rounded-lg p-4 bg-white/40 shadow-md'>
         {
@@ -69,7 +76,7 @@ export default function ProductList() {
         }
         {
           filteredProducts.map((product) => {
-            return <ProductItem Product={product} key={product.id}/>
+            return <ProductItem Product={product} userRole={userRole} key={product.id}/>
           })
         }
       </div>

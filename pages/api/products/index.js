@@ -27,7 +27,7 @@ handler.get(async (req, res) => {
       return res.status(300).json({status: 300, message: 'JWT ERROR', location: '/login'})
     }
     const role = User?.role?.roleName;
-    if (role !== ROLE_NAME.MARKETING) {
+    if (role !== ROLE_NAME.MARKETING && role !== ROLE_NAME.OWNER) {
       return res.status(300).json({status: 300, message: 'Tidak Memiliki hak akses', location: '/'})
     }
 

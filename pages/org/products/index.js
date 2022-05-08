@@ -8,7 +8,7 @@ const { ROLE_NAME } = CONFIG.SUPABASE;
 export default function Products({ User }) {
   return <>
     <OrganizationLayout User={User}>
-      <ProductList />
+      <ProductList userRole={User?.role?.roleName} />
     </OrganizationLayout>
   </>
 }
@@ -35,7 +35,7 @@ export async function getServerSideProps({ req, res }) {
       props: {},
     }
   }
-  if (roleName !== ROLE_NAME.MARKETING) {
+  if (roleName !== ROLE_NAME.MARKETING && roleName !== ROLE_NAME.OWNER) {
     return {
       redirect: {
         destination: '/',

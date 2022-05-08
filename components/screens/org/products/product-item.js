@@ -3,9 +3,10 @@ import Link from 'next/link';
 
 import CONFIG from '@/global/config';
 
-const { PRODUCTS_BASE_URL } = CONFIG.SUPABASE.BUCKETS.PRODUCTS;
+const { ROLE_NAME, BUCKETS } = CONFIG.SUPABASE;
+const { PRODUCTS_BASE_URL } = BUCKETS.PRODUCTS;
 
-export default function ProductItem({ Product }) {
+export default function ProductItem({ Product, userRole }) {
   return <>
   <Link href={`/org/products/${Product.id}`}>
     <a className='bg-slate-100 hover:shadow-md
@@ -32,14 +33,19 @@ export default function ProductItem({ Product }) {
           </p>
         </div>
       </div>
-      <hr className='mt-4'/>
-      <div className='mt-6 mx-auto w-max'>
-        <Link href={`/org/products/edit-product/${Product.id}`}>
-          <a className='bg-primary text-white px-8 py-3 rounded-full hover:opacity-70 active:opacity-40 transition-all'>
-            Ubah
-          </a>
-        </Link>
-      </div>
+      {
+        userRole === ROLE_NAME.MARKETING &&
+        <>
+          <hr className='mt-4'/>
+          <div className='mt-6 mx-auto w-max'>
+            <Link href={`/org/products/edit-product/${Product.id}`}>
+              <a className='bg-primary text-white px-8 py-3 rounded-full hover:opacity-70 active:opacity-40 transition-all'>
+                Ubah
+              </a>
+            </Link>
+          </div>
+        </>
+      }
     </a>
   </Link>
   </>
