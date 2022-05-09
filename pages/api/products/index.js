@@ -15,22 +15,6 @@ handler.use(multipartFormParser);
 
 handler.get(async (req, res) => {
   try {
-    const { cookies } = req;
-
-    const { accessToken, refreshToken } = cookies;
-    const { User, error: getUserError } = await AuthHelper.getUser(accessToken, refreshToken);
-    if (getUserError) {
-      res.setHeader('set-cookie', [
-        `accessToken=delete; Path=/; Max-Age=0`,
-        `refreshToken=delete; Path=/; Max-Age=0`
-      ]);
-      return res.status(300).json({status: 300, message: 'JWT ERROR', location: '/login'})
-    }
-    const role = User?.role?.roleName;
-    if (role !== ROLE_NAME.MARKETING && role !== ROLE_NAME.OWNER) {
-      return res.status(300).json({status: 300, message: 'Tidak Memiliki hak akses', location: '/'})
-    }
-
     const { data, error } = await ProductsHelper.getAllProducts();
     if (error) {
       return res.status(400).json({status: 400, message: 'Gagal mendapatkan data products'})

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/router';
 import { useState } from 'react';
 
 import { FiMenu, FiX } from 'react-icons/fi';
@@ -19,19 +20,19 @@ export default function CommonAppbar({ User }) {
     },
     {
       text: 'Produk',
-      urlPath: '/'
+      urlPath: '/products'
     },
     {
       text: 'Pesan',
-      urlPath: '/'
+      urlPath: '/a'
     },
     {
       text: 'Keranjang',
-      urlPath: '/'
+      urlPath: '/a'
     },
     {
       text: 'Hubungi',
-      urlPath: '/'
+      urlPath: '/a'
     },
   ]
 
@@ -99,12 +100,18 @@ function DesktopNav({ navLinkList, User }) {
 }
 
 function NavLink({ text, urlPath, idx}) {
+  const router = useRouter();
+  const { pathname } = router;
+
+  let isActive = pathname.includes(urlPath);
+  if (urlPath === '/') isActive = pathname === urlPath;
+
   return <>
     <motion.li
     initial={{opacity: 0, y: -10}}
     whileInView={{opacity: 1, y: 0}}
     transition={{duration: .5, delay: .2 + (idx * .15)}}
-    className='first:text-primary hover:text-primary'>
+    className={`hover:text-primary ${isActive && 'text-primary'}`}>
       <Link href={urlPath}>
           <a className='hover:underline active:opacity-50'>
             {text}
