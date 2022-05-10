@@ -1,7 +1,6 @@
-export default function handler(req, res) {
-  res.setHeader('set-cookie', [
-    `accessToken=delete; Path=/; Max-Age=0`,
-    `refreshToken=delete; Path=/; Max-Age=0`
-  ]);
+import CookiesHelper from '@/utils/functions/cookies-helper'
+
+export default function handler(_, res) {
+  CookiesHelper.clearToken();
   res.status(300).json({status: 300, message: 'logout sukses', location: '/'})
 }

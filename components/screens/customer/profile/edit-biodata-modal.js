@@ -2,53 +2,42 @@ import Router from 'next/router';
 import { useRef, useState } from 'react';
 
 import CommonModal from '@/components/common/common-modal';
-import API_ENDPOINT from '@/global/api-endpoint';
 import CommonErrorModal from '@/components/common/common-error-modal';
 import CommonSuccessModal from '@/components/common/common-success-modal';
+import UserFetcher from '@/utils/functions/users-fetcher';
 
 export default function EditBiodataModal({ headingText, defaultValue, closeModalHandler, name }) {
   const inputRef = useRef(null);
-  const [isSubmiting, setIsSubmiting] = useState(false);
-  const [isEditSuccess, setIsEditSucces] = useState(false);
-  const [editError, setEditError] = useState('');
+  const [fetching, setFetching] = useState(false);
+  const [success, setSuccess] = useState('');
+  const [error, setError] = useState('');
 
   const formSubmitHandler = (event) => {
     event.preventDefault();
-    setIsSubmiting(true);
+    setFetching(true);
     
-    const httpReqBody = {name: name, value: inputRef.current.value}
-    fetch(API_ENDPOINT.USERS_PROFILE_UPDATE, {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify(httpReqBody),
-    }).then((res) => {
-      return res.json()
-    }).then((resJson) => {
-      if (resJson.status === 200) {
-        setIsEditSucces(true);
-      } else if (resJson.status === 400) {
-        setEditError(resJson.message);
-      } else if (resJson.status === 300) {
-        Router.push(resJson.location);
-      }
-    }).catch(() => {
+    const body = {name: name, value: inputRef.current.value};
+    UserFetcher.updateUser(body).then(({ data, error, route }) => {
+      if (data) setSuccess(data);
+      else if (error) setError(error);
+      else if (route) Router.push(route);
+    }).catch((e) => {
+      setError(e.message);
     }).finally(() => {
-      setIsSubmiting(false);
+      setFetching(false);
     })
   }
 
   return <>
-    {editError &&
-    <CommonErrorModal onClick={() => setEditError('')} text={editError}/>
+    {error &&
+    <CommonErrorModal onClick={() => setError('')} text={error}/>
     }
 
-    {isEditSuccess &&
-    <CommonSuccessModal onClick={() => {Router.reload()}} text="Data berhasil diubah"/>
+    {success &&
+    <CommonSuccessModal onClick={() => {Router.reload()}} text={success}/>
     }
 
-    {!editError && !isEditSuccess &&
+    {!error && !success &&
     <CommonModal>
       <form className='sm:px-16 sm:py-8' onSubmit={formSubmitHandler}>
         <p className='text-xl font-semibold text-center'>
@@ -87,14 +76,14 @@ export default function EditBiodataModal({ headingText, defaultValue, closeModal
             className='bg-gray-400 hover:bg-red-600 disabled:hover:bg-gray-400 w-28 py-3 rounded-full text-white 
             transition-all duration-200'
             onClick={closeModalHandler}
-            disabled={isSubmiting}
+            disabled={fetching}
           >
             Batal
           </button>
           <button type='submit' 
             className='bg-gradient-to-br from-primary to-primary/40 hover:to-primary/70 disabled:from-gray-400 
             disabled:to-gray-200 w-28 py-3 rounded-full text-white transition-all duration-200'
-            disabled={isSubmiting}
+            disabled={fetching}
           >
             Simpan
           </button>

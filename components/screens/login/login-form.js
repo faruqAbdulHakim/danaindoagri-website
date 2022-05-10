@@ -5,15 +5,15 @@ import { useState } from 'react';
 
 import CommonLabel from '@/components/common/common-label';
 import CommonInput from '@/components/common/common-input';
-import API_ENDPOINT from '@/global/api-endpoint';
+import AuthFetcher from '@/utils/functions/auth-fetcher';
 
 export default function LoginForm() {
   const [formValues, setFormValues] = useState({
     email: '',
     password: ''
   });
-  const [formError, setFormError] = useState('');
-  const [isSubmiting, setIsSubmiting] = useState(false);
+  const [error, setError] = useState('');
+  const [fetching, setFetching] = useState(false);
 
   const inputHandler = (event) => {
     setFormValues({
@@ -24,31 +24,17 @@ export default function LoginForm() {
 
   const submitHandler = (event) => {
     event.preventDefault();
-    
-    setIsSubmiting(true);
+    setFetching(true);
 
-    if (formError !== '') setFormError('');
-
-    fetch(API_ENDPOINT.LOGIN, {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify(formValues),
-    }).then((res) => {
-      return res.json();
-    }).then((resJson) => {
-      if (resJson.status === 400) {
-        setFormError(resJson.message);
-      } else if (resJson.status === 300) {
-        Router.push(resJson['location']);
-      }
-    }).catch(() => {
-      setFormError('Terjadi Kesalahan di sisi Server!!!');
+    if (error !== '') setError('');
+    AuthFetcher.login(formValues).then(({ error, route }) => {
+      if (error) setError(error);
+      else if (route) Router.push(route);
+    }).catch((e) => {
+      setError(e.message);
     }).finally(() => {
-      setIsSubmiting(false);
+      setFetching(false);
     })
-
   }
 
   return <>
@@ -60,7 +46,7 @@ export default function LoginForm() {
         <h1 className='text-3xl'>Masuk</h1>
 
         {/* error message (return from server) */}
-        {formError && <p className='text-red-600'>{formError}</p>}
+        {error && <p className='text-red-600'>{error}</p>}
 
         {/* Login Form */}
         <form className='flex flex-col gap-4 mt-4' onSubmit={submitHandler}>
@@ -86,7 +72,7 @@ export default function LoginForm() {
             tracking-wider px-4 py-3 font-semibold hover:opacity-70 active:opacity-40 
             disabled:bg-slate-600 disabled:ring-slate-600 disabled:hover:opacity-100 disabled:active:opacity-100
             transition-all'
-            disabled={isSubmiting}
+            disabled={fetching}
           >
             Masuk
           </button>

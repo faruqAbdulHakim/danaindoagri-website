@@ -5,6 +5,7 @@ import nextConnect from 'next-connect';
 import multipartFormParser from '@/utils/middleware/multipart-form-parser';
 import UsersHelper from '@/utils/supabase-helper/users-helper';
 import AuthHelper from '@/utils/supabase-helper/auth-helper';
+import authMiddleware from '@/utils/middleware/auth-middleware';
 
 const handler = nextConnect();
 
@@ -12,26 +13,21 @@ handler.use(multipartFormParser);
 
 handler.put(async (req, res) => {
   try {
-    const { files, query, cookies } = req;
+    const { files, query } = req;
 
     const {filepath, mimetype, size} = files.file;
     if (size > 1024 * 1024) {
-      return res.status(400).json({status: 400, message: 'Maksimal file gambar berukuran 1MB'});
+      throw new Error('Maksimal file gambar berukuran 1MB');
     }
 
     const { userId } = query;
-    const { accessToken, refreshToken } = cookies;
-    const { User, error: getUserError } = await AuthHelper.getUser(accessToken, refreshToken);
-    if (getUserError) {
-      res.setHeader('set-cookie', [
-        `accessToken=delete; Path=/; Max-Age=0`,
-        `refreshToken=delete; Path=/; Max-Age=0`
-      ]);
-      return res.status(300).json({status: 300, message: 'JWT ERROR', location: '/login'})
+    const { User } = await authMiddleware(req, res);
+    if (!User) {
+      return res.status(300).json({status: 300, message: 'JWT ERROR', location: '/login'});
     }
 
     if (User.id !== parseInt(userId)) {
-      return res.status(400).json({status: 400, message: 'user id tidak cocok'})
+      throw new Error('user id tidak cocok');
     }
 
     const fileName = `avatar${userId}`;
@@ -39,7 +35,7 @@ handler.put(async (req, res) => {
     const { error } = await UsersHelper.updateUserAvatar(fileName, mimetype, rawData)
 
     if (error) {
-      return res.status(400).json({status: 400, message: 'Gagal mengupload gambar ke database'});
+      throw new Error('Gagal mengupload gambar ke database');
     }
 
     res.status(200).json({status: 200, message: 'Berhasil mengubah avatar'});

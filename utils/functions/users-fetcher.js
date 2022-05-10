@@ -6,13 +6,9 @@ const UserFetcher = {
     await fetch(API_ENDPOINT.GET_USERS(roleQuery, searchQuery)).then((res) => {
       return res.json();
     }).then((resJson) => {
-      if (resJson.status === 200) {
-        data = resJson.data;
-      } else if (resJson === 300) {
-        route = resJson.location;
-      } else {
-        error = resJson.message;
-      }
+      if (resJson.status === 200) data = resJson.data;
+      else if (resJson.status === 300) route = resJson.location;
+      else if (resJson.status === 400) error = resJson.message;
     }).catch((e) => {
       error = e.message;
     })
@@ -30,13 +26,9 @@ const UserFetcher = {
     }).then((res) => {
       return res.json()
     }).then((resJson) => {
-      if (resJson.status === 201) {
-        data = resJson.message;
-      } else if (resJson.status === 300) {
-        route = resJson.location;
-      } else {
-        error = resJson.message;
-      }
+      if (resJson.status === 201) data = resJson.message;
+      else if (resJson.status === 300) route = resJson.location;
+      else if (resJson.status === 400) error = resJson.message;
     }).catch((e) => {
       error = e.message;
     })
@@ -58,24 +50,40 @@ const UserFetcher = {
     }).then((res) => {
       return res.json();
     }).then((resJson) => {
-      if (resJson.status === 200) {
-        data = resJson.message;
-      } else if (resJson.status === 300) {
-        route = resJson.location;
-      } else {
-        error = resJson.message;
-      }
+      if (resJson.status === 200) data = resJson.message; 
+      else if (resJson.status === 300) route = resJson.location;
+      else if (resJson.status === 400) error = resJson.message;
     }).catch((e) => {
       error = e.message;
     })
-    return {data, error, route};
+    return { data, error, route };
+  },
+
+  updateUser: async (body) => {
+    let data, error, route;
+    await fetch(API_ENDPOINT.USERS_PROFILE_UPDATE, {
+      method: 'PUT',
+      headers: {
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    }).then((res) => {
+      return res.json()
+    }).then((resJson) => {
+      if (resJson.status === 200) data = resJson.message;
+      else if (resJson.status === 400) error = resJson.message ;
+      else if (resJson.status === 300) route = resJson.location;
+    }).catch((e) => {
+      error = e.message;
+    })
+
+    return { data, error, route }
   },
 
   updateAvatar: async (userId, file) => {
     let data, error, route;
     const formData = new FormData();
     formData.append('file', file);
-    console.log('masuk')
     await fetch(API_ENDPOINT.USERS_UPDATE_AVATAR(userId), {
       method: 'PUT',
       body: formData,
@@ -88,7 +96,6 @@ const UserFetcher = {
     }).catch((e) => {
       error = e.message;
     })
-    console.log('keluar')
     return { data, error, route };
   },
 }

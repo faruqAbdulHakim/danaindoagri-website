@@ -1,3 +1,4 @@
+import CookiesHelper from '../functions/cookies-helper';
 import AuthHelper from '../supabase-helper/auth-helper';
 
 const authMiddleware = async (req, res) => {
@@ -5,19 +6,13 @@ const authMiddleware = async (req, res) => {
 
   const { User, error, needUpdate } = await AuthHelper.getUser(accessToken, refreshToken);
   if (error) {
-    res.setHeader('set-cookie', [
-      `accessToken=delete; Path=/; Max-Age=0`,
-      `refreshToken=delete; Path=/; Max-Age=0`
-    ]);
+    CookiesHelper.clearToken();
     return {};
   }
 
   if (needUpdate['isNeed']) {
     const { accessToken, refreshToken } = needUpdate;
-    res.setHeader('set-cookie', [
-      `accessToken=${accessToken}; Path=/;`,
-      `refreshToken=${refreshToken}; Path=/;`
-    ]);
+    CookiesHelper.updateToken(accessToken, refreshToken);
   }
 
   return {User};

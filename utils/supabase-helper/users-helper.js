@@ -48,6 +48,16 @@ const UsersHelper = {
     return { data, error };
   },
 
+
+  updateUserOneField: async (name, value, userId) => {
+    const { data, error } = await supabase.from(TABLE_NAME.USERS)
+      .update({[name]: value})
+      .match({id: userId});
+      
+    return { data, error };
+  },
+
+
   updateUserById: async (form, userId) => {
     const { data, error } = await supabase.from(TABLE_NAME.USERS)
       .update(form)

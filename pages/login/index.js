@@ -38,7 +38,7 @@ export async function getServerSideProps({ req, res }) {
   if (User) {
     return {
       redirect: {
-        destination: '/dashboard',
+        destination: '/org/dashboard',
         permanent: false,
       },
       props: {},
