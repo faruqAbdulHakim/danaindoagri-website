@@ -12,7 +12,7 @@ export default function ProductDetail({ Product }) {
         <h1 className='text-xl font-semibold ml-4'>
           Produk
         </h1>
-        <div className='aspect-square relative w-full max-w-[320px] border mt-4'>
+        <div className='aspect-square relative w-full max-w-[320px] border mt-4 rounded-md overflow-hidden'>
           <Image src={`${PRODUCTS_BASE_URL}/${Product.imgUrl}`} alt={Product.name} layout='fill'
             objectFit='cover' objectPosition='center'/>
         </div>
@@ -57,6 +57,35 @@ export default function ProductDetail({ Product }) {
               {Product.desc}
             </p>
           </div>
+          <div className='py-4 border-b border-slate-500'>
+            <p className='font-semibold w-32'>
+              Harga Grosir
+            </p>
+            {
+              Product.wsPrice.length > 0 ?
+              <>
+                <div className='flex items-center gap-2'>
+                  <span className='w-8'></span>
+                  <p className='w-32'>
+                    qty
+                  </p>
+                  <p>
+                    Harga / barang
+                  </p>
+                </div>
+                {Product.wsPrice.map((price, idx) => {
+                  return <WsPriceList key={price.id} price={price} idx={idx}/>
+                })}
+              </>
+              :
+              <>
+                <p>
+                  Tidak ada harga grosir pada produk ini.
+                </p>
+              </>
+            }
+
+          </div>
         </div>
         <div className='mt-12 ml-auto w-max'>
           <Link href={`/org/products/${Product.id}/review`}>
@@ -67,6 +96,22 @@ export default function ProductDetail({ Product }) {
           </Link>
         </div>
       </div>
+    </div>
+  </>
+}
+
+function WsPriceList({ price, idx }) {
+  return <>
+    <div className='flex items-center gap-2'>
+      <p className='w-8'>
+        {idx}
+      </p>
+      <p className='w-32'>
+        {price.minQty} - {price.maxQty}
+      </p>
+      <p>
+        {price.price}
+      </p>
     </div>
   </>
 }
