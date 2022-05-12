@@ -115,61 +115,100 @@ handler.post(async (req, res) => {
 
 handler.put(async (req, res) => {
   try {
-    const { files, body, cookies, query } = req;
+    const { files, body, query } = req;
 
-    const { accessToken, refreshToken } = cookies;
-    const { User, error: getUserError } = await AuthHelper.getUser(accessToken, refreshToken);
-    if (getUserError) {
-      res.setHeader('set-cookie', [
-        `accessToken=delete; Path=/; Max-Age=0`,
-        `refreshToken=delete; Path=/; Max-Age=0`
-      ]);
+    const { User } = await authMiddleware(req, res);
+    if (!User) {
       return res.status(300).json({status: 300, message: 'JWT ERROR', location: '/login'})
     }
+    
     const role = User?.role?.roleName;
     if (role !== ROLE_NAME.MARKETING) {
       return res.status(300).json({status: 300, message: 'Tidak Memiliki hak akses', location: '/'})
     }
 
-    if (Object.entries(files).length === 0) {
-      return res.status(400).json({status: 400, message: 'Pilih foto terlebih dahulu'})
+    const isImageEdited = Object.entries(files).length !== 0;
+    if (!isImageEdited) {
+      delete body['file'];
     }
 
     const someBodyIsNull = Object.values(body).some((val) => val === '');
     if (someBodyIsNull) {
-      return res.status(400).json({status: 400, message: 'Lengkapi formulir'});
+      throw new Error('Lengkapi formulir');
     }
 
-    const {filepath, mimetype, size} = files.file;
-    if (size > 1024 * 1024) {
-      return res.status(400).json({status: 400, message: 'Maksimal file gambar berukuran 1MB'});
-    }
+    // manage price data
+    const { wsPrice: stringWsPrice, ...productForm} = body;
+    const wsPrice = JSON.parse(stringWsPrice);
+    
+    let latestMaxQty = 1;
+    wsPrice.forEach((X, idx) => {
+      
+      Object.entries(X).forEach(([key,val], idx) => {
+        if (val === '') {
+          throw new Error(`Terdapat inputan kosong pada harga grosir ke ${idx + 1}`);
+        }
+        X[key] = parseInt(X[key]);
+      })
 
-    // update image = 1) delete image, 2) upload image
-    const { productId, productImgUrl } = query;
-    if (productImgUrl === '') {
-      return res.status(400).json({status: 400, message: '[SERVER] productImgUrl undefined'})
-    }
+      if (X.minQty >= X.maxQty) {
+        throw new Error(`Error harga grosir ke ${idx +1}, maximum quantity harus lebih besar`);
+      }
+      if (X.minQty <= latestMaxQty) {
+        throw new Error(`Periksa kembali minimum quantity harga grosir ke ${idx + 1}`);
+      }
+      latestMaxQty = X.maxQty;
+    });
 
-    const { error: deleteImageError } = await ProductsHelper.deleteImage(productImgUrl);
-    if (deleteImageError) {
-      return res.status(400).json({status: 400, message: 'Gagal mengubah data [DELETE IMAGE ERROR]'})
-    }
-
-    const fileName = `products${new Date().getTime()}`;
-    const rawData = fs.readFileSync(filepath);
-    const { data, error: uploadImageError } = await ProductsHelper.uploadImage(rawData, fileName, mimetype);
-    if (uploadImageError) {
-      return res.status(400).json({status: 400, message: 'Gagal mengupload gambar produk'});
-    }
+    // manage product
     const Product = {
-      ...body,
-      imgUrl: data.Key.split('/').pop(),
+      ...productForm,
     };
+
+    const { productId, productImgUrl } = query;
+    if (isImageEdited) {
+      const {filepath, mimetype, size} = files.file;
+      if (size > 1024 * 1024) {
+        throw new Error('Maksimal file gambar berukuran 1MB');
+      }
+      // update image = 1) delete image, 2) upload image
+      if (productImgUrl === '') {
+        throw new Error('[SERVER] productImgUrl undefined');
+      }
+  
+      const { error: deleteImageError } = await ProductsHelper.deleteImage(productImgUrl);
+      if (deleteImageError) {
+        throw new Error('Gagal mengubah data [DELETE IMAGE ERROR]');
+      }
+
+      const fileName = `products${new Date().getTime()}`;
+      const rawData = fs.readFileSync(filepath);
+      const { data: {Key}, error: uploadImageError } = await ProductsHelper.uploadImage(rawData, fileName, mimetype);
+      if (uploadImageError) {
+        throw new Error('Gagal mengupload gambar produk');
+      }
+
+      Product.imgUrl = Key.split('/').pop();
+    }
 
     const { error: updateProductError } = await ProductsHelper.updateProduct(productId, Product);
     if (updateProductError) {
-      return res.status(400).json({status: 400, message: 'Gagal mengubah data produk ke tabel database'});
+      throw new Error('Gagal mengubah data produk ke tabel database');
+    }
+
+    // update wspirce
+    if (wsPrice.length > 0) {
+      wsPrice.forEach((X) => {
+        X.productId = productId;
+      });
+      const { error: deleteProductWsPrice } = await ProductsHelper.deleteProductWsPrice(productId);
+      if (deleteProductWsPrice) {
+        throw new Error('Gagal mengubah harga grosir ke tabel database');
+      }
+      const { error: insertWsPriceError } = await ProductsHelper.addProductWsPrice(wsPrice);
+      if (insertWsPriceError) {
+        throw new Error('Gagal mengubah harga grosir ke tabel database');
+      }
     }
 
     res.status(200).json({status: 200, message: 'Berhasil mengubah data produk'});

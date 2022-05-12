@@ -13,11 +13,22 @@ const ProductsHelper = {
 
   
   getProductById: async(productId) => {
-    const { data, error } = await supabase.from(TABLE_NAME.PRODUCTS)
+    let data, error;
+
+    const { data: Product, error: getProductError } = await supabase.from(TABLE_NAME.PRODUCTS)
       .select('*')
       .eq('id', productId)
       .single();
-    
+
+    if (getProductError) error = getProductError;
+    else {
+      data = Product
+      const {data: wsPrice, error: getWsPriceError } = await supabase.from(TABLE_NAME.PRODUCTS_WSPRICE)
+        .select('*')
+        .eq('productId', Product.id)
+      if (getWsPriceError) error = getWsPriceError;
+      else data.wsPrice = wsPrice;
+    }
     return { data, error };
   },
 
@@ -52,7 +63,7 @@ const ProductsHelper = {
 
 
   addProductWsPrice: async (wsPrice) => {
-    const { data, error }= await supabase.from(TABLE_NAME.PRODUCTS_PRICE)
+    const { data, error }= await supabase.from(TABLE_NAME.PRODUCTS_WSPRICE)
       .insert(wsPrice);
 
     return { data, error };
@@ -65,7 +76,16 @@ const ProductsHelper = {
       .match({ id: productId });
     
     return { data, error };
-  }
+  },
+
+
+  deleteProductWsPrice: async (productId) => {
+    const { data, error } = await supabase.from(TABLE_NAME.PRODUCTS_WSPRICE)
+      .delete()
+      .match({ productId });
+
+    return { data, error };
+  },
 }
 
 export default ProductsHelper;
