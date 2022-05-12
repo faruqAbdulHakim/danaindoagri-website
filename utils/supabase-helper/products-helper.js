@@ -50,6 +50,14 @@ const ProductsHelper = {
     return { data, error };
   },
 
+
+  addProductWsPrice: async (wsPrice) => {
+    const { data, error }= await supabase.from(TABLE_NAME.PRODUCTS_PRICE)
+      .insert(wsPrice);
+
+    return { data, error };
+  },
+
   
   updateProduct: async(productId, Product) => {
     const { data, error } = await supabase.from(TABLE_NAME.PRODUCTS)

@@ -6,7 +6,7 @@ const authMiddleware = async (req, res) => {
 
   const { User, error, needUpdate } = await AuthHelper.getUser(accessToken, refreshToken);
   if (error) {
-    CookiesHelper.clearToken();
+    CookiesHelper.clearToken(res);
     return {};
   }
 

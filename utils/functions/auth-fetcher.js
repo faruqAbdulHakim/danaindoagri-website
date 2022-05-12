@@ -3,7 +3,7 @@ import API_ENDPOINT from '@/global/api-endpoint';
 const AuthFetcher = {
   login: async (formValues) => {
     let error, route;
-    fetch(API_ENDPOINT.LOGIN, {
+    await fetch(API_ENDPOINT.LOGIN, {
       method: 'POST',
       headers: {
         'content-type': 'application/json',

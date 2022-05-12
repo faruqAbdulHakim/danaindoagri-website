@@ -6,6 +6,7 @@ import multipartFormParser from '@/utils/middleware/multipart-form-parser';
 import ProductsHelper from '@/utils/supabase-helper/products-helper';
 import AuthHelper from '@/utils/supabase-helper/auth-helper';
 import CONFIG from '@/global/config';
+import authMiddleware from '@/utils/middleware/auth-middleware';
 
 const { ROLE_NAME } = CONFIG.SUPABASE;
 
@@ -13,7 +14,7 @@ const handler = nextConnect();
 
 handler.use(multipartFormParser);
 
-handler.get(async (req, res) => {
+handler.get(async (_, res) => {
   try {
     const { data, error } = await ProductsHelper.getAllProducts();
     if (error) {
@@ -27,49 +28,83 @@ handler.get(async (req, res) => {
 
 handler.post(async (req, res) => {
   try {
-    const { files, body, cookies } = req;
+    const { files, body } = req;
 
-    const { accessToken, refreshToken } = cookies;
-    const { User, error: getUserError } = await AuthHelper.getUser(accessToken, refreshToken);
-    if (getUserError) {
-      res.setHeader('set-cookie', [
-        `accessToken=delete; Path=/; Max-Age=0`,
-        `refreshToken=delete; Path=/; Max-Age=0`
-      ]);
+    const { User } = await authMiddleware(req, res);
+    if (!User) {
       return res.status(300).json({status: 300, message: 'JWT ERROR', location: '/login'})
     }
+
     const role = User?.role?.roleName;
     if (role !== ROLE_NAME.MARKETING) {
       return res.status(300).json({status: 300, message: 'Tidak Memiliki hak akses', location: '/'})
     }
 
     if (Object.entries(files).length === 0) {
-      return res.status(400).json({status: 400, message: 'Pilih foto terlebih dahulu'})
+      throw new Error('Pilih foto terlebih dahulu');
     }
 
     const someBodyIsNull = Object.values(body).some((val) => val === '');
     if (someBodyIsNull) {
-      return res.status(400).json({status: 400, message: 'Lengkapi formulir'});
+      throw new Error('Lengkapi formulir');
     }
 
+    // manage price data
+    const { wsPrice: stringWsPrice, ...productForm} = body;
+    const wsPrice = JSON.parse(stringWsPrice);
+    
+    let latestMaxQty = 1;
+    wsPrice.forEach((X, idx) => {
+      
+      Object.entries(X).forEach(([key,val], idx) => {
+        if (val === '') {
+          throw new Error(`Terdapat inputan kosong pada harga grosir ke ${idx + 1}`);
+        }
+        X[key] = parseInt(X[key]);
+      })
+
+      if (X.minQty >= X.maxQty) {
+        throw new Error(`Error harga grosir ke ${idx +1}, maximum quantity harus lebih besar`);
+      }
+      if (X.minQty <= latestMaxQty) {
+        throw new Error(`Periksa kembali minimum quantity harga grosir ke ${idx + 1}`);
+      }
+      latestMaxQty = X.maxQty;
+    });
+
+
+    // insert image file
     const {filepath, mimetype, size} = files.file;
     if (size > 1024 * 1024) {
-      return res.status(400).json({status: 400, message: 'Maksimal file gambar berukuran 1MB'});
+      throw new Error('Maksimal file gambar berukuran 1MB');
     }
     const fileName = `products${new Date().getTime()}`;
     const rawData = fs.readFileSync(filepath);
-    const { data, error } = await ProductsHelper.uploadImage(rawData, fileName, mimetype);
-    if (error) {
-      return res.status(400).json({status: 400, message: 'Gagal mengupload gambar produk'});
+    const { data: { Key }, error: uploadFileError } = await ProductsHelper.uploadImage(rawData, fileName, mimetype);
+    if (uploadFileError) {
+      throw new Error('Gagal mengupload gambar produk');
     }
     const Product = {
-      ...body,
-      imgUrl: data.Key.split('/').pop(),
+      ...productForm,
+      imgUrl: Key.split('/').pop(),
     };
 
-    const { error: insertTableError } = await ProductsHelper.addProduct(Product);
-    if (insertTableError) {
-      return res.status(400).json({status: 400, message: 'Gagal menambahkan produk ke tabel database'});
+    // insert product
+    const { data, error: insertProductError } = await ProductsHelper.addProduct(Product);
+    if (insertProductError) {
+      throw new Error('Gagal menambahkan produk ke tabel database');
+    }
+
+    // insert wspirce
+    if (wsPrice.length > 0) {
+      const productId = data[0]?.id;
+      wsPrice.forEach((X) => {
+        X.productId = productId;
+      });
+      const { error: insertWsPriceError } = await ProductsHelper.addProductWsPrice(wsPrice);
+      if (insertWsPriceError) {
+        throw new Error('Gagal menambahkan harga grosir ke tabel database');
+      }
     }
 
     res.status(201).json({status: 201, message: 'Berhasil menambahkan data produk'});

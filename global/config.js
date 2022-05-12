@@ -6,6 +6,7 @@ const CONFIG = {
       USERS: 'users',
       ROLE: 'role',
       PRODUCTS: 'products',
+      PRODUCTS_PRICE: 'productsprice'
     },
     ROLE_NAME: {
       CUSTOMERS: 'customer',
