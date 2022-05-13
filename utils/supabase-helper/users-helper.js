@@ -14,7 +14,19 @@ const UsersHelper = {
       return { data, error }
     }
     const { data, error } = await supabase.from(TABLE_NAME.USERS)
-      .select(`*, ${TABLE_NAME.ROLE}(*)`)
+      .select(`
+        *, 
+        ${TABLE_NAME.ROLE}
+          (*), 
+        ${TABLE_NAME.CITIES}
+          (
+            *, 
+            ${TABLE_NAME.CITIY_TYPE} 
+              (*),
+            ${TABLE_NAME.PROVINCES}
+              (*)
+          )
+      `)
       .eq('id', userId)
       .eq('deleted', false)
       .single();
@@ -29,6 +41,27 @@ const UsersHelper = {
     .ilike('fullName', `%${searchQuery}%`)
     .limit(limit);
   
+    return { data, error };
+  },
+
+  
+  getUserByEmail: async (email) => {
+    const { data, error } = await supabase.from(TABLE_NAME.USERS)
+    .select(`
+      *, 
+      ${TABLE_NAME.ROLE}
+        (*), 
+      ${TABLE_NAME.CITIES}
+        (
+          *, 
+          ${TABLE_NAME.CITIY_TYPE} 
+            (*),
+          ${TABLE_NAME.PROVINCES}
+            (*)
+        )
+    `)
+    .eq('email', email)
+    .single();
     return { data, error };
   },
 

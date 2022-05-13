@@ -6,7 +6,10 @@ const CONFIG = {
       USERS: 'users',
       ROLE: 'role',
       PRODUCTS: 'products',
-      PRODUCTS_WSPRICE: 'productswsprice'
+      PRODUCTS_WSPRICE: 'productswsprice',
+      CITIES: 'cities',
+      CITY_TYPE: 'citytype',
+      PROVINCES: 'provinces',
     },
     ROLE_NAME: {
       CUSTOMERS: 'customer',

@@ -1,6 +1,7 @@
 import bcrpyt from 'bcrypt';
 
 import AuthHelper from '@/utils/supabase-helper/auth-helper';
+import UsersHelper from '@/utils/supabase-helper/users-helper';
 import CookiesHelper from '@/utils/functions/cookies-helper';
 
 export default async function handler(req, res) {
@@ -23,7 +24,7 @@ export default async function handler(req, res) {
     }
 
     ///// login
-    const {data: User} = await AuthHelper.login(formLogin);
+    const {data: User} = await UsersHelper.getUserByEmail(formLogin.email)
     if (!User) {
       throw new Error('Email tidak ditemukan.');
     }
