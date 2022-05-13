@@ -10,7 +10,7 @@ const { PRODUCTS_BASE_URL } = CONFIG.SUPABASE.BUCKETS.PRODUCTS;
 export default function ProductItem({ Product }) {
   const { id, name, imgUrl } = Product;
   return <>
-    <Link href={`/product/${id}`}>
+    <Link href={`/products/${id}`}>
       <a className='bg-[#f5f5f5] p-6 group rounded-md w-full max-w-[260px] aspect-[7/8]
         hover:shadow-md group opacity-70 hover:opacity-100 transition-all duration-500'>
         <h2 className='text-center'>
