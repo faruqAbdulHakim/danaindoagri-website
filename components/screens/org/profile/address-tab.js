@@ -1,12 +1,13 @@
 // reference : customer/profile/address-tab.js
 
 import Router from 'next/router';
-import { useState, useRef } from 'react';
+import { useState, useEffect } from 'react';
 
 import CommonModal from '@/components/common/common-modal';
-import API_ENDPOINT from '@/global/api-endpoint';
 import CommonErrorModal from '@/components/common/common-error-modal';
 import CommonSuccessModal from '@/components/common/common-success-modal';
+import UserFetcher from '@/utils/functions/users-fetcher';
+import AddressFetcher from '@/utils/functions/address-fetcher';
 import CONFIG from '@/global/config';
 
 const { ROLE_NAME } = CONFIG.SUPABASE;
@@ -14,12 +15,17 @@ const { ROLE_NAME } = CONFIG.SUPABASE;
 export default function AddressTab({ User }) {
   const [isEditMode, setIsEditMode] = useState(false);
 
+  const province = User.cities.provinces.province;
+  const cityType = User.cities.citytype.type;
+  const city = User.cities.city
+
   const roleName = User?.role?.roleName;
   const canEdit = roleName !== ROLE_NAME.MARKETING && roleName !== ROLE_NAME.PRODUCTION;
 
   return <>
     <div>
-      <p className='text-lg'>Alamat : {User?.address}</p>
+      <p className='text-lg'>Kabupaten/Kota : {cityType} {city}</p>
+      <p className='text-lg'>Provinsi : {province}</p>
       <p className='text-slate-700'>Kode Pos : {User?.postalCode}</p>
       {
         canEdit && 
@@ -39,58 +45,108 @@ export default function AddressTab({ User }) {
 }
 
 function EditAddressModal({ closeModalHandler }) {
-  const [isSubmiting, setIsSubmiting] = useState(false);
-  const [editError, setEditError] = useState('');
-  const [isEditSuccess, setIsEditSucces] = useState(false);
-  const addressRef = useRef(null);
-  const postalCodeRef = useRef(null);
+  const [formValues, setFormValues] = useState({
+    provinceId: '',
+    cityId: '',
+    postalCode: '',
+  });
+  const [provinceList, setProvinceList] = useState([]);
+  const [cityList, setCityList] = useState([]);
+  const [fetching, setFetching] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   const submitHandler = (event) => {
     event.preventDefault();
-    setIsSubmiting(true);
+    setFetching(true);
 
-    const formValue = {
-      address: addressRef.current.value,
-      postalCode: postalCodeRef.current.value,
-    }
-    fetch(API_ENDPOINT.USERS_CHANGE_ADDRESS, {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify(formValue),
-    }).then((res) => {
-      return res.json();
-    }).then((resJson) => {
-      if (resJson.status === 300) {
-        Router.push(resJson.location);
-      } else if (resJson.status === 400) {
-        setEditError(resJson.message);
-      } else if (resJson.status === 200) {
-        setIsEditSucces(true);
-      }
-    }).catch(() => {
-      setEditError('Terjadi kesalahan di sisi server')
+    UserFetcher.updateAddress(formValues).then(({ data, error, route }) => {
+      if (data) setSuccess(data);
+      else if (route) Router.push(route);
+      else if (error) setError(error);
+    }).catch((e) => {
+      setError(e.message);
     }).finally(() => {
-      setIsSubmiting(false);
+      setFetching(false);
     })
   }
 
+  const inputHandler = (event) => {
+    const { name, value } = event.target;
+    if (name === 'provinceId') {
+      setFormValues({
+        ...formValues,
+        [name]: value,
+        cityId: ''
+      })
+    } else {
+      setFormValues({
+        ...formValues,
+        [name]: value,
+      });
+    }
+  }
+  
+  useEffect(() => {
+    setFetching(true);
+    AddressFetcher.fetchAllProvinces().then(({ data, error }) => {
+      if (data) setProvinceList(data);
+      else if (error) setError(error);
+    }).catch((e) => {
+      setError(e.message);
+    }).finally(() => {
+      setFetching(false);
+    });
+  }, [])
+
+  useEffect(() => {
+    if (formValues.provinceId !== '') {
+      setFetching(true);
+      AddressFetcher.fetchAllCitiesByProvinceId(formValues.provinceId).then(({ data, error }) => {
+        if (data) setCityList(data);
+        else if (error) setError(error);
+      }).catch((e) => {
+        setError(e.message);
+      }).finally(() => {
+        setFetching(false);
+      })
+    }
+  }, [formValues.provinceId])
+
+
   return <>
-    {!editError && !isEditSuccess &&
+    {!error && !success &&
     <CommonModal>
       <form className='sm:px-16 sm:py-8' onSubmit={submitHandler}>
-        <h2 className='text-center text-xl font-semibold'>Ubah Password</h2>
+        <h2 className='text-center text-xl font-semibold'>Ubah Alamat</h2>
         <div className='flex flex-col w-80'>
-          <input type='text' placeholder='Alamat'
+          <select type='text' name='provinceId'
             className='mt-4 text-lg outline-none border-b-2 border-slate-300 focus:border-primary 
             px-4 py-1 text-center min-w-0 w-full max-w-sm'
-            ref={addressRef}
-          />
-          <input type='text' placeholder='Kode Pos'
+            value={formValues.provinceId}
+            onChange={inputHandler}
+          >
+            <option value='' disabled>Pilih Provinsi</option>
+            {provinceList.map((province) => {
+              return <option key={province.id} value={province.id}>{province.province}</option>
+            })}
+          </select>
+          <select type='text' name='cityId'
             className='mt-4 text-lg outline-none border-b-2 border-slate-300 focus:border-primary 
             px-4 py-1 text-center min-w-0 w-full max-w-sm'
-            ref={postalCodeRef}
+            value={formValues.cityId}
+            onChange={inputHandler}
+          >
+            <option value='' disabled>Pilih Kabupaten/Kota</option>
+            {cityList.map((city) => {
+              return <option key={city.id} value={city.id}>{city.citytype.type} {city.city}</option>
+            })}
+          </select>
+          <input type='text' placeholder='Kode Pos' name='postalCode'
+            className='mt-4 text-lg outline-none border-b-2 border-slate-300 focus:border-primary 
+            px-4 py-1 text-center min-w-0 w-full max-w-sm'
+            value={formValues.postalCode}
+            onChange={inputHandler}
           />
         </div>
         <div className='flex flex-wrap justify-evenly gap-10 mt-4'>
@@ -98,14 +154,14 @@ function EditAddressModal({ closeModalHandler }) {
             className='bg-gray-400 hover:bg-red-600 disabled:hover:bg-gray-400 w-28 py-3 rounded-full text-white 
             transition-all duration-200'
             onClick={closeModalHandler}
-            disabled={isSubmiting}
+            disabled={fetching}
           >
             Batal
           </button>
           <button type='submit' 
             className='bg-gradient-to-br from-primary to-primary/40 hover:to-primary/70 disabled:from-gray-400 
             disabled:to-gray-200 w-28 py-3 rounded-full text-white transition-all duration-200'
-            disabled={isSubmiting}
+            disabled={fetching}
           >
             Simpan
           </button>
@@ -114,12 +170,12 @@ function EditAddressModal({ closeModalHandler }) {
     </CommonModal>
     }
 
-    {editError &&
-    <CommonErrorModal onClick={() => setEditError('')} text={editError} />
+    {error &&
+    <CommonErrorModal onClick={() => setError('')} text={error} />
     }
 
-    {isEditSuccess &&
-    <CommonSuccessModal onClick={() => {Router.reload()}} text='Data berhasil diubah' />
+    {success &&
+    <CommonSuccessModal onClick={() => {Router.reload()}} text={success} />
     }
   
   </>
