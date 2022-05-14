@@ -15,6 +15,10 @@ const API_ENDPOINT = {
   ADD_PRODUCT: '/api/products',
   UPDATE_PRODUCT: (productId, productImgUrl) => 
     `/api/products?productId=${productId || ''}&productImgUrl=${productImgUrl || ''}`,
+  ADDRESS: {
+    GET_PROVINCES: '/api/address/provinces',
+    GET_CITIES: '/api/address/cities',
+  },
 }
 
 export default API_ENDPOINT;

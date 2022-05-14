@@ -45,7 +45,6 @@ const authMiddleware = async (req, res) => {
 
     return { User };
   } catch (e) {
-    console.log(e)
     CookiesHelper.clearToken(res);
     return { User: null };
   }

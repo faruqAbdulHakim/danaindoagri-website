@@ -1,28 +1,34 @@
 import Link from 'next/link';
-import { useState } from 'react';
+import Router from 'next/router';
+import { useState, useEffect } from 'react';
 
 import CommonInput from '@/components/common/common-input';
 import CommonSelect from '@/components/common/common-select';
 import CommonLabel from '@/components/common/common-label';
-import API_ENDPOINT from '@/global/api-endpoint';
-import RegisterSuccessModal from './register-success-modal';
+import CommonSuccessModal from '@/components/common/common-success-modal';
+import CommonErrorModal from '@/components/common/common-error-modal';
+import AuthFetcher from '@/utils/functions/auth-fetcher';
+import AddressFetcher from '@/utils/functions/address-fetcher';
 
 export default function RegisterForm() {
-  const [tab, setTab] = useState(0);
   const [formValues, setFormValues] = useState({
     fullName: '',
     gender: 'L',
     dob: '',
-    address: '',
+    provinceId: '',
+    cityId: '',
     postalCode: '',
     email: '',
     password: '',
     passwordConfirmation: '',
     tel: '',
   });
-  const [formError, setFormError] = useState('');
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [isSubmiting, setIsSubmiting] = useState(false);
+  const [tab, setTab] = useState(0);
+  const [provinceList, setProvinceList] = useState([]);
+  const [cityList, setCityList] = useState([]);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [fetching, setFetching] = useState(false);
 
   const getTodayDate = () => {
     const todayTime = new Date();
@@ -33,48 +39,66 @@ export default function RegisterForm() {
   }
 
   const inputHandler = (event) => {
-    setFormValues({
-      ...formValues,
-      [event.target.name]: event.target.value,
-    });
+    const { name, value } = event.target;
+    if (name === 'provinceId') {
+      setFormValues({
+        ...formValues,
+        [name]: value,
+        cityId: ''
+      })
+    } else {
+      setFormValues({
+        ...formValues,
+        [name]: value,
+      });
+    }
   }
 
   const submitHandler = (event) => {
     event.preventDefault();
 
-    setIsSubmiting(true);
+    setFetching(true);
     
-    if (formError !== '') setFormError('');
-
-    fetch(API_ENDPOINT.REGISTER, {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify(formValues),
-    }).then((res) => {
-      return res.json();
-    }).then((resJson) => {
-      if (resJson.status === 400) {
-        setFormError(resJson.message);
-      } else if (resJson.status === 201) {
-        setIsSuccess(true);
-      }
-    }).catch(() => {
-      setFormError('Terjadi Kesalahan di sisi Server!!!');
+    AuthFetcher.register(formValues).then(({ data, error }) => {
+      if (data) setSuccess(data);
+      else if (error) setError(error);
+    }).catch((e) => {
+      setError(e.message);
     }).finally(() => {
-      setIsSubmiting(false);
-    })
-
+      setFetching(false)
+    });
   }
+
+  useEffect(() => {
+    setFetching(true);
+    AddressFetcher.fetchAllProvinces().then(({ data, error }) => {
+      if (data) setProvinceList(data);
+      else if (error) setError(error);
+    }).catch((e) => {
+      setError(e.message);
+    }).finally(() => {
+      setFetching(false);
+    });
+  }, [])
+
+  useEffect(() => {
+    if (formValues.provinceId !== '') {
+      setFetching(true);
+      AddressFetcher.fetchAllCitiesByProvinceId(formValues.provinceId).then(({ data, error }) => {
+        if (data) setCityList(data);
+        else if (error) setError(error);
+      }).catch((e) => {
+        setError(e.message);
+      }).finally(() => {
+        setFetching(false);
+      })
+    }
+  }, [formValues.provinceId])
 
   return <>
     <div className='px-4 py-8'>
       <div className='max-w-[340px] mx-auto'>
         <h1 className='text-2xl'>Registrasi</h1>
-        
-        {/* error message (return from server) */}
-        {formError && <p className='text-red-600'>{formError}</p>}
 
         {/* tabs */}
         <div className='space-x-2 mt-4 grid grid-cols-2'>
@@ -108,9 +132,31 @@ export default function RegisterForm() {
                   name='dob' value={formValues.dob} onChange={inputHandler} />
             </div>
             <div className='flex flex-col'>
-                <CommonLabel text='Alamat' id='address'/>
-                <CommonInput type='text' placeholder='Alamat' id='address'
-                  name='address' value={formValues.address} onChange={inputHandler} />
+                <CommonLabel text='Provinsi' id='provinceId'/>
+                <CommonSelect id='provinceId'
+                  name='provinceId' value={formValues.provinceId} onChange={inputHandler} 
+                >
+                  <option value='' disabled>Pilih provinsi</option>
+                  {
+                    provinceList.map((province) => {
+                      return <option key={province.id} value={province.id}>{province.province}</option>
+                    })
+                  }
+                </CommonSelect>
+            </div>
+            <div className='flex flex-col'>
+                <CommonLabel text='Kabupaten/Kota' id='cityId'/>
+                <CommonSelect id='cityId'
+                  name='cityId' value={formValues.cityId} onChange={inputHandler} 
+                  disabled={fetching || cityList.length === 0}
+                >
+                  <option value='' disabled>Pilih Kabupaten/Kota</option>
+                  {
+                    cityList.map((city) => {
+                      return <option key={city.id} value={city.id}>{city.citytype.type} {city.city}</option>
+                    })
+                  }
+                </CommonSelect>
             </div>
             <div className='flex flex-col'>
                 <CommonLabel text='Kode Pos' id='postalCode'/>
@@ -157,9 +203,9 @@ export default function RegisterForm() {
                 uppercase tracking-wider hover:opacity-70 active:opacity-30 disabled:bg-slate-600 
                 disabled:ring-slate-600 disabled:hover:opacity-100 disabled:active:opacity-100
                 transition-all'
-                disabled={isSubmiting}
+                disabled={fetching}
               >
-                {isSubmiting ? 'Mendaftarkan...' : 'Daftar'}
+                {fetching ? 'Mendaftarkan...' : 'Daftar'}
               </button>
             </>
           }
@@ -174,8 +220,14 @@ export default function RegisterForm() {
           </p>
         </form>
 
-        {/* modal if customer registration success */}
-        {isSuccess && <RegisterSuccessModal />}
+        {
+          success && 
+          <CommonSuccessModal text={success} onClick={() => Router.push('/login')}/>
+        }
+        {
+          error &&
+          <CommonErrorModal text={error} onClick={() => setError('')} />
+        }
         
       </div>
     </div>

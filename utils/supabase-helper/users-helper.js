@@ -54,7 +54,7 @@ const UsersHelper = {
       ${TABLE_NAME.CITIES}
         (
           *, 
-          ${TABLE_NAME.CITIY_TYPE} 
+          ${TABLE_NAME.CITY_TYPE} 
             (*),
           ${TABLE_NAME.PROVINCES}
             (*)
