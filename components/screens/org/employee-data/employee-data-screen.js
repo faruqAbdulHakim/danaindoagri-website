@@ -112,13 +112,14 @@ function EmployeeCard({ employee, role }) {
       <div className='flex flex-col justify-center items-center mt-2 gap-2'>
         <Link href={`/org/owner/edit-employee/${employee.id}`}>
           <a type='button' className='border rounded-full px-4 py-2 min-w-[120px] 
-            hover:bg-primary hover:text-white hover:opacity-70 active:opacity-40 
+            hover:bg-primary hover:text-white active:opacity-40 
             text-center transition-all'>
             Ubah
           </a>
         </Link>
-        <button type='button' className='bg-primary text-white rounded-full px-4 py-2 min-w-[120px]
-          hover:opacity-70 active:opacity-40 transition-all'>
+        <button type='button' className='border hover:bg-red-500 hover:text-white rounded-full 
+          px-4 py-2 min-w-[120px]
+          active:opacity-40 transition-all'>
           Hapus
         </button>
       </div>

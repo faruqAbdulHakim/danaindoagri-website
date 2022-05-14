@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Router from 'next/router';
 
 import { FiX } from 'react-icons/fi';
@@ -11,44 +11,83 @@ import CommonSuccessModal from '@/components/common/common-success-modal';
 import CommonModal from '@/components/common/common-modal';
 import DateHelper from '@/utils/functions/date-helper';
 import UserFetcher from '@/utils/functions/users-fetcher';
+import AddressFetcher from '@/utils/functions/address-fetcher';
 import CONFIG from '@/global/config';
 
 const { ROLE_NAME } = CONFIG.SUPABASE;
 
 export default function EditEmployeeScreen({ Employee }) {
+  const [provinceList, setProvinceList] = useState([]);
+  const [cityList, setCityList] = useState([]);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [isFetching, setIsFetching] = useState(false);
+  const [fetching, setFetching] = useState(false);
   const [isEditPassword, setIsEditPassword] = useState(false);
-  const [biodataForm, setBiodataForm] = useState({
+  const [formValues, setFormValues] = useState({
     fullName: Employee.fullName,
     gender: Employee.gender,
     dob: Employee.dob,
-    address: Employee.address,
+    provinceId: Employee.cities.provinces.id,
+    cityId: Employee.cities.id,
     postalCode: Employee.postalCode,
     email: Employee.email,
     tel: Employee.tel,
     roleName: Employee.role.roleName,
   });
 
-  const inputChangeHandler = (event) => {
-    setBiodataForm({
-      ...biodataForm,
-      [event.target.name]: event.target.value,
-    });
+  const inputHandler = (event) => {
+    const { name, value } = event.target;
+    if (name === 'provinceId') {
+      setFormValues({
+        ...formValues,
+        [name]: value,
+        cityId: '',
+      })
+    } else {
+      setFormValues({
+        ...formValues,
+        [name]: value,
+      });
+    }
   }
 
   const biodataSubmitHandler = (event) => {
     event.preventDefault();
-    setIsFetching(true);
-    UserFetcher.editEmployee('biodata', Employee.id, biodataForm).then(({data, error, route}) => {
+    setFetching(true);
+    UserFetcher.editEmployee('biodata', Employee.id, formValues).then(({data, error, route}) => {
       if (error) setError(error);
       else if (route) Router.push(route);
       else setSuccess(data);
     }).finally(() => {
-      setIsFetching(false);
+      setFetching(false);
     })
   }
+
+  useEffect(() => {
+    setFetching(true);
+    AddressFetcher.fetchAllProvinces().then(({ data, error }) => {
+      if (data) setProvinceList(data);
+      else if (error) setError(error);
+    }).catch((e) => {
+      setError(e.message);
+    }).finally(() => {
+      setFetching(false);
+    });
+  }, [])
+
+  useEffect(() => {
+    if (formValues.provinceId !== '') {
+      setFetching(true);
+      AddressFetcher.fetchAllCitiesByProvinceId(formValues.provinceId).then(({ data, error }) => {
+        if (data) setCityList(data);
+        else if (error) setError(error);
+      }).catch((e) => {
+        setError(e.message);
+      }).finally(() => {
+        setFetching(false);
+      })
+    }
+  }, [formValues.provinceId])
 
   return <>
     <div className='p-8 bg-white shadow-md rounded-md w-full max-w-screen-md relative'>
@@ -65,7 +104,7 @@ export default function EditEmployeeScreen({ Employee }) {
         <div className='flex flex-col'>
             <CommonLabel text='Role Karyawan' id='roleName'/>
             <CommonSelect id='roleName'
-              name='roleName' value={biodataForm.roleName} onChange={inputChangeHandler} 
+              name='roleName' value={formValues.roleName} onChange={inputHandler} 
             >
               <option value={ROLE_NAME.MARKETING}> Marketing</option>
               <option value={ROLE_NAME.PRODUCTION}> Produksi</option>
@@ -74,12 +113,12 @@ export default function EditEmployeeScreen({ Employee }) {
         <div className='flex flex-col'>
           <CommonLabel id='fullName' text='Nama Lengkap' />
           <CommonInput id='fullName' placeholder='Nama Lengkap' name='fullName'
-            value={biodataForm.fullName} onChange={inputChangeHandler}/>
+            value={formValues.fullName} onChange={inputHandler}/>
         </div>
         <div className='flex flex-col'>
             <CommonLabel text='Jenis Kelamin' id='gender'/>
             <CommonSelect id='gender'
-              name='gender' value={biodataForm.gender} onChange={inputChangeHandler} 
+              name='gender' value={formValues.gender} onChange={inputHandler} 
             >
               <option value='L'> Laki-laki</option>
               <option value='P'> Perempuan</option>
@@ -88,38 +127,60 @@ export default function EditEmployeeScreen({ Employee }) {
         <div className='flex flex-col'>
           <CommonLabel id='dob' text='Tanggal Lahir' />
           <CommonInput id='dob' placeholder='Tanggal Lahir' name='dob' type='date'
-            value={biodataForm.dob} onChange={inputChangeHandler} max={DateHelper.getTodayDate()}/>
+            value={formValues.dob} onChange={inputHandler} max={DateHelper.getTodayDate()}/>
         </div>
         <div className='flex flex-col'>
-            <CommonLabel text='Alamat' id='address'/>
-            <CommonInput type='text' placeholder='Alamat' id='address'
-              name='address' value={biodataForm.address} onChange={inputChangeHandler} />
+            <CommonLabel text='Provinsi' id='provinceId'/>
+            <CommonSelect id='provinceId'
+              name='provinceId' value={formValues.provinceId} onChange={inputHandler} 
+            >
+              <option value='' disabled>Pilih provinsi</option>
+              {
+                provinceList.map((province) => {
+                  return <option key={province.id} value={province.id}>{province.province}</option>
+                })
+              }
+            </CommonSelect>
+        </div>
+        <div className='flex flex-col'>
+            <CommonLabel text='Kabupaten/Kota' id='cityId'/>
+            <CommonSelect id='cityId'
+              name='cityId' value={formValues.cityId} onChange={inputHandler} 
+              disabled={fetching || cityList.length === 0}
+            >
+              <option value='' disabled>Pilih Kabupaten/Kota</option>
+              {
+                cityList.map((city) => {
+                  return <option key={city.id} value={city.id}>{city.citytype.type} {city.city}</option>
+                })
+              }
+            </CommonSelect>
         </div>
         <div className='flex flex-col'>
             <CommonLabel text='Kode Pos' id='postalCode'/>
             <CommonInput type='text' placeholder='Kode Pos' id='postalCode'
-              name='postalCode' value={biodataForm.postalCode} onChange={inputChangeHandler} />
+              name='postalCode' value={formValues.postalCode} onChange={inputHandler} />
         </div>
         <div className='flex flex-col'>
           <CommonLabel text='Email' id='email'/>
           <CommonInput type='email' placeholder='Email' id='email'
-            name='email' value={biodataForm.email} onChange={inputChangeHandler}/>
+            name='email' value={formValues.email} onChange={inputHandler}/>
         </div>
         <div className='flex flex-col'>
           <CommonLabel text='Nomor Telepon' id='noTelp'/>
           <CommonInput type='text' placeholder='Nomor Telepon' id='noTelp'
-            name='tel' value={biodataForm.tel} onChange={inputChangeHandler}/>
+            name='tel' value={formValues.tel} onChange={inputHandler}/>
         </div>
         <div className='flex gap-4'>
           <button type='button' className='px-4 py-3 mt-4 bg-white text-primary rounded-md
             hover:underline active:opacity-40 disabled:hover:no-underline 
-            disabled:active:opacity-100 transition-all' disabled={isFetching}
+            disabled:active:opacity-100 transition-all' disabled={fetching}
             onClick={() => setIsEditPassword(true)}>
             Ubah password
           </button>
           <button type='submit' className='px-4 py-3 mt-4 bg-primary text-white rounded-md
             hover:opacity-70 active:opacity-40 disabled:bg-slate-600 disabled:hover:opacity-100 
-            disabled:active:opacity-100 transition-all' disabled={isFetching}>
+            disabled:active:opacity-100 transition-all' disabled={fetching}>
             Ubah data
           </button>
         </div>
@@ -144,11 +205,11 @@ export default function EditEmployeeScreen({ Employee }) {
 function EditPasswordModal({setSuccess, setError, closeHandler, Employee}) {
   const passwordRef = useRef(null);
   const passwordConfirmationRef = useRef(null);
-  const [isFetching, setIsFetching] = useState(false);
+  const [fetching, setFetching] = useState(false);
 
   const passwordFormSubmitHandler = (event) => {
     event.preventDefault();
-    setIsFetching(true);
+    setFetching(true);
     const formValues = {
       password: passwordRef.current.value,
       passwordConfirmation: passwordConfirmationRef.current.value,
@@ -159,7 +220,7 @@ function EditPasswordModal({setSuccess, setError, closeHandler, Employee}) {
       else if (route) Router.push(route);
       else setSuccess(data);
     }).finally(() => {
-      setIsFetching(false);
+      setFetching(false);
     })
   }
 
@@ -181,14 +242,14 @@ function EditPasswordModal({setSuccess, setError, closeHandler, Employee}) {
             className='bg-gray-400 hover:bg-red-600 disabled:hover:bg-gray-400 w-28 py-3 rounded-full text-white 
             transition-all duration-200'
             onClick={closeHandler}
-            disabled={isFetching}
+            disabled={fetching}
           >
             Batal
           </button>
           <button type='submit' 
             className='bg-gradient-to-br from-primary to-primary/40 hover:to-primary/70 disabled:from-gray-400 
             disabled:to-gray-200 w-28 py-3 rounded-full text-white transition-all duration-200'
-            disabled={isFetching}
+            disabled={fetching}
           >
             Simpan
           </button>

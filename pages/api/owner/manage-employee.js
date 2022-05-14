@@ -9,7 +9,7 @@ const { ROLE_NAME } = CONFIG.SUPABASE;
 
 export default async function handler(req, res) {
   try {
-    const { headers, method } = req;
+    const { headers, method, body } = req;
     
     const isSomeFormNull = Object.values(body).some((value) => value === '');
 
@@ -65,6 +65,7 @@ async function AddNewEmployee(req, res) {
 
   delete body.passwordConfirmation;
   delete body.roleName;
+  delete body.provinceId;
   body.password = bcrypt.hashSync(body.password, 10);
   body.roleId = roleId;
   body.isVerified = true;
@@ -86,9 +87,9 @@ async function EditEmployee(req, res) {
     }
 
     delete body.roleName;
+    delete body.provinceId;
     body.roleId = roleId;
-  }
-  else if (editType === 'password') {
+  } else if (editType === 'password') {
     if (body.password.length < 8) {
       throw new Error('Panjang password minimal 8 karakter');
     }
@@ -100,6 +101,7 @@ async function EditEmployee(req, res) {
     delete body.passwordConfirmation;
     body.password = bcrypt.hashSync(body.password, 10)
   }
+
   const { error } = await UsersHelper.updateUserById(body, employeeId);
   if (error) {
    throw new Error('[SERVER] Gagal mengubah data');
