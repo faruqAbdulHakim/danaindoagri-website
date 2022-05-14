@@ -8,7 +8,19 @@ const UsersHelper = {
   getUserById: async (userId, includeDeleted) => {
     if (includeDeleted) {
       const { data, error } = await supabase.from(TABLE_NAME.USERS)
-        .select('*')
+        .select(`
+          *, 
+          ${TABLE_NAME.ROLE}
+            (*), 
+          ${TABLE_NAME.CITIES}
+            (
+              *, 
+              ${TABLE_NAME.CITY_TYPE} 
+                (*),
+              ${TABLE_NAME.PROVINCES}
+                (*)
+            )
+        `)
         .eq('id', userId)
         .single();
       return { data, error }
@@ -21,7 +33,7 @@ const UsersHelper = {
         ${TABLE_NAME.CITIES}
           (
             *, 
-            ${TABLE_NAME.CITIY_TYPE} 
+            ${TABLE_NAME.CITY_TYPE} 
               (*),
             ${TABLE_NAME.PROVINCES}
               (*)

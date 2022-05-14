@@ -2,6 +2,9 @@ import AuthHelper from '@/utils/supabase-helper/auth-helper';
 import authMiddleware from '@/utils/middleware/auth-middleware';
 import CookiesHelper from '@/utils/functions/cookies-helper';
 import UsersHelper from '@/utils/supabase-helper/users-helper';
+import CONFIG from '@/global/config';
+
+const { ROLE_NAME } = CONFIG.SUPABASE;
 
 export default async function handler(req, res) {
   try {
@@ -15,9 +18,9 @@ export default async function handler(req, res) {
       throw new Error('Invalid Content-Type');
     }
 
-    const { address, postalCode } = body;
+    const { provinceId, cityId, postalCode } = body;
 
-    if (!address || !postalCode) {
+    if (!provinceId || !cityId || !postalCode) {
       throw new Error('Harap isi formulir dengan lengkap');
     }
 
@@ -27,20 +30,26 @@ export default async function handler(req, res) {
       return res.status(300).json({status: 300, message: 'JWT ERROR', location: '/login'})
     }
 
-    const { error: updateDataError} = await UsersHelper.updateUserById({ address, postalCode }, User.id);
+    const userRole = User?.role?.roleName
+    if (userRole === ROLE_NAME.MARKETING || userRole === ROLE_NAME.PRODUCTION) {
+      throw new Error('Anda tidak memiliki hak akses untuk mengubah data ini');
+    }
 
+    const { error: updateDataError} = await UsersHelper.updateUserById({ cityId, postalCode }, User.id);
     if (updateDataError) {
-      return res.status(400).json({status: 400, message: 'Gagal mengubah alamat'});
+      throw new Error('Gagal mengubah alamat');
     }
 
     // update user jwt
-    User.address = address;
-    User.postalCode = postalCode;
+    const { data: newUser } = await UsersHelper.getUserById(User.id);
+    if (!newUser) {
+      throw new Error('Gagal mendapatkan pembaruan data');
+    }
     const { 
       accessToken: newAccessToken, 
       refreshToken: newRefreshToken, 
       newSessionToken 
-    } = AuthHelper.generateJwtToken(User);
+    } = AuthHelper.generateJwtToken(newUser);
 
     const { error: updateTokenError } = await AuthHelper.updateSessionToken(User.id, newSessionToken);
     if (updateTokenError) {

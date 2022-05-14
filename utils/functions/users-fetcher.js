@@ -98,6 +98,26 @@ const UserFetcher = {
     })
     return { data, error, route };
   },
+
+  updateAddress: async (formValues) => {
+    let data, error, route;
+    await fetch(API_ENDPOINT.USERS_CHANGE_ADDRESS, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify(formValues),
+    }).then((res) => {
+      return res.json();
+    }).then((resJson) => {
+      if (resJson.status === 200) data = resJson.message;
+      else if (resJson.status === 300) route = resJson.location;
+      else if (resJson.status === 400) error = resJson.message; 
+    }).catch((e) => {
+      error = e.message;
+    });
+    return { data, error, route };
+  }
 }
 
 export default UserFetcher;
