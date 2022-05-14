@@ -187,7 +187,7 @@ export default function AddProductForm() {
               </div>
               <div className='flex items-start gap-4'>
                 <label htmlFor='size' className='w-32'>
-                  Ukuran
+                  Ukuran (gram)
                 </label>
                 <input type='text' id='size' name='size' 
                   className='outline-none border px-2 py-1 hover:shadow-md
@@ -195,6 +195,7 @@ export default function AddProductForm() {
                   rounded-sm transition-all'
                   value={formValues.size}
                   onChange={updateFormValues}
+                  pattern='[0-9]+'
                   placeholder='Ukuran'/>
               </div>
               <div className='flex items-start gap-4'>
