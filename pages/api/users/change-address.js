@@ -18,9 +18,9 @@ export default async function handler(req, res) {
       throw new Error('Invalid Content-Type');
     }
 
-    const { provinceId, cityId, postalCode } = body;
+    const { provinceId, cityId, postalCode, address } = body;
 
-    if (!provinceId || !cityId || !postalCode) {
+    if (!provinceId || !cityId || !postalCode || !address) {
       throw new Error('Harap isi formulir dengan lengkap');
     }
 
@@ -35,7 +35,7 @@ export default async function handler(req, res) {
       throw new Error('Anda tidak memiliki hak akses untuk mengubah data ini');
     }
 
-    const { error: updateDataError} = await UsersHelper.updateUserById({ cityId, postalCode }, User.id);
+    const { error: updateDataError} = await UsersHelper.updateUserById({ cityId, postalCode, address }, User.id);
     if (updateDataError) {
       throw new Error('Gagal mengubah alamat');
     }

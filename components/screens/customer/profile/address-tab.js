@@ -16,6 +16,7 @@ export default function AddressTab({ User }) {
 
   return <>
     <div>
+      <p className='text-lg'>{User.address}</p>
       <p className='text-lg'>Kabupaten/Kota : {cityType} {city}</p>
       <p className='text-lg'>Provinsi : {province}</p>
       <p className='text-slate-700'>Kode Pos : {User?.postalCode}</p>
@@ -37,6 +38,7 @@ function EditAddressModal({ closeModalHandler }) {
   const [formValues, setFormValues] = useState({
     provinceId: '',
     cityId: '',
+    address: '',
     postalCode: '',
   });
   const [provinceList, setProvinceList] = useState([]);
@@ -131,6 +133,12 @@ function EditAddressModal({ closeModalHandler }) {
               return <option key={city.id} value={city.id}>{city.citytype.type} {city.city}</option>
             })}
           </select>
+          <input type='text' placeholder='Detail Alamat' name='address'
+            className='mt-4 text-lg outline-none border-b-2 border-slate-300 focus:border-primary 
+            px-4 py-1 text-center min-w-0 w-full max-w-sm'
+            value={formValues.address}
+            onChange={inputHandler}
+          />
           <input type='text' placeholder='Kode Pos' name='postalCode'
             className='mt-4 text-lg outline-none border-b-2 border-slate-300 focus:border-primary 
             px-4 py-1 text-center min-w-0 w-full max-w-sm'

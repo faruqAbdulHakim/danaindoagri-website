@@ -29,6 +29,7 @@ export default function EditEmployeeScreen({ Employee }) {
     dob: Employee.dob,
     provinceId: Employee.cities.provinces.id,
     cityId: Employee.cities.id,
+    address: Employee.address,
     postalCode: Employee.postalCode,
     email: Employee.email,
     tel: Employee.tel,
@@ -155,6 +156,11 @@ export default function EditEmployeeScreen({ Employee }) {
                 })
               }
             </CommonSelect>
+        </div>
+        <div className='flex flex-col'>
+            <CommonLabel text='Detail Alamat' id='address'/>
+            <CommonInput type='text' placeholder='Detail Alamat' id='address'
+              name='address' value={formValues.address} onChange={inputHandler} />
         </div>
         <div className='flex flex-col'>
             <CommonLabel text='Kode Pos' id='postalCode'/>
