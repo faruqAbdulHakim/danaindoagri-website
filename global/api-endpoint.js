@@ -1,3 +1,7 @@
+import CONFIG from './config';
+
+const { RAJAONGKIR } = CONFIG;
+
 const API_ENDPOINT = {
   REGISTER: '/api/auth/register',
   LOGIN: '/api/auth/login',
@@ -19,6 +23,11 @@ const API_ENDPOINT = {
     GET_PROVINCES: '/api/address/provinces',
     GET_CITIES: '/api/address/cities',
   },
+  RAJAONGKIR: {
+    MYAPI_GET_COST: '/api/rajaongkir',
+    // cors issues use this api endpoint in server side
+    GET_COST: `https://api.rajaongkir.com/${RAJAONGKIR.ACCOUNT_TYPE}/cost`
+  }
 }
 
 export default API_ENDPOINT;

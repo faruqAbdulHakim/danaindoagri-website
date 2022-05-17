@@ -34,6 +34,11 @@ const CONFIG = {
     REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET,
     REFRESH_TOKEN_LIFESPAN: '3h',
   },
+  RAJAONGKIR: {
+    DEFAULT_ORIGIN: '160',
+    API_KEY: process.env.RAJAONGKIR_API_KEY,
+    ACCOUNT_TYPE: 'starter',
+  },
 }
 
 export default CONFIG;
