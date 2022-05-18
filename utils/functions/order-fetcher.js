@@ -21,6 +21,21 @@ const OrderFetcher = {
     return { data, error };
   },
 
+  fetchCustomerOrders: async () => {
+    let data, error, route;
+    await fetch(API_ENDPOINT.CREATE_ORDER).then((res) => {
+      return res.json();
+    }).then((resJson) => {
+      if (resJson.status === 200) data = resJson.data;
+      else if (resJson.status === 300) route = resJson.location;
+      else if (resJson.status === 400) error = resJson.message;
+    }).catch((e) => {
+      error = e.message;
+    })
+
+    return { data, error, route };
+  },
+
 }
 
 export default OrderFetcher;

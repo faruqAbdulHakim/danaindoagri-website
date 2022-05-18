@@ -49,6 +49,13 @@ const OrderHelper = {
 
     return { data, error };
   },
+
+  getCustomerOrders: async (customerId) => {
+    const { data, error } = await supabase.from(TABLE_NAME.ONLINE_ORDERS)
+      .select('*, orderdetail (*)')
+      .eq('userId', customerId);
+    return { data, error }
+  }
 }
 
 export default OrderHelper

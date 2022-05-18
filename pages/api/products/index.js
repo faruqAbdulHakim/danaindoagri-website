@@ -14,11 +14,20 @@ const handler = nextConnect();
 
 handler.use(multipartFormParser);
 
-handler.get(async (_, res) => {
+handler.get(async (req, res) => {
   try {
+    const productId = req.query.productId;
+    if (productId) {
+      const { data, error } = await ProductsHelper.getProductById(productId);
+      if (error) {
+        throw new Error('Gagal mendapatkan data product');
+      }
+      return res.status(200).json({status: 200, message: 'Berhasil mendapatkan data product', data});
+    }
+
     const { data, error } = await ProductsHelper.getAllProducts();
     if (error) {
-      return res.status(400).json({status: 400, message: 'Gagal mendapatkan data products'})
+      throw new Error ('Gagal mendapatkan data products');
     }
     res.status(200).json({status: 200, message: 'Berhasil mendapatkan data products', data})  
   } catch (e) {

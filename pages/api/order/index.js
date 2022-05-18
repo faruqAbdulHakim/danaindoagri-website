@@ -8,8 +8,16 @@ const { ROLE_NAME } = CONFIG.SUPABASE;
 export default async function handler(req, res) {
   try {
     const method = req.method;
-    if (method === 'POST') {
-      return await createNewOrder(req, res);
+
+    const { User } = await authMiddleware(req, res);
+    if (!User) {
+      return res.status(300).json({status: 300, message: 'JWT ERROR', location: '/login'})
+    }
+
+    if (method === 'GET') {
+      return await getOrders(res, User);
+    } else if (method === 'POST') {
+      return await createNewOrder(req, res, User);
     } else {
       throw new Error('Invalid Method');
     }
@@ -18,16 +26,25 @@ export default async function handler(req, res) {
   }
 }
 
-async function createNewOrder(req, res) {
+
+async function getOrders(res, User) {
+  const userRole = User.role.roleName;
+  if (userRole === ROLE_NAME.CUSTOMERS) {
+    const { data, error } = await OrderHelper.getCustomerOrders(User.id);
+    if (error) {
+      throw new Error('Gagal mendapatkan data pembelian');
+    }
+    return res.status(200).json({status: 200, message: 'Berhasil mendapatkan data pembelian', data})
+  }
+  throw new Error('Tidak menemukan hak akses untuk role Anda');
+}
+
+
+async function createNewOrder(req, res, User) {
   const { body, headers } = req;
 
   if (headers['content-type'] !== 'application/json') {
     throw new Error('Invalid content type');
-  }
-
-  const { User } = await authMiddleware(req, res);
-  if (!User) {
-    return res.status(300).json({status: 300, message: 'JWT ERROR', location: '/login'})
   }
 
   const someFormNull = Object.values(body).some((val) => val === '');

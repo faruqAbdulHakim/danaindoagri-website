@@ -23,8 +23,8 @@ export default function CommonAppbar({ User }) {
       urlPath: '/products'
     },
     {
-      text: 'Pesan',
-      urlPath: '/a'
+      text: 'Pembelian',
+      urlPath: '/purchase'
     },
     {
       text: 'Keranjang',
