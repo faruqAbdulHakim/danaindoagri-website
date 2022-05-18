@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Router from 'next/router';
 import { useState, useEffect } from 'react';
 
 import { FaTruck } from 'react-icons/fa';
@@ -8,6 +9,8 @@ import RajaongkirFetcher from '@/utils/functions/rajaongkir-fetcher';
 import CONFIG from '@/global/config';
 import CommonErrorModal from '@/components/common/common-error-modal';
 import CommonModal from '@/components/common/common-modal';
+import OrderFetcher from '@/utils/functions/order-fetcher';
+import CommonSuccessModal from '@/components/common/common-success-modal';
 
 const origin = CONFIG.RAJAONGKIR.DEFAULT_ORIGIN;
 
@@ -20,6 +23,7 @@ export default function ProductOrderScreen({ User, Product }) {
     accountName: '',
   });
   const [fetching, setFetching] = useState(false);
+  const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
   const [expedition, setExpedition] = useState({});
   const [shipmentCostList, setShipmentCostList] = useState([]);
@@ -29,7 +33,7 @@ export default function ProductOrderScreen({ User, Product }) {
   const [getWsPrice, setGetWsPrice] = useState(0);
   const [codePrice, _] = useState(Math.floor(Math.random() * 999) + 1);
 
-  const [confirmModal, setConfirmModal] = useState(true);
+  const [confirmModal, setConfirmModal] = useState(false);
 
   const inputHandler = (event) => {
     const { name, value } = event.target;
@@ -54,9 +58,27 @@ export default function ProductOrderScreen({ User, Product }) {
 
   const createOrder = () => {
     setFetching(true);
-    setTimeout(() => {
-      setFetching(false)
-    }, 3000)
+    const body = {
+      productId: Product.id,
+      qty: formValues.qty,
+      address: User.address,
+      cityId: User.cities.id,
+      expedition: expedition.name + shipmentCostList[formValues.courierService].service,
+      shipmentPrice,
+      productPrice,
+      codePrice,
+    };
+
+    OrderFetcher.createOrder(body).then(({ data, error }) => {
+      console.log(data, error);
+      if (data) setSuccess(data);
+      else if (error) setError(error);
+    }).catch((e) => {
+      setError(e.message);
+    }).finally(() => {
+      setConfirmModal(false);
+      setFetching(false);
+    })
   }
 
   useEffect(() => {
@@ -274,6 +296,10 @@ export default function ProductOrderScreen({ User, Product }) {
     {
       error &&
       <CommonErrorModal text={error} onClick={() => setError('')}/>
+    }
+    {
+      success &&
+      <CommonSuccessModal text={success} onClick={() => Router.push(`/purchase/`)}/>
     }
     {
       confirmModal &&

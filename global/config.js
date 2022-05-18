@@ -10,6 +10,8 @@ const CONFIG = {
       CITIES: 'cities',
       CITY_TYPE: 'citytype',
       PROVINCES: 'provinces',
+      ONLINE_ORDERS: 'onlineorders',
+      ORDER_DETAIL: 'orderdetail',
     },
     ROLE_NAME: {
       CUSTOMERS: 'customer',
