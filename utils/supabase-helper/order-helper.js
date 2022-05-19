@@ -2,7 +2,8 @@ import supabase from '../supabase';
 
 import CONFIG from '@/global/config';
 
-const { TABLE_NAME } = CONFIG.SUPABASE;
+const { TABLE_NAME, BUCKETS } = CONFIG.SUPABASE;
+const { PROOF_OF_PAYMENT } = BUCKETS;
 
 const OrderHelper = {
   CustomerCreateOrder: async (body) => {
@@ -55,7 +56,43 @@ const OrderHelper = {
       .select(`*, orderdetail (*, ${TABLE_NAME.PRODUCTS} (*))`)
       .eq('userId', customerId);
     return { data, error }
-  }
+  },
+
+  getCustomerOrderById: async (customerId, orderId) => {
+    const { data, error } = await supabase.from(TABLE_NAME.ONLINE_ORDERS)
+      .select(`
+        *, orderdetail (
+          *, 
+          ${TABLE_NAME.CITIES} (
+            *, 
+            ${TABLE_NAME.CITY_TYPE} (*),
+            ${TABLE_NAME.PROVINCES} (*)
+          ), 
+          ${TABLE_NAME.PRODUCTS} (*)
+        )`)
+      .eq('userId', customerId)
+      .eq('id', orderId)
+      .single();
+    return { data, error };
+  }, 
+
+
+  updateCustomerOrder: async (updatedData, orderId) => {
+    const { data, error } = await supabase.from(TABLE_NAME.ONLINE_ORDERS)
+      .update(updatedData)
+      .match({ id: orderId });
+    return { data, error };
+  },
+
+  uploadProofOfPayment: async (filename, file, filetype) => {
+    const { data, error } = await supabase.storage
+      .from(PROOF_OF_PAYMENT.BUCKETS_NAME)
+      .upload(filename, file, {
+        upsert: true,
+        contentType: filetype,
+      });
+    return { data, error };
+  },
 }
 
 export default OrderHelper

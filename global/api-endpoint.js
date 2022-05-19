@@ -25,8 +25,8 @@ const API_ENDPOINT = {
     // cors issues use this api endpoint in server side
     GET_COST: `https://api.rajaongkir.com/${RAJAONGKIR.ACCOUNT_TYPE}/cost`
   },
-  GET_ORDER: '/api/order',
-  CREATE_ORDER: '/api/order',
+  ORDER: '/api/order',
+  PROOF_OF_PAYMENT: '/api/order/proof-of-payment',
 }
 
 export default API_ENDPOINT;

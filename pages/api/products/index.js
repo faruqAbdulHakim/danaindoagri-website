@@ -4,7 +4,6 @@ import nextConnect from 'next-connect';
 
 import multipartFormParser from '@/utils/middleware/multipart-form-parser';
 import ProductsHelper from '@/utils/supabase-helper/products-helper';
-import AuthHelper from '@/utils/supabase-helper/auth-helper';
 import CONFIG from '@/global/config';
 import authMiddleware from '@/utils/middleware/auth-middleware';
 

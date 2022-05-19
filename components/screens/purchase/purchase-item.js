@@ -6,7 +6,6 @@ import { FaTruck } from 'react-icons/fa';
 
 export default function PurchaseItem({ Purchase }) {
   const Product = Purchase.orderdetail.products
-
   return <>
   <Link href={`/purchase/${Purchase.id}`}>
   <a>
@@ -15,18 +14,18 @@ export default function PurchaseItem({ Purchase }) {
       {/* status upload bukti */}
       <div className='w-60'>
         {
-          Purchase.orderdetail.status === 'belum dibayar' ?
-          <div className='flex items-center justify-between text-red-600'>
-            <BsXCircleFill size={42}/>
-            <p>
-              Bukti belum diupload
-            </p>
-          </div>
-          :
+          Purchase.proofOfPayment ?
           <div className='flex items-center justify-between text-primary'>
             <BsCheckCircleFill size={42}/>
             <p>
               Bukti sudah diupload
+            </p>
+          </div>
+          :
+          <div className='flex items-center justify-between text-red-600'>
+            <BsXCircleFill size={42}/>
+            <p>
+              Bukti belum diupload
             </p>
           </div>
         }

@@ -20,6 +20,7 @@ const CONFIG = {
       OWNER: 'pemilik usaha',
     },
     BUCKETS: {
+
       AVATARS: {
         BUCKETS_NAME: 'avatars',
         AVATAR_BASE_URL: 'https://zjksleeilkmawgxpibva.supabase.co/storage/v1/object/public/avatars',
@@ -28,6 +29,10 @@ const CONFIG = {
         BUCKETS_NAME: 'products',
         PRODUCTS_BASE_URL: 'https://zjksleeilkmawgxpibva.supabase.co/storage/v1/object/public/products'
       },
+      PROOF_OF_PAYMENT: {
+        BUCKETS_NAME: 'proofofpayment',
+        BASE_URL: 'https://zjksleeilkmawgxpibva.supabase.co/storage/v1/object/public/proofofpayment'
+      }
     },
   },
   JWT: {

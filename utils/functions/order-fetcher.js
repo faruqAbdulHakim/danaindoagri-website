@@ -3,7 +3,7 @@ import API_ENDPOINT from '@/global/api-endpoint';
 const OrderFetcher = {
   createOrder: async (body) => {
     let data, error;
-    await fetch(API_ENDPOINT.CREATE_ORDER, {
+    await fetch(API_ENDPOINT.ORDER, {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
@@ -23,7 +23,7 @@ const OrderFetcher = {
 
   fetchCustomerOrders: async () => {
     let data, error, route;
-    await fetch(API_ENDPOINT.CREATE_ORDER).then((res) => {
+    await fetch(API_ENDPOINT.ORDER).then((res) => {
       return res.json();
     }).then((resJson) => {
       if (resJson.status === 200) data = resJson.data;
@@ -35,6 +35,30 @@ const OrderFetcher = {
 
     return { data, error, route };
   },
+
+
+  postProofOfPayment: async (orderId, file) => {
+    let data, error, route;
+
+    const formData = new FormData;
+    formData.append('file', file);
+    formData.append('orderId', orderId);
+
+    await fetch(API_ENDPOINT.PROOF_OF_PAYMENT, {
+      method: 'POST',
+      body: formData,
+    }).then((res) => {
+      return res.json();
+    }).then((resJson) => {
+      if (resJson.status === 200) data = resJson.message;
+      else if (resJson.status === 300) route = resJson.location;
+      else if (resJson.status === 400) error = resJson.message;
+    }).catch((e) => {
+      error = e.message;
+    })
+
+    return { data, error, route };
+  }
 
 }
 
