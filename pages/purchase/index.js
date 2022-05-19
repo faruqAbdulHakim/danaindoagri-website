@@ -4,6 +4,9 @@ import CommonAppbar from '@/components/common/common-appbar';
 import CommonFooter from '@/components/common/common-footer';
 import authMiddleware from '@/utils/middleware/auth-middleware'
 import PurchaseList from '@/components/screens/purchase/purchase-list';
+import CONFIG from '@/global/config';
+
+const { ROLE_NAME } = CONFIG.SUPABASE;
 
 export default function PurchasePage({ User, purchaseList }) {
  return <>
@@ -30,6 +33,18 @@ export default function PurchasePage({ User, purchaseList }) {
 
 export async function getServerSideProps({ req, res }) {
   const { User } = await authMiddleware(req, res);
+
+  const userRole = User?.role?.roleName;
+  if (userRole === ROLE_NAME.MARKETING || userRole === ROLE_NAME.OWNER || userRole === ROLE_NAME.PRODUCTION) {
+    return {
+      redirect: {
+        destination: '/org/dashboard',
+        permanent: false,
+      },
+      props: {}
+    }
+  }
+
   return {
     props: {
       User: User || null,

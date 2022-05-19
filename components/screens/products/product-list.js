@@ -7,6 +7,8 @@ import ProductItem from './product-item';
 
 export default function ProductList() {
   const [productList, setProductList] = useState([]);
+  const [filteredProductList, setFilteredProductList] = useState([]);
+  const [searchText, setSearchText] = useState('');
   const [fetching, setFetching] = useState(false);
   const [error, setError] = useState('');
 
@@ -23,6 +25,18 @@ export default function ProductList() {
     })
   }, [])
 
+  
+  useEffect(() => {
+    if (productList.length > 0) {
+      const updated = productList
+        .filter((Product) => Product.name.includes(searchText))
+        .sort((a, b) => {
+          return a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1;
+        });
+      setFilteredProductList(updated);
+    }
+  }, [productList, searchText])
+
   return <>
     {
       fetching ?
@@ -31,16 +45,23 @@ export default function ProductList() {
         Loading...
       </p>
       :
-      productList.length === 0 ?
+      filteredProductList.length === 0 ?
       <p>
         Tidak dapat menemukan produk.
       </p>
       :
       <>
-      <div className='mt-6'>
+      <input type='text' 
+        className='mt-2 outline-none bg-[#f5f5f5]
+          w-full max-w-md min-w-0 ml-4 hover:shadow-md focus:shadow-md
+          px-4 py-2 rounded-md transition-all'
+        value={searchText}
+        onChange={(event) => setSearchText(event.target.value)}
+        placeholder='Cari produk berdasarkan nama'/>
+      <div className='mt-4'>
         <div className='grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 justify-items-center gap-6'>
           {
-            productList.map((Product) => {
+            filteredProductList.map((Product) => {
               return <ProductItem key={Product.id} Product={Product}/>
             })
           }

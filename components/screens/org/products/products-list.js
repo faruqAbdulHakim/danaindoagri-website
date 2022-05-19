@@ -39,7 +39,11 @@ export default function ProductList({ userRole }) {
 
   useEffect(() => {
     setFilteredProducts(
-      products.filter(({ name }) => name.toLowerCase().includes(searchVal))
+      products
+        .filter(({ name }) => name.toLowerCase().includes(searchVal))
+        .sort((a, b) => {
+          return a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1;
+        })
     )
   }, [products, searchVal]);
 

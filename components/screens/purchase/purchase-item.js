@@ -1,24 +1,11 @@
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
 
 import { BsXCircleFill, BsCheckCircleFill } from 'react-icons/bs';
 import { IoWallet, IoCheckmarkCircle, IoStar } from 'react-icons/io5';
 import { FaTruck } from 'react-icons/fa';
 
-import ProductsFetcher from '@/utils/functions/products-fetcher';
-
 export default function PurchaseItem({ Purchase }) {
-  const [Product, setProduct] = useState({});
-  const [fetching, setFetching] = useState(false);
-
-  useEffect(() => {
-    setFetching(true);
-    ProductsFetcher.fetchProductById(Purchase.orderdetail.productId).then(({ data }) => {
-      if (data) setProduct(data)
-    }).finally(() => {
-      setFetching(false);
-    });
-  }, [Purchase.orderdetail.productId]);
+  const Product = Purchase.orderdetail.products
 
   return <>
   <Link href={`/purchase/${Purchase.id}`}>
@@ -48,20 +35,11 @@ export default function PurchaseItem({ Purchase }) {
       {/* product detail */}
       <div className='w-60'>
         <div className='flex gap-2 items-center justify-between'>
-          {
-            fetching ?
-            <p>
-              Loading...
-            </p>
-            :
-            <p className='flex-1 text-clip overflow-hidden'>
-              {Product.name}
-            </p>
-          }
+          <p className='flex-1 text-clip overflow-hidden'>
+            {Product.name}
+          </p>
           <p>
-            {
-              Purchase.orderdetail.qty
-            }
+            {Purchase.orderdetail.qty}
           </p>
         </div>
       </div>
