@@ -1,16 +1,17 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import Router from 'next/router';
 
 import CONFIG from '@/global/config';
 
 const { ROLE_NAME, BUCKETS } = CONFIG.SUPABASE;
 const { PRODUCTS_BASE_URL } = BUCKETS.PRODUCTS;
 
-export default function ProductItem({ Product, userRole }) {
+export default function ProductItem({ Product, userRole, setEditStockModal, setError }) {
   return <>
-  <Link href={`/org/products/${Product.id}`}>
-    <a className='bg-slate-100 hover:shadow-md
-      rounded-lg p-6 max-w-[280px] w-full transition-all'>
+    <button type='button' className='bg-slate-100 hover:shadow-md
+      rounded-lg p-6 max-w-[280px] w-full transition-all'
+      onClick={() => Router.push(`/org/products/${Product.id}`)}>
       <div className='h-32 w-32 relative rounded-full overflow-hidden mx-auto bg-white'>
         <Image src={`${PRODUCTS_BASE_URL}/${Product.imgUrl}`} alt='' layout='fill' 
           objectFit='cover' objectPosition='center'
@@ -22,7 +23,7 @@ export default function ProductItem({ Product, userRole }) {
       </h2>
       <div className='mt-4'>
         <p>
-          {Product.size}
+          {Product.size} gram
         </p>
         <div className='mt-2 flex flex-wrap justify-between'>
           <p>
@@ -46,7 +47,21 @@ export default function ProductItem({ Product, userRole }) {
           </div>
         </>
       }
-    </a>
-  </Link>
+      {
+        userRole === ROLE_NAME.PRODUCTION &&
+        <>
+        <hr className='mt-4'/>
+        <div className='mt-6 mx-auto w-max'>
+          <button type='button'
+            className='bg-primary text-white px-8 py-3 rounded-full 
+              hover:opacity-70 active:opacity-40 transition-all'
+            onClick={(event) => {event.stopPropagation(); setEditStockModal(Product.id)}}
+          >
+            Ubah Stok
+          </button>
+        </div>
+      </>
+      }
+    </button>
   </>
 }

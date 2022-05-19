@@ -15,10 +15,7 @@ const API_ENDPOINT = {
     `/api/users?roleQuery=${roleQuery}&searchQuery=${searchQuery || ''}`,
   MANAGE_EMPLOYEE: (editType, employeeId) => 
     `/api/owner/manage-employee?editType=${editType || ''}&employeeId=${employeeId || ''}`,
-  GET_PRODUCTS: '/api/products',
-  ADD_PRODUCT: '/api/products',
-  UPDATE_PRODUCT: (productId, productImgUrl) => 
-    `/api/products?productId=${productId || ''}&productImgUrl=${productImgUrl || ''}`,
+  PRODUCTS: '/api/products',
   ADDRESS: {
     GET_PROVINCES: '/api/address/provinces',
     GET_CITIES: '/api/address/cities',

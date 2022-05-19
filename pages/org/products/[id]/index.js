@@ -36,15 +36,6 @@ export async function getServerSideProps({ req, res, params }) {
       props: {},
     }
   }
-  if (roleName !== ROLE_NAME.MARKETING && roleName !== ROLE_NAME.OWNER) {
-    return {
-      redirect: {
-        destination: '/',
-        permanent: false,
-      },
-      props: {},
-    }
-  }
 
   const productId = params.id;
   const { data: Product, error } = await ProductsHelper.getProductById(productId);

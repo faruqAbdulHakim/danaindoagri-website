@@ -3,7 +3,7 @@ import API_ENDPOINT from '@/global/api-endpoint';
 const ProductsFetcher = {
   fetchAllProducts: async () => {
     let data, error, route;
-    await fetch(API_ENDPOINT.GET_PRODUCTS, {
+    await fetch(API_ENDPOINT.PRODUCTS, {
       method: 'GET',
     }).then((res) => {
       return res.json();
@@ -21,7 +21,7 @@ const ProductsFetcher = {
 
   fetchProductById: async (productId) => {
     let data, error;
-    await fetch(API_ENDPOINT.GET_PRODUCTS + `?productId=${productId}`, {
+    await fetch(API_ENDPOINT.PRODUCTS + `?productId=${productId}`, {
       method: 'GET',
     }).then((res) => {
       return res.json();
@@ -38,7 +38,7 @@ const ProductsFetcher = {
 
   addNewProduct: async (formData) => {
     let data, error, route;
-    await fetch(API_ENDPOINT.ADD_PRODUCT, {
+    await fetch(API_ENDPOINT.PRODUCTS, {
       method: 'POST',
       body: formData,
     }).then((res) => {
@@ -56,7 +56,9 @@ const ProductsFetcher = {
 
   updateProduct: async (productId, productImgUrl, formData) => {
     let data, error, route;
-    await fetch(API_ENDPOINT.UPDATE_PRODUCT(productId, productImgUrl), {
+    await fetch(API_ENDPOINT.PRODUCTS 
+    + `?productId=${productId || ''}`
+    + `&productImgUrl=${productImgUrl || ''}`, {
       method: 'PUT',
       body: formData,
     }).then((res) => {
@@ -70,7 +72,25 @@ const ProductsFetcher = {
     })
 
     return { data, error, route };
-  }
+  },
+
+
+  patchProduct: async (formData) => {
+    let data, error, route;
+    await fetch(API_ENDPOINT.PRODUCTS, {
+      method: 'PATCH',
+      body: formData,
+    }).then((res) => {
+      return res.json();
+    }).then((resJson) => {
+      if (resJson.status === 200) data = resJson.message;
+      else if (resJson.status === 300) route = resJson.location;
+      else error = resJson.message;
+    }).catch((e) => {
+      error = e.message;
+    });
+    return { data, error, route }
+  },
 }
 
 export default ProductsFetcher;

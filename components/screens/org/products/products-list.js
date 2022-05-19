@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { FiSearch } from 'react-icons/fi';
 
 import ProductItem from './product-item';
+import EditStockModal from './edit-stock-modal';
 import ProductsFetcher from '@/utils/functions/products-fetcher';
 import CommonErrorModal from '@/components/common/common-error-modal';
 import CONFIG from '@/global/config';
@@ -17,6 +18,8 @@ export default function ProductList({ userRole }) {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [fetching, setFetching] = useState(true);
   const [error, setError] = useState('');
+  const [editStockModal, setEditStockModal] = useState(null); // fill with productid
+  
 
   const searchInputHandler = (event) => {
     setSearchVal(event.target.value);
@@ -76,7 +79,8 @@ export default function ProductList({ userRole }) {
         }
         {
           filteredProducts.map((product) => {
-            return <ProductItem Product={product} userRole={userRole} key={product.id}/>
+            return <ProductItem Product={product} userRole={userRole} key={product.id}
+              setEditStockModal={setEditStockModal} setError={setError}/>
           })
         }
       </div>
@@ -84,6 +88,12 @@ export default function ProductList({ userRole }) {
     {
       error &&
       <CommonErrorModal text={error} onClick={() => setError('')}/>
+    }
+    {
+      editStockModal &&
+      <EditStockModal Product={filteredProducts.find((X) => X.id === editStockModal)} 
+        setEditStockModal={setEditStockModal}
+        setError={setError} />
     }
   </>
 }

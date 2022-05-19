@@ -226,6 +226,43 @@ handler.put(async (req, res) => {
   }
 })
 
+
+handler.patch(async (req, res) => {
+  try {
+    const { User } = await authMiddleware(req, res);
+
+    if (!User) {
+      return res.status(300).json({status: 300, message: 'JWT ERROR', location: '/login'})
+    }
+
+    const userRole = User.role.roleName;
+
+    const body = req.body;
+    if (body.stock) {
+      // edit stock
+      if (userRole !== ROLE_NAME.PRODUCTION) {
+        throw new Error('Tidak memiliki hak akses');
+      }
+
+      if (!body.productId) {
+         throw new Error('undefined productId');
+      }
+
+      const { error } = await ProductsHelper.updateProduct(body.productId, { stock: body.stock });
+      if (error) {
+        throw new Error('Gagal mengubah data stok')
+      }
+
+      return res.status(200).json({status: 200, message: 'Berhasil mengubah data stok produk'})
+    }
+
+    throw new Error('Tidak ada data yang diperbarui');
+  } catch (e) {
+    res.status(400).json({status: 400, message: e.message});
+  }
+})
+
+
 export const config = {
   api: {
     bodyParser: false,
