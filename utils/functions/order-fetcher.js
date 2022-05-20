@@ -53,6 +53,23 @@ const OrderFetcher = {
   },
 
 
+  fetchUnconfirmedOrder: async (page, searchText, proofAvailability) => {
+    let data, error, route;
+    await fetch(API_ENDPOINT.ORG_CONFIRMATION + `?page=${page}&searchText=${searchText}&proofAvailability=${proofAvailability}`)
+    .then((res) => {
+      return res.json();
+    }).then((resJson) => {
+      if (resJson.status === 200) data = resJson.data;
+      else if (resJson.status === 300) route = resJson.location;
+      else if (resJson.status === 400) error = resJson.message;
+    }).catch((e) => {
+      error = e.message;
+    })
+
+    return { data, error, route };
+  },
+
+
   postProofOfPayment: async (orderId, file) => {
     let data, error, route;
 

@@ -103,6 +103,42 @@ const OrderHelper = {
     return { data, error }
   },
 
+  getUnconfirmedOrder: async (page, searchText, proofAvailability) => {
+    const { data: userList } = await supabase.from(TABLE_NAME.USERS)
+      .select('id, fullName')
+      .ilike('fullName', `%${searchText}%`)
+
+    const idList = userList.map((User) => User.id);
+
+    const totalDataEachPage = 5;
+    const begin = (page-1)*totalDataEachPage;
+    const end = begin + (totalDataEachPage - 1);
+    const query = supabase.from(TABLE_NAME.ONLINE_ORDERS)
+      .select(`
+      *, 
+      ${TABLE_NAME.ORDER_DETAIL}!inner(
+        *,
+        ${TABLE_NAME.PRODUCTS} (*)
+      ),
+      ${TABLE_NAME.USERS} (*)
+      `)
+      .eq(`${TABLE_NAME.ORDER_DETAIL}.status`, 'belum dibayar')
+      .in('userId', idList)
+      .order('id', { ascending: false })
+      .range(begin, end)
+    
+    let data, error;
+    if (proofAvailability) {
+      const {data: a, error: b} = await query.neq('proofOfPayment', null)
+      data = a; error = b;
+    } else {
+      const {data: a, error: b} = await query.is('proofOfPayment', null)
+      data = a; error = b;
+    }
+
+    return { data, error }
+  },
+
   updateCustomerOrder: async (updatedData, orderId) => {
     const { data, error } = await supabase.from(TABLE_NAME.ONLINE_ORDERS)
       .update(updatedData)

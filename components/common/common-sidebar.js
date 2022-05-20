@@ -3,8 +3,7 @@ import { useRouter } from 'next/router';
 
 import { RiDashboardLine } from 'react-icons/ri';
 import { BiUserCircle } from 'react-icons/bi';
-import { BsBoxSeam, BsCart2, BsBank } from 'react-icons/bs';
-import { FiTruck } from 'react-icons/fi';
+import { BsBoxSeam, BsCart2, BsBank, BsCheck2All } from 'react-icons/bs';
 import { HiOutlineUserGroup } from 'react-icons/hi';
 
 import CONFIG from '@/global/config';
@@ -114,9 +113,9 @@ function getNavLinkList(roleName) {
       Icon: BsCart2,
     },
     shipments: {
-      location: '/org/shipments',
-      text: 'Pengiriman',
-      Icon: FiTruck,
+      location: '/org/confirmation',
+      text: 'Konfirmasi',
+      Icon: BsCheck2All,
     },
     customerData: {
       location: '/org/customer-data',

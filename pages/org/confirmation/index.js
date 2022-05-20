@@ -1,11 +1,14 @@
 import authMiddleware from '@/utils/middleware/auth-middleware';
-import CONFIG from '@/global/config';
 import OrganizationLayout from '@/components/layouts/organization-layout';
+import CONFIG from '@/global/config';
+import OnlineConfirmationScreen from '@/components/screens/org/confirmation/online-confirmation-screen';
 
-export default function Shipments({ User }) {
+const { ROLE_NAME } = CONFIG.SUPABASE;
+
+export default function ConfirmationPage({ User }) {
   return <>
     <OrganizationLayout User={User}>
-
+      <OnlineConfirmationScreen />
     </OrganizationLayout>
   </>
 }
@@ -22,11 +25,11 @@ export async function getServerSideProps({ req, res }) {
     }
   }
   
-  const { ROLE_NAME } = CONFIG.SUPABASE;
-  if (User?.role?.roleName === ROLE_NAME.CUSTOMERS) {
+  const userRole = User.role.roleName;
+  if (userRole !== ROLE_NAME.MARKETING) {
     return {
       redirect: {
-        destination: '/customer/profile',
+        destination: '/org/dashboard',
         permanent: false,
       },
       props: {},

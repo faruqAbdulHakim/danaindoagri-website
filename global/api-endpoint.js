@@ -27,6 +27,7 @@ const API_ENDPOINT = {
   },
   ORDER: '/api/order',
   ORG_ORDER: '/api/org/order',
+  ORG_CONFIRMATION: '/api/org/order/confirmation',
   PROOF_OF_PAYMENT: '/api/order/proof-of-payment',
 }
 
