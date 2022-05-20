@@ -76,6 +76,32 @@ const OrderHelper = {
     return { data, error };
   }, 
 
+  getOnlineOrder: async (page, searchText) => {
+    const { data: userList } = await supabase.from(TABLE_NAME.USERS)
+      .select('id, fullName')
+      .ilike('fullName', `%${searchText}%`)
+    
+    const idList = userList.map((User) => User.id);
+
+    const totalDataEachPage = 5;
+    const begin = (page-1)*totalDataEachPage;
+    const end = begin + (totalDataEachPage - 1);
+    const { data, error } = await supabase.from(TABLE_NAME.ONLINE_ORDERS)
+      .select(`
+      *, 
+      ${TABLE_NAME.ORDER_DETAIL} (
+        *,
+        ${TABLE_NAME.PRODUCTS} (*)
+      ),
+      ${TABLE_NAME.USERS} (*)
+      `)
+      .in('userId', idList)
+      .order(
+        `id`, { ascending: false }
+      )
+      .range(begin, end)
+    return { data, error }
+  },
 
   updateCustomerOrder: async (updatedData, orderId) => {
     const { data, error } = await supabase.from(TABLE_NAME.ONLINE_ORDERS)
