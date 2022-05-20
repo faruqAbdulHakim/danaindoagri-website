@@ -99,7 +99,7 @@ const OrderHelper = {
     const { data } = await supabase.storage
       .from(PROOF_OF_PAYMENT.BUCKETS_NAME)
       .remove([filename]);
-    console.log(data)
+ 
     if (data.length === 0) {
       error = 'Tidak ada file yang dihapus';
     }

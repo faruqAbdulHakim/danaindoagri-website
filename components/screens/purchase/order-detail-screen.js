@@ -28,10 +28,11 @@ export default function OrderDetailScreen({ Order }) {
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
   const [fetching, setFetching] = useState(false);
-  const fileInputRef = useRef(null);
+  const uploadFileRef = useRef(null);
+  const changeFileRef = useRef(null);
 
   const uploadFileHandler = () => {
-    if (!Order.proofOfPayment) fileInputRef.current.click();
+    if (!Order.proofOfPayment) uploadFileRef.current.click();
   }
 
   const deleteProofOfPayment = () => {
@@ -47,7 +48,26 @@ export default function OrderDetailScreen({ Order }) {
     })
   }
 
-  const fileInputChange = (event) => {
+  const changeProofOfPayment = () => {
+    if (Order.proofOfPayment) changeFileRef.current.click();
+  }
+
+  const changeFileChange = (event) => {
+    if (!Order.proofOfPayment) return setError('Bukti pembayaran sebelumnya tidak ada');
+    const file = event.target.files[0];
+    setFetching(true)
+    OrderFetcher.changeProofOfPayment(Order.id, file).then(({ data, error, route }) => {
+      if (data) setSuccess(data);
+      else if (error) setError(error);
+      else if (route) Router.push(route);
+    }).catch((e) => {
+      setError(e.message);
+    }).finally(() => {
+      setFetching(false);
+    })
+  }
+
+  const uploadFileChange = (event) => {
     if (Order.proofOfPayment) return setError('Bukti pembayaran sudah ada');
     const file = event.target.files[0];
     setFetching(true)
@@ -165,8 +185,10 @@ export default function OrderDetailScreen({ Order }) {
 
       <div className={`mt-4 rounded-lg border-2 border-dashed shadow-md p-4 
         ${!Order.proofOfPayment && 'hover:bg-slate-100 active:opacity-40 transition-all'}`} onClick={uploadFileHandler}>
-        <input ref={fileInputRef} type='file' name='proofofpayment' hidden accept='image/jpeg,image/png'
-          onChange={fileInputChange} disabled={fetching} />
+        <input ref={uploadFileRef} type='file' name='upload-proofofpayment' hidden accept='image/jpeg,image/png'
+          onChange={uploadFileChange} disabled={fetching} />
+        <input ref={changeFileRef} type='file' name='changeproofofpayment' hidden accept='image/jpeg,image/png'
+          onChange={changeFileChange} disabled={fetching} />
         <p className='flex items-center gap-2'>
           <HiOutlineFolder size={22} /> {Order.proofOfPayment ? 'File' : 'Choose File'}
         </p>
@@ -212,6 +234,7 @@ export default function OrderDetailScreen({ Order }) {
               type='button'
               className='px-4 py-2 rounded-md bg-primary text-white disabled:bg-slate-600
               hover:opacity-70 active:opacity:40 transition-all'
+              onClick={changeProofOfPayment}
               disabled={fetching}
             >
               Ubah

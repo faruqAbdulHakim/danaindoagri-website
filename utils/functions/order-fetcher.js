@@ -60,6 +60,29 @@ const OrderFetcher = {
     return { data, error, route };
   },
 
+  changeProofOfPayment: async (orderId, file) => {
+    let data, error, route;
+
+    const formData = new FormData;
+    formData.append('file', file);
+    formData.append('orderId', orderId);
+
+    await fetch(API_ENDPOINT.PROOF_OF_PAYMENT, {
+      method: 'PUT',
+      body: formData,
+    }).then((res) => {
+      return res.json();
+    }).then((resJson) => {
+      if (resJson.status === 200) data = resJson.message;
+      else if (resJson.status === 300) route = resJson.location;
+      else if (resJson.status === 400) error = resJson.message;
+    }).catch((e) => {
+      error = e.message;
+    })
+
+    return { data, error, route };
+  },
+
   deleteProofOfPayment: async (orderId) => {
     let data, error, route;
 
