@@ -34,6 +34,19 @@ export default function OrderDetailScreen({ Order }) {
     if (!Order.proofOfPayment) fileInputRef.current.click();
   }
 
+  const deleteProofOfPayment = () => {
+    setFetching(true);
+    OrderFetcher.deleteProofOfPayment(Order.id).then(({ data, error, route }) => {
+      if (data) setSuccess(data);
+      else if (error) setError(error);
+      else if (route) Router.push(route);
+    }).catch((e) => {
+      setError(e.message);
+    }).finally(() => {
+      setFetching(false);
+    })
+  }
+
   const fileInputChange = (event) => {
     if (Order.proofOfPayment) return setError('Bukti pembayaran sudah ada');
     const file = event.target.files[0];
@@ -153,7 +166,7 @@ export default function OrderDetailScreen({ Order }) {
       <div className={`mt-4 rounded-lg border-2 border-dashed shadow-md p-4 
         ${!Order.proofOfPayment && 'hover:bg-slate-100 active:opacity-40 transition-all'}`} onClick={uploadFileHandler}>
         <input ref={fileInputRef} type='file' name='proofofpayment' hidden accept='image/jpeg,image/png'
-          onChange={fileInputChange} disabled={fetching || Order.proofOfPayment} />
+          onChange={fileInputChange} disabled={fetching} />
         <p className='flex items-center gap-2'>
           <HiOutlineFolder size={22} /> {Order.proofOfPayment ? 'File' : 'Choose File'}
         </p>
@@ -161,7 +174,8 @@ export default function OrderDetailScreen({ Order }) {
           {
           Order.proofOfPayment ?
           <>
-            <div className='bg-red-200 w-full max-w-[120px] aspect-square relative border
+            <div className='bg-slate-200 w-full max-w-[120px] aspect-square relative border
+              rounded-md overflow-hidden
               cursor-pointer hover:opacity-70 active:opacity-40 transition-all'
               onClick={() => {
                 window.open(`${BASE_URL}/${Order.proofOfPayment}`)
@@ -182,12 +196,34 @@ export default function OrderDetailScreen({ Order }) {
           </>
           }
         </div>
+        {
+          Order.proofOfPayment && 
+          <div className='flex justify-end gap-2'>
+            <button
+              type='button'
+              className='px-4 py-2 rounded-md bg-red-600 text-white disabled:bg-slate-600
+              hover:opacity-70 active:opacity:40 transition-all'
+              onClick={deleteProofOfPayment}
+              disabled={fetching}
+            >
+              Hapus
+            </button>
+            <button
+              type='button'
+              className='px-4 py-2 rounded-md bg-primary text-white disabled:bg-slate-600
+              hover:opacity-70 active:opacity:40 transition-all'
+              disabled={fetching}
+            >
+              Ubah
+            </button>
+          </div>
+        }
       </div>
     </div>
   </div>
   {
     error &&
-    <CommonErrorModal text={error} onClick={() => setError('')} />
+    <CommonErrorModal text={error} onClick={() => Router.reload()} />
   }
   {
     success &&

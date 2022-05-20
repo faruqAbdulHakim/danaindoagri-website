@@ -93,6 +93,19 @@ const OrderHelper = {
       });
     return { data, error };
   },
+
+  deleteProofOfPayment: async (filename) => {
+    let error;
+    const { data } = await supabase.storage
+      .from(PROOF_OF_PAYMENT.BUCKETS_NAME)
+      .remove([filename]);
+    console.log(data)
+    if (data.length === 0) {
+      error = 'Tidak ada file yang dihapus';
+    }
+    
+    return { data, error };
+  }
 }
 
 export default OrderHelper

@@ -70,6 +70,52 @@ handler.post(async (req, res) => {
   }
 })
 
+handler.delete(async (req, res) => {
+  try {
+    const { User } = await authMiddleware(req, res);
+    if (!User) {
+      res.status(300).json({status: 300, message: 'JWT ERROR', location: '/login'});
+    }
+
+    const userRole = User.role.roleName;
+    if (userRole !== ROLE_NAME.CUSTOMERS) {
+      throw new Error('Tidak memiliki hak untuk menghapus file');
+    }
+
+    const orderId = req.body.orderId;
+    if (!orderId) {
+      throw new Error('Order Id tidak ditemukan di request body');
+    }
+
+    const { data: Order, error: getOrderError } = await OrderHelper.getCustomerOrderById(User.id, orderId);
+    if (getOrderError) {
+      throw new Error('Gagal mendapatkan detail order');
+    }
+
+    if (Order.userId !== User.id) {
+      throw new Error('Customer Id tidak match');
+    }
+
+    const updatedData = {
+      proofOfPayment: null
+    }
+    
+    const { error: updateDbError } = await OrderHelper.updateCustomerOrder(updatedData, orderId);
+    if (updateDbError) {
+      throw new Error('Gagal update database');
+    }
+
+    const { error } = await OrderHelper.deleteProofOfPayment(Order.proofOfPayment);
+    if (error) {
+      throw new Error('Gagal menghapus file bukti pembayaran');
+    }
+
+    res.status(200).json({status: 200, message: 'Berhasil menghapus file bukti pembayaran'});
+  } catch (e) {
+    res.status(400).json({status: 400, message: e.message});
+  }
+})
+
 export const config = {
   api: {
     bodyParser: false,
