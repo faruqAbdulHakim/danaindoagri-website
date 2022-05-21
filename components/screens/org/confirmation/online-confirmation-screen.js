@@ -4,20 +4,26 @@ import { useEffect, useState, useRef } from 'react';
 
 import OrderFetcher from '@/utils/functions/order-fetcher';
 import CommonErrorModal from '@/components/common/common-error-modal';
+import CommonSuccessModal from '@/components/common/common-success-modal';
 import CommonModal from '@/components/common/common-modal';
 import CONFIG from '@/global/config';
 
 const { BASE_URL } = CONFIG.SUPABASE.BUCKETS.PROOF_OF_PAYMENT;
 
 export default function OnlineConfirmationScreen() {
+  //fetching
   const [fetching, setFetching] = useState(false);
   const [loadMore, setLoadMore] = useState(false);
+  const [confirmFetching, setConfirmFetching] = useState(false);
+  //state
   const [limit, setLimit] = useState(false);
+  const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
   const [onlineOrder, setOnlineOrder] = useState([]);
   const [page, setPage] = useState(2);
   const [proofAvailability, setProofAvailability] = useState('1');
   const [proofOfPayment, setProofOfPayment] = useState('');
+  const [confirmModal, setConfirmModal] = useState(null); // fill with orderDetailId
 
   const searchInputRef = useRef(null);
 
@@ -53,6 +59,20 @@ export default function OnlineConfirmationScreen() {
     }).finally(() => {
       setLoadMore(false);
       setPage(page + 1);
+    })
+  }
+
+  const confirmOrderHandler = () => {
+    setConfirmFetching(true);
+    OrderFetcher.confirmOrder(confirmModal).then(({ data, error, route }) => {
+      if (data) setSuccess(data);
+      else if (error) setError(error);
+      else if (route) Router.push(route)
+    }).catch((e) => {
+      setError(e.message);
+    }).finally(() => {
+      setConfirmFetching(false);
+      setConfirmModal(null);
     })
   }
 
@@ -165,7 +185,8 @@ export default function OnlineConfirmationScreen() {
                     }
                     <button type='button'
                       className='border-2 rounded-full border-primary px-4 py-2 bg-primary text-white
-                        hover:opacity-70 active:opacity:40 transition-all'>
+                        hover:opacity-70 active:opacity:40 transition-all'
+                      onClick={() => setConfirmModal(Order.orderDetailId)}>
                           Konfirmasi
                     </button>
                   </div>
@@ -197,6 +218,10 @@ export default function OnlineConfirmationScreen() {
       <CommonErrorModal text={error} onClick={() => setError('')}/>
     }
     {
+      success &&
+      <CommonSuccessModal text={success} onClick={() => Router.reload()} />
+    }
+    {
       proofOfPayment &&
       <CommonModal>
         <div className='flex flex-col gap-8 p-2'>
@@ -213,6 +238,34 @@ export default function OnlineConfirmationScreen() {
             onClick={() => setProofOfPayment('')}>
               Tutup
           </button>
+        </div>
+      </CommonModal>
+    }
+    {
+      confirmModal &&
+      <CommonModal>
+        <div className='px-4 py-2 max-w-sm'>
+          <h2 className='text-lg font-semibold text-center'>
+            Apakah anda yakin ingin mengkonfirmasi pesanan ini?
+          </h2>
+          <div className='flex flex-wrap justify-evenly gap-10 mt-4'>
+            <button type='button' 
+              className='bg-gray-400 hover:bg-red-600 disabled:hover:bg-gray-400 w-28 py-3 rounded-full text-white 
+              transition-all duration-200'
+              onClick={() => setConfirmModal(null)}
+              disabled={confirmFetching}
+            >
+              Batal
+            </button>
+            <button type='button' 
+              className='bg-gradient-to-br from-primary to-primary/40 hover:to-primary/70 disabled:from-gray-400 
+              disabled:to-gray-200 w-28 py-3 rounded-full text-white transition-all duration-200'
+              onClick={confirmOrderHandler}
+              disabled={confirmFetching}
+              >
+              Konfirmasi
+            </button>
+          </div>
         </div>
       </CommonModal>
     }

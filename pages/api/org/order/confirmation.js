@@ -22,6 +22,8 @@ export default async function handler(req, res) {
     
     if (method === 'GET') {
       return await getUnconfirmedOrder(req, res);
+    } else if (method === 'POST') {
+      return await confirmOrder(req, res);
     } else {
       throw new Error('Invalid method');
     }
@@ -41,4 +43,22 @@ async function getUnconfirmedOrder(req, res) {
   }
 
   return res.status(200).json({status: 200, message: 'Berhasil mendapatkan data pemesanan', data});
+}
+
+async function confirmOrder(req, res) {
+  const { body, headers } = req;
+  if (headers['content-type'] !== 'application/json') {
+    throw new Error('Invalid Content Type');
+  }
+
+  if (!body.orderDetailId) {
+    throw new Error('Order Id tidak ada di request');
+  }
+
+  const { data, error } = await OrderHelper.confirmCustomerOrder(body.orderDetailId);
+  if (error) {
+    throw new Error('Gagal mengkonfirmasi pesanan');
+  }
+
+  res.status(200).json({status: 200, message: 'Berhasil mengkonfirmasi pesanan'})
 }

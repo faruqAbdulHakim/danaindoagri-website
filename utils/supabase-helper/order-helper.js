@@ -146,6 +146,16 @@ const OrderHelper = {
     return { data, error };
   },
 
+  confirmCustomerOrder: async (orderDetailId) => {
+    const { data, error } = await supabase.from(TABLE_NAME.ORDER_DETAIL)
+      .update({ status: 'dikonfirmasi' })
+      .match({ id: orderDetailId })
+    if (data.length === 0) {
+      return { error: 'Gagal menemukan detail order yang akan diubah'}
+    }
+    return { data, error }
+  },
+
   uploadProofOfPayment: async (filename, file, filetype) => {
     const { data, error } = await supabase.storage
       .from(PROOF_OF_PAYMENT.BUCKETS_NAME)
