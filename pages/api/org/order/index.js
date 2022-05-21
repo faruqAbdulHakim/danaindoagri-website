@@ -4,7 +4,6 @@ import OrderHelper from '@/utils/supabase-helper/order-helper';
 
 const { ROLE_NAME } = CONFIG.SUPABASE;
 
-// this endpoint only for marketing role
 export default async function handler(req, res) {
   try {
 
@@ -16,7 +15,9 @@ export default async function handler(req, res) {
     }
 
     const userRole = User.role.roleName;
-    if (userRole !== ROLE_NAME.MARKETING) {
+    if (userRole !== ROLE_NAME.MARKETING
+        && userRole !== ROLE_NAME.PRODUCTION
+        && userRole !== ROLE_NAME.OWNER) {
       throw new Error('Tidak memiliki hak akses terhadap data');
     }
     

@@ -66,6 +66,7 @@ async function createNewOrder(req, res, User) {
 
     await ProductsHelper.updateProduct(body.productId, {stock: updatedStock})
     const { error } = await OrderHelper.CustomerCreateOrder(body);
+
     if (error) {
       await ProductsHelper.updateProduct(body.productId, {stock: Product.stock});
       throw new Error('Gagal membuat pesanan');

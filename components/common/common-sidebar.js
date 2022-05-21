@@ -5,6 +5,7 @@ import { RiDashboardLine } from 'react-icons/ri';
 import { BiUserCircle } from 'react-icons/bi';
 import { BsBoxSeam, BsCart2, BsBank, BsCheck2All } from 'react-icons/bs';
 import { HiOutlineUserGroup } from 'react-icons/hi';
+import { MdOutlineConfirmationNumber } from 'react-icons/md';
 
 import CONFIG from '@/global/config';
 
@@ -112,10 +113,15 @@ function getNavLinkList(roleName) {
       text: 'Pemesanan',
       Icon: BsCart2,
     },
-    shipments: {
+    confirmation: {
       location: '/org/confirmation',
       text: 'Konfirmasi',
       Icon: BsCheck2All,
+    },
+    receiptNumber: {
+      location: '/org/receipt-number',
+      text: 'Nomor Resi',
+      Icon: MdOutlineConfirmationNumber,
     },
     customerData: {
       location: '/org/customer-data',
@@ -125,16 +131,16 @@ function getNavLinkList(roleName) {
   }
 
   if (roleName === ROLE_NAME.MARKETING) {
-    const { dashboard, profile, products, orders, shipments, customerData } = NavLinkList;
-    return { dashboard, profile, products, orders, shipments, customerData }
+    const { dashboard, profile, products, orders, confirmation, customerData } = NavLinkList;
+    return { dashboard, profile, products, orders, confirmation, customerData }
   }
   if (roleName === ROLE_NAME.PRODUCTION) {
-    const { dashboard, profile, products, orders, shipments } = NavLinkList;
-    return { dashboard, profile, products, orders, shipments }
+    const { dashboard, profile, products, orders, receiptNumber } = NavLinkList;
+    return { dashboard, profile, products, orders, receiptNumber }
   }
   if (roleName === ROLE_NAME.OWNER) {
-    const { dashboard, profile, products, orders, shipments, customerData } = NavLinkList;
-    return { dashboard, profile, products, orders, shipments, customerData }
+    const { dashboard, profile, products, orders, customerData } = NavLinkList;
+    return { dashboard, profile, products, orders, customerData }
   }
 }
 

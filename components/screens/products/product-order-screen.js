@@ -63,6 +63,7 @@ export default function ProductOrderScreen({ User, Product }) {
       qty: formValues.qty,
       address: User.address,
       cityId: User.cities.id,
+      etd: shipmentEtd || '',
       expedition: expedition.name + ' - ' + shipmentCostList[formValues.courierService].service,
       shipmentPrice,
       productPrice,

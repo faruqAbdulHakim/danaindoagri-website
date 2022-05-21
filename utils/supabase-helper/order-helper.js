@@ -17,6 +17,7 @@ const OrderHelper = {
       shipmentPrice: body.shipmentPrice,
       productPrice: body.productPrice,
       codePrice: body.codePrice,
+      etd: body.etd,
     }
     const { 
       data: orderDetailData, 
