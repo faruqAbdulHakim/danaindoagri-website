@@ -176,19 +176,21 @@ export default function OnlineConfirmationScreen() {
                   <div className='flex justify-end items-center gap-2'>
                     { 
                       Order.proofOfPayment &&
+                      <>
                       <button type='button'
                         className='border-2 rounded-full border-primary px-4 py-2 
                           hover:opacity-70 active:opacity:40 transition-all'
                         onClick={() => setProofOfPayment(Order.proofOfPayment)}>
                             Lihat bukti
                       </button>
-                    }
-                    <button type='button'
+                      <button type='button'
                       className='border-2 rounded-full border-primary px-4 py-2 bg-primary text-white
-                        hover:opacity-70 active:opacity:40 transition-all'
+                      hover:opacity-70 active:opacity:40 transition-all'
                       onClick={() => setConfirmModal(Order.orderDetailId)}>
-                          Konfirmasi
-                    </button>
+                            Konfirmasi
+                      </button>
+                      </>
+                    }
                   </div>
                 </div>
               </div>

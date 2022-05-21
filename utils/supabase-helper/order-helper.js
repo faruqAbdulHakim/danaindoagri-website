@@ -147,9 +147,18 @@ const OrderHelper = {
   },
 
   confirmCustomerOrder: async (orderDetailId) => {
+    const { error: unavailableProof } = await supabase.from(TABLE_NAME.ONLINE_ORDERS)
+      .select('*')
+      .eq('orderDetailId', orderDetailId)
+      .neq('proofOfPayment', null)
+      .single();
+    if (unavailableProof) {
+      return { error: 'Bukti belum diunggah'}
+    }
+    
     const { data, error } = await supabase.from(TABLE_NAME.ORDER_DETAIL)
       .update({ status: 'dikonfirmasi' })
-      .match({ id: orderDetailId })
+      .match({ id: orderDetailId, status: 'belum dibayar' })
     if (data.length === 0) {
       return { error: 'Gagal menemukan detail order yang akan diubah'}
     }

@@ -219,7 +219,8 @@ export default function OrderDetailScreen({ Order }) {
           }
         </div>
         {
-          Order.proofOfPayment && 
+          Order.proofOfPayment &&  
+          Order.orderdetail.status === 'belum dibayar' ?
           <div className='flex justify-end gap-2'>
             <button
               type='button'
@@ -240,6 +241,10 @@ export default function OrderDetailScreen({ Order }) {
               Ubah
             </button>
           </div>
+          :
+          <p className='text-right text-sm text-primary'>
+            Bukti telah dikonfirmasi
+          </p>
         }
       </div>
     </div>

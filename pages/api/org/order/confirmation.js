@@ -55,7 +55,7 @@ async function confirmOrder(req, res) {
     throw new Error('Order Id tidak ada di request');
   }
 
-  const { data, error } = await OrderHelper.confirmCustomerOrder(body.orderDetailId);
+  const { error } = await OrderHelper.confirmCustomerOrder(body.orderDetailId);
   if (error) {
     throw new Error('Gagal mengkonfirmasi pesanan');
   }
