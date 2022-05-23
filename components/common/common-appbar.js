@@ -103,7 +103,7 @@ function NavLink({ text, urlPath, idx}) {
   const router = useRouter();
   const { pathname } = router;
 
-  let isActive = pathname.includes(urlPath);
+  let isActive = pathname.indexOf(urlPath) === 0;
   if (urlPath === '/') isActive = pathname === urlPath;
 
   return <>

@@ -3,12 +3,12 @@ import Link from 'next/link';
 import { useEffect, useState, useRef } from 'react';
 
 import { IoWallet, IoCheckmarkCircle, IoStar } from 'react-icons/io5';
-import { FaTruck } from 'react-icons/fa';
+import { FaTruck, FaPlusCircle } from 'react-icons/fa';
 
 import OrderFetcher from '@/utils/functions/order-fetcher';
 import CommonErrorModal from '@/components/common/common-error-modal';
 
-export default function OnlineOrderScreen() {
+export default function OfflineOrderScreen({ isMarketing }) {
   const [fetching, setFetching] = useState(false);
   const [loadMore, setLoadMore] = useState(false);
   const [limit, setLimit] = useState(false);
@@ -69,7 +69,7 @@ export default function OnlineOrderScreen() {
   return <>
   <div className='p-6 bg-white/80 h-full backdrop-blur-md overflow-hidden'>
     <h1 className='text-xl font-semibold'>
-      Data Pemesanan (Online)
+      Data Pemesanan (Offline)
     </h1>
     <form onSubmit={searchHandler} className='flex items-center gap-4 mt-4'>
       <input type='text' name='searchQuery' placeholder='Cari berdasarkan nama customer' ref={searchInputRef}
@@ -81,6 +81,15 @@ export default function OnlineOrderScreen() {
         >
         Cari
       </button>
+      {
+        isMarketing &&
+        <Link href='/org/orders/add-order'>
+          <a className='bg-primary text-white px-4 py-2 rounded-md
+          hover:opacity-70 active:opacity-40 transition-all flex items-center gap-2'>
+            <FaPlusCircle /> Tambah
+          </a>
+        </Link>
+      }
     </form>
     <div className='mt-2 h-[calc(100vh-260px)] overflow-auto border rounded-lg p-4 bg-white/40 shadow-md'>
       {
@@ -180,9 +189,9 @@ export default function OnlineOrderScreen() {
       }
     </div>
     <div className='mt-2 ml-2'>
-      <Link href='/org/orders/offline'>
+      <Link href='/org/orders'>
         <a className='text-primary hover:underline active:opacity-40'>
-          Cek pemesanan secara offline
+          Cek pemesanan secara online
         </a>
       </Link>
     </div>

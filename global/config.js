@@ -11,6 +11,7 @@ const CONFIG = {
       CITY_TYPE: 'citytype',
       PROVINCES: 'provinces',
       ONLINE_ORDERS: 'onlineorders',
+      OFFLINE_ORDERS: 'offlineorders',
       ORDER_DETAIL: 'orderdetail',
     },
     ROLE_NAME: {

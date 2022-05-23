@@ -7,7 +7,15 @@ const ProductsHelper = {
   getAllProducts: async () => {
     const { data, error } = await supabase.from(TABLE_NAME.PRODUCTS)
       .select('*');
-      
+    for (let i = 0; i < data.length; i ++) {
+      const {data: wsPrice, error: getWsPriceError } = await supabase.from(TABLE_NAME.PRODUCTS_WSPRICE)
+        .select('*')
+        .eq('productId', data[i].id);
+      if (getWsPriceError) {
+        return { error: 'Gagal mendapatkan data harga grosir'}
+      }
+      else data[i].wsPrice = wsPrice;
+    }
     return { data, error };
   },
 

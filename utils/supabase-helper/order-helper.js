@@ -4,6 +4,7 @@ import CONFIG from '@/global/config';
 
 const { TABLE_NAME, BUCKETS } = CONFIG.SUPABASE;
 const { PROOF_OF_PAYMENT } = BUCKETS;
+const { DEFAULT_ORIGIN } = CONFIG.RAJAONGKIR;
 
 const OrderHelper = {
   CustomerCreateOrder: async (body) => {
@@ -26,8 +27,8 @@ const OrderHelper = {
       .from(TABLE_NAME.ORDER_DETAIL)
       .insert([orderDetail]);
 
-    if (insertOrderDetailError) {
-      return { error: insertOrderDetailError}
+    if (insertOrderDetailError || orderDetailData.length === 0) {
+      return { error: 'Gagal menambahkan data detail order'}
     }
 
     const orderDetailId = orderDetailData[0].id;
@@ -47,6 +48,39 @@ const OrderHelper = {
         .from(TABLE_NAME.ORDER_DETAIL)
         .delete()
         .match({ id: orderDetailId })
+    }
+
+    return { data, error };
+  },
+
+  createOfflineOrder: async (body) => {
+    const { productId, productPrice, qty } = body;
+    const orderDetail = {
+      productId,
+      qty,
+      address: 'Bayar ditempat',
+      cityId: DEFAULT_ORIGIN,
+      expedition: 'Pemesanan secara offline',
+      status: 'diterima',
+      shipmentPrice: 0,
+      productPrice,
+      codePrice: 0,
+      etd: '0',
+    };
+    const { data: orderDetailData, error: orderDetailErr } = await supabase.from(TABLE_NAME.ORDER_DETAIL)
+      .insert([orderDetail])
+    if (orderDetailErr || orderDetailData.length === 0) {
+      return { error: 'Gagal menambahkan data'}
+    }
+    
+    const orderDetailId = orderDetailData[0].id;
+    const { data, error } = await supabase.from(TABLE_NAME.OFFLINE_ORDERS)
+      .insert([{orderDetailId}])
+    if (data.length === 0) {
+      await supabase.from(TABLE_NAME.ORDER_DETAIL)
+        .delete()
+        .match({id: orderDetailId})
+      return { error: 'Gagal menambahkan data'}
     }
 
     return { data, error };
