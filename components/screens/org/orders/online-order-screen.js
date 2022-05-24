@@ -22,7 +22,7 @@ export default function OnlineOrderScreen() {
     event.preventDefault();
     setFetching(true);
     const searchText = searchInputRef.current.value;
-    OrderFetcher.fetchOnlineOrders(1, searchText).then(({ data, error, route }) => {
+    OrderFetcher.fetchOrders(1, searchText, 'online').then(({ data, error, route }) => {
       if (data) setOnlineOrder(data);
       else if (error) setError(error);
       else if (route) Router.push(route);
@@ -38,7 +38,7 @@ export default function OnlineOrderScreen() {
   const loadMoreData = () => {
     setLoadMore(true);
     const searchText = searchInputRef.current.value
-    OrderFetcher.fetchOnlineOrders(page, searchText).then(({ data, error, route }) => {
+    OrderFetcher.fetchOrders(page, searchText, 'online').then(({ data, error, route }) => {
       if (data) {
         setOnlineOrder([...onlineOrder, ...data]);
         if (data.length === 0) setLimit(true);
@@ -55,7 +55,7 @@ export default function OnlineOrderScreen() {
 
   useEffect(() => {
     setFetching(true);
-    OrderFetcher.fetchOnlineOrders(1, '').then(({ data, error, route }) => {
+    OrderFetcher.fetchOrders(1, '', 'online').then(({ data, error, route }) => {
       if (data) setOnlineOrder(data);
       else if (error) setError(error);
       else if (route) Router.push(route);

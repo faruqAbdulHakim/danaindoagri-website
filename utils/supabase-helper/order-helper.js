@@ -138,6 +138,26 @@ const OrderHelper = {
     return { data, error }
   },
 
+  getOfflineOrder: async (page) => {    
+    const totalDataEachPage = 5;
+    const begin = (page-1)*totalDataEachPage;
+    const end = begin + (totalDataEachPage - 1);
+    const { data, error } = await supabase.from(TABLE_NAME.OFFLINE_ORDERS)
+      .select(`
+      *, 
+      ${TABLE_NAME.ORDER_DETAIL} (
+        *,
+        ${TABLE_NAME.PRODUCTS} (*)
+      )
+      `)
+      .order(
+        `id`, { ascending: false }
+      )
+      .range(begin, end)
+
+    return { data, error }
+  },
+
   getUnconfirmedOrder: async (page, searchText, proofAvailability) => {
     const { data: userList } = await supabase.from(TABLE_NAME.USERS)
       .select('id, fullName')

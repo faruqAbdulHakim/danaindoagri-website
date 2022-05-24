@@ -77,9 +77,9 @@ const OrderFetcher = {
   },
 
 
-  fetchOnlineOrders: async (page, searchText) => {
+  fetchOrders: async (page, searchText, orderType) => {
     let data, error, route;
-    await fetch(API_ENDPOINT.ORG_ORDER + `?page=${page}&searchText=${searchText}`).then((res) => {
+    await fetch(API_ENDPOINT.ORG_ORDER + `?page=${page}&searchText=${searchText}&orderType=${orderType}`).then((res) => {
       return res.json();
     }).then((resJson) => {
       if (resJson.status === 200) data = resJson.data;

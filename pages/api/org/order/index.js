@@ -23,7 +23,10 @@ export default async function handler(req, res) {
     }
     
     if (method === 'GET') {
-      return await getOrders(req, res);
+      const orderType = req.query.orderType;
+      if (orderType === 'online') return await getOnlineOrders(req, res);
+      else if (orderType === 'offline') return await getOfflineOrders(req, res);
+      else throw new Error('Status order online/offline tidak terdefinisi');
     } else if (method === 'POST') {
       if (userRole !== ROLE_NAME.MARKETING) {
         return res.status(300).json({status: 300, message: 'Tidak memiliki hak akses menambah data', location: '/org/dashboard'})
@@ -37,10 +40,20 @@ export default async function handler(req, res) {
   }
 }
 
-async function getOrders(req, res) {
+async function getOnlineOrders(req, res) {
   const page = req.query.page || 1;
   const searchText = req.query.searchText || '';
   const { data, error } = await OrderHelper.getOnlineOrder(page, searchText);
+  if (error) {
+    throw new Error('Gagal mendapatkan data pemesanan');
+  }
+
+  return res.status(200).json({status: 200, message: 'Berhasil mendapatkan data pemesanan', data});
+}
+
+async function getOfflineOrders(req, res) {
+  const page = req.query.page || 1;
+  const { data, error } = await OrderHelper.getOfflineOrder(page);
   if (error) {
     throw new Error('Gagal mendapatkan data pemesanan');
   }
