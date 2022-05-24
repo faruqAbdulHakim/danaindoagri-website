@@ -138,6 +138,26 @@ const OrderHelper = {
     return { data, error }
   },
 
+  getOnlineOrderById: async (onlineOrderId) => {
+    const { data, error } = await supabase.from(TABLE_NAME.ONLINE_ORDERS)
+      .select(`
+      *, 
+      ${TABLE_NAME.ORDER_DETAIL} (
+        *,
+        ${TABLE_NAME.CITIES} (
+          *,
+          ${TABLE_NAME.CITY_TYPE} (*),
+          ${TABLE_NAME.PROVINCES} (*)
+        ),
+        ${TABLE_NAME.PRODUCTS} (*)
+      ),
+      ${TABLE_NAME.USERS} (*)
+      `)
+      .eq('id', onlineOrderId)
+      .single();
+    return { data, error }
+  },
+
   getOfflineOrder: async (page) => {    
     const totalDataEachPage = 5;
     const begin = (page-1)*totalDataEachPage;
@@ -156,6 +176,25 @@ const OrderHelper = {
       .range(begin, end)
 
     return { data, error }
+  },
+
+  getOfflineOrderById: async (offlineOrderId) => {    
+      const { data, error } = await supabase.from(TABLE_NAME.OFFLINE_ORDERS)
+        .select(`
+        *, 
+        ${TABLE_NAME.ORDER_DETAIL} (
+          *,
+          ${TABLE_NAME.CITIES} (
+            *,
+            ${TABLE_NAME.CITY_TYPE} (*),
+            ${TABLE_NAME.PROVINCES} (*)
+          ),
+          ${TABLE_NAME.PRODUCTS} (*)
+        )
+        `)
+        .eq('id', offlineOrderId)
+        .single();
+      return { data, error }
   },
 
   getUnconfirmedOrder: async (page, searchText, proofAvailability) => {

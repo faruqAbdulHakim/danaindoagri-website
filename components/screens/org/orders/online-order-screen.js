@@ -106,7 +106,7 @@ export default function OnlineOrderScreen() {
                 products: Product,
               } = Order.orderdetail;
 
-              return <Link key={Order.id} href={`/org/orders/online-order/${Order.id}`}>
+              return <Link key={Order.id} href={`/org/orders/online/${Order.id}`}>
               <a key={Order.id} className='flex items-center justify-between shadow-md px-4 py-4
                 rounded-md bg-white/30 hover:bg-slate-100 active:opacity-40 mb-3 transition-all'>
                 <div className='overflow-clip w-32'>

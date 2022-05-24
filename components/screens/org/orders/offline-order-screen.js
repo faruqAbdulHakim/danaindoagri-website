@@ -62,7 +62,8 @@ export default function OfflineOrderScreen({ isMarketing }) {
         </Link>
       }
     </div>
-    <div className='mt-4 h-[calc(100vh-260px)] overflow-auto border rounded-lg p-4 bg-white/40 shadow-md'>
+    <div className={`mt-4 overflow-auto border rounded-lg p-4 bg-white/40 shadow-md
+      ${isMarketing ? 'h-[calc(100vh-260px)]' : 'h-[calc(100vh-210px)]'}`}>
       {
         fetching ?
         <h2 className='text-primary text-lg font-semibold animate-bounce'>
@@ -86,7 +87,7 @@ export default function OfflineOrderScreen({ isMarketing }) {
                 products: Product,
               } = Order.orderdetail;
 
-              return <Link key={Order.id} href={`/org/orders/offline-order/${Order.id}`}>
+              return <Link key={Order.id} href={`/org/orders/offline/${Order.id}`}>
               <a key={Order.id} className='flex items-center justify-between shadow-md px-4 py-4
                 rounded-md bg-white/30 hover:bg-slate-100 active:opacity-40 mb-3 transition-all'>
                 <div className='overflow-clip w-40'>
