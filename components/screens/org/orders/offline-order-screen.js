@@ -87,8 +87,8 @@ export default function OfflineOrderScreen({ isMarketing }) {
                 products: Product,
               } = Order.orderdetail;
 
-              return <Link key={Order.id} href={`/org/orders/offline/${Order.id}`}>
-              <a key={Order.id} className='flex items-center justify-between shadow-md px-4 py-4
+              return <div key={Order.id} onClick={() => Router.push(`/org/orders/offline/${Order.id}`)}
+                className='flex cursor-pointer items-center justify-between shadow-md px-4 py-4
                 rounded-md bg-white/30 hover:bg-slate-100 active:opacity-40 mb-3 transition-all'>
                 <div className='overflow-clip w-40'>
                   <p className='text-xs text-slate-400'>
@@ -130,8 +130,18 @@ export default function OfflineOrderScreen({ isMarketing }) {
                     />
                   </div>
                 </div>
-              </a>
-              </Link>
+                <div className='overflow-clip w-40'>
+                  <button type='button'
+                    className='bg-primary text-white px-4 py-2 rounded-full
+                    hover:opacity-70 active:opacity-40 transition-all'
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      Router.push(`/org/orders/offline/${Order.id}/edit`)
+                    }}>
+                    Ubah
+                  </button>
+                </div>
+              </div>
             })
           }
           {

@@ -271,8 +271,8 @@ const OrderHelper = {
   updateOrderDetail: async (updatedData, orderDetailId) => {
     const { data, error } = await supabase.from(TABLE_NAME.ORDER_DETAIL)
       .update(updatedData)
-      .match({ id: orderDetailId });
-    if (data.length === 0) return {error: 'Gagal update'};
+      .match({ id: orderDetailId })
+      .single();
     return { data, error };
   },
 

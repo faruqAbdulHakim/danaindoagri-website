@@ -81,7 +81,8 @@ const ProductsHelper = {
   updateProduct: async(productId, Product) => {
     const { data, error } = await supabase.from(TABLE_NAME.PRODUCTS)
       .update(Product)
-      .match({ id: productId });
+      .match({ id: productId })
+      .single();
     
     return { data, error };
   },
