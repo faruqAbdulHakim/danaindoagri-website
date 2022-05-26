@@ -28,6 +28,8 @@ const API_ENDPOINT = {
   ORDER: '/api/order',
   ORG_ORDER: '/api/org/order',
   ORG_CONFIRMATION: '/api/org/order/confirmation',
+  ORG_CONFIRMED_ORDER: '/api/org/order/confirmed',
+  ORG_RECEIPT_NUMBER: '/api/org/order/receipt-number',
   PROOF_OF_PAYMENT: '/api/order/proof-of-payment',
 }
 

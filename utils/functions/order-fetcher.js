@@ -92,7 +92,6 @@ const OrderFetcher = {
     return { data, error, route };
   },
 
-
   fetchUnconfirmedOrder: async (page, searchText, proofAvailability) => {
     let data, error, route;
     await fetch(API_ENDPOINT.ORG_CONFIRMATION + `?page=${page}&searchText=${searchText}&proofAvailability=${proofAvailability}`)
@@ -109,6 +108,36 @@ const OrderFetcher = {
     return { data, error, route };
   },
 
+  fetchConfirmedOrder: async (page, searchText) => {
+    let data, error, route;
+    await fetch(API_ENDPOINT.ORG_CONFIRMED_ORDER + `?page=${page}&searchText=${searchText}`)
+      .then((res) => res.json())
+      .then((resJson) => {
+        if (resJson.status === 200) data = resJson.data;
+        else if (resJson.status === 300) route = resJson.location;
+        else error = resJson.message;
+      })
+      .catch((e) => error = e.message)
+    return { data, error, route };
+  },
+
+  postReceiptNumber: async (orderId, receiptNumber) => {
+    let data, error, route;
+
+    await fetch(API_ENDPOINT.ORG_RECEIPT_NUMBER, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({ orderId, receiptNumber })
+    }).then((res) => res.json())
+      .then((resJson) => {
+        if (resJson.status === 200) data = resJson.message;
+        else if (resJson.status === 300) route = resJson.location;
+        else error = resJson.message;
+      }).catch((e) => error = e.message);
+    return { data, error, route };
+  },
 
   postProofOfPayment: async (orderId, file) => {
     let data, error, route;

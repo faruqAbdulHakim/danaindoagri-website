@@ -233,10 +233,46 @@ const OrderHelper = {
     return { data, error }
   },
 
+  getConfirmedOrder: async (page, searchText) => {
+    const { data: userList } = await supabase.from(TABLE_NAME.USERS)
+      .select('id, fullName')
+      .ilike('fullName', `%${searchText}%`)
+
+    const idList = userList.map((User) => User.id);
+
+    const totalDataEachPage = 5;
+    const begin = (page-1)*totalDataEachPage;
+    const end = begin + (totalDataEachPage - 1);
+    const { data, error } = await supabase.from(TABLE_NAME.ONLINE_ORDERS)
+      .select(`
+      *, 
+      ${TABLE_NAME.ORDER_DETAIL}!inner(
+        *,
+        ${TABLE_NAME.PRODUCTS} (*)
+      ),
+      ${TABLE_NAME.USERS} (*)
+      `)
+      .eq(`${TABLE_NAME.ORDER_DETAIL}.status`, 'dikonfirmasi')
+      .in('userId', idList)
+      .order('id', { ascending: false })
+      .range(begin, end)
+    
+    return { data, error }
+  },
+
   updateCustomerOrder: async (updatedData, orderId) => {
     const { data, error } = await supabase.from(TABLE_NAME.ONLINE_ORDERS)
       .update(updatedData)
       .match({ id: orderId });
+    if (data.length === 0) return { error: 'Gagal update' }
+    return { data, error };
+  },
+
+  updateOrderDetail: async (updatedData, orderDetailId) => {
+    const { data, error } = await supabase.from(TABLE_NAME.ORDER_DETAIL)
+      .update(updatedData)
+      .match({ id: orderDetailId });
+    if (data.length === 0) return {error: 'Gagal update'};
     return { data, error };
   },
 
