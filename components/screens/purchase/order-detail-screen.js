@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Router from 'next/router';
+import Link from 'next/link';
 import { useRef, useState } from 'react';
 
 import { HiLocationMarker, HiOutlineFolder, HiOutlineUpload } from 'react-icons/hi';
@@ -125,6 +126,12 @@ export default function OrderDetailScreen({ Order }) {
           <p className='text-sm text-center text-primary font-semibold'>
             Pesanan telah diterima
           </p>
+          <Link href={`/purchase/${Order.id}/review`}>
+            <a className='text-white bg-primary hover:opacity-70 active:opacity-40 transition-all
+              px-4 py-2 rounded-md block w-max mx-auto mt-2 shadow-md shadow-primary/50'>
+                Ulasan
+            </a>
+          </Link>
         </div>
         :
         <></>
