@@ -3,13 +3,14 @@ import authMiddleware from '@/utils/middleware/auth-middleware';
 import OrderHelper from '@/utils/supabase-helper/order-helper';
 import AddReviewScreen from '@/components/screens/purchase/add-review-screen';
 import CONFIG from '@/global/config';
+import ReviewHelper from '@/utils/supabase-helper/review-helper';
 
 const { ROLE_NAME } = CONFIG.SUPABASE;
 
-export default function AddReviewPage({ Order, User }) {
+export default function AddReviewPage({ Order, User, Review }) {
   return <>
     <SideToSideProductLayout Product={Order.orderdetail.products} User={User}>
-      <AddReviewScreen Order={Order}/>
+      <AddReviewScreen Order={Order} Review={Review}/>
     </SideToSideProductLayout>
   </>
 }
@@ -60,10 +61,13 @@ export async function getServerSideProps({ req, res, params }) {
     }
   }
   
+  const { data: Review } = await ReviewHelper.getReviewByOrderId(Order.id);
+
   return {
     props: {
       User,
       Order,
+      Review: Review || null,
     }
   }
 }

@@ -27,6 +27,7 @@ const API_ENDPOINT = {
   },
   ORDER: '/api/order',
   ORDER_ARRIVED_CONFIRMATION: '/api/order/arrived',
+  ORDER_REVIEW: '/api/order/review',
   ORG_ORDER: '/api/org/order',
   ORG_CONFIRMATION: '/api/org/order/confirmation',
   ORG_CONFIRMED_ORDER: '/api/org/order/confirmed',

@@ -13,6 +13,7 @@ const CONFIG = {
       ONLINE_ORDERS: 'onlineorders',
       OFFLINE_ORDERS: 'offlineorders',
       ORDER_DETAIL: 'orderdetail',
+      REVIEW: 'review',
     },
     ROLE_NAME: {
       CUSTOMERS: 'customer',
