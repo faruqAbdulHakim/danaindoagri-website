@@ -11,8 +11,10 @@ import CONFIG from '@/global/config';
 
 const { BUCKETS } = CONFIG.SUPABASE;
 
-export default function CtaCard({ User }) {
+export default function CtaCard({ User, LastOrder }) {
   const [imageError, setImageError] = useState(false);
+  
+  const orderStatus = LastOrder?.orderdetail?.status;
 
   return <>
     <div className='bg-slate-100 h-full p-6 rounded-md shadow-xl shadow-black/5'>
@@ -48,17 +50,25 @@ export default function CtaCard({ User }) {
               Status terakhir
             </p>
           </div>
-          <Link href='/'>
+          <Link href='/purchase'>
             <a className='text-xs text-slate-500 font-thin hover:underline'>
               Riwayat order
             </a>
           </Link>
         </div>
         <div className='flex justify-around mt-5'>
-          <IoWallet size={26} className='text-primary'/>
-          <IoCheckmarkCircle size={26} className=''/>
-          <FaTruck size={26} className=''/>
-          <IoStar size={26} className=''/>
+          <IoWallet size={26} 
+            className={`${orderStatus === 'belum dibayar' && 'text-primary'}`}
+          />
+          <IoCheckmarkCircle size={26}
+            className={`${orderStatus === 'dikonfirmasi' && 'text-primary'}`}
+          />
+          <FaTruck size={26} 
+            className={`${orderStatus === 'dikirim' && 'text-primary'}`}
+          />
+          <IoStar size={26}
+            className={`${orderStatus === 'diterima' && 'text-primary'}`}
+          />
         </div>
       </div>
 

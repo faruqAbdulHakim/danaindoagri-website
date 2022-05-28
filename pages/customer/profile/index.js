@@ -6,12 +6,11 @@ import UserProfile from '@/components/screens/customer/profile/user-profile';
 import CtaCard from '@/components/screens/customer/profile/cta-card';
 import CommonFooter from '@/components/common/common-footer';
 import CONFIG from '@/global/config';
+import OrderHelper from '@/utils/supabase-helper/order-helper';
 
 const { ROLE_NAME } = CONFIG.SUPABASE;
 
-// TODO : GET LAST TRANSACTION
-
-export default function Profile({ User }) {
+export default function Profile({ User, LastOrder }) {
   return <>
     <div className='relative'>
       {/* decoration */}
@@ -33,7 +32,7 @@ export default function Profile({ User }) {
         <main className='flex flex-wrap flex-col md:flex-row p-4 max-w-screen-xl mx-auto gap-10'>
           {/* left side */}
           <div className='w-full max-w-[340px] mx-auto'>
-            <CtaCard User={User} />
+            <CtaCard User={User} LastOrder={LastOrder} />
           </div>
           {/* profile */}
           <div className='flex-1'>
@@ -68,9 +67,12 @@ export async function getServerSideProps({ req, res }) {
     }
   }
 
+  const { data: OrderList } = await OrderHelper.getCustomerOrders(User.id) || [];
+  const LastOrder = OrderList[0] || {};
+  console.log(LastOrder)
   return {
     props: {
-      User
+      User, LastOrder
     },
   }
 }

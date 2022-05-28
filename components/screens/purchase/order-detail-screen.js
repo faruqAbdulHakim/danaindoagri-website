@@ -4,10 +4,12 @@ import { useRef, useState } from 'react';
 
 import { HiLocationMarker, HiOutlineFolder, HiOutlineUpload } from 'react-icons/hi';
 import { FaTruck } from 'react-icons/fa';
+import { MdOutlineConfirmationNumber } from 'react-icons/md';
 
 import OrderFetcher from '@/utils/functions/order-fetcher';
 import CommonErrorModal from '@/components/common/common-error-modal';
 import CommonSuccessModal from '@/components/common/common-success-modal';
+import CommonModal from '@/components/common/common-modal';
 import CONFIG from '@/global/config';
 
 const { BASE_URL } = CONFIG.SUPABASE.BUCKETS.PROOF_OF_PAYMENT;
@@ -19,6 +21,7 @@ export default function OrderDetailScreen({ Order }) {
     shipmentPrice, 
     codePrice, 
     etd,
+    status,
     expedition,
     products: Product,
     address,
@@ -28,6 +31,8 @@ export default function OrderDetailScreen({ Order }) {
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
   const [fetching, setFetching] = useState(false);
+  const [confirmOrderFetching, setConfirmOrderFetching] = useState(false);
+  const [confirmModal, setConfirmModal] = useState(false);
   const uploadFileRef = useRef(null);
   const changeFileRef = useRef(null);
 
@@ -82,6 +87,18 @@ export default function OrderDetailScreen({ Order }) {
     })
   }
 
+  const confirmOrderHandler = () => {
+    setConfirmOrderFetching(true);
+    OrderFetcher.confirmOrderArrived(Order.orderdetail.id)
+      .then(({ data, error, route }) => {
+        if (data) setSuccess(data);
+        else if (error) setError(error);
+        else if (route) Router.push(route);
+      })
+      .catch((e) => setError(e.message))
+      .finally(() => setConfirmOrderFetching(false));
+  }
+
   return <>
   <div className='bg-white/90 backdrop-blur-md'>
     <div className='py-6 pl-6 pr-10 h-full max-h-[calc(100vh-90px)] overflow-auto'>
@@ -89,6 +106,32 @@ export default function OrderDetailScreen({ Order }) {
       <h2 className='text-2xl font-semibold'>
         {Product.name}
       </h2>
+      {
+        status === 'dikirim' ?
+        <div className='mt-4'>
+          <p className='text-sm'>
+            Barang dalam proses pengiriman oleh kurir. Sudah sampai? Silahkan konfirmasi pesanan Anda.
+          </p>
+          <button className='mt-2 bg-primary w-full text-white px-4 py-2 rounded-md shadow-lg shadow-primary/50
+            hover:opacity-70 active:opacity-40 transition-all'
+            type='button'
+            onClick={() => setConfirmModal(true)}>
+            Konfirmasi Pesanan
+          </button>
+        </div>
+        :
+        status === 'diterima' ?
+        <div className='mt-4'>
+          <p className='text-sm text-center text-primary font-semibold'>
+            Pesanan telah diterima
+          </p>
+        </div>
+        :
+        <></>
+      }
+
+      <hr className='my-4' />
+
       <div className='mt-4 flex gap-8'>
         <div>
           <p>
@@ -108,6 +151,12 @@ export default function OrderDetailScreen({ Order }) {
             <FaTruck className='text-primary' size={20}/> 
             <p>
               Estimasi tiba {etd} hari
+            </p>
+          </div>
+          <div className='mt-2 flex gap-2'>
+            <MdOutlineConfirmationNumber className='text-primary' size={20}/> 
+            <p>
+              No Resi : {Order.receiptNumber || 'belum ada'}
             </p>
           </div>
 
@@ -249,6 +298,35 @@ export default function OrderDetailScreen({ Order }) {
       </div>
     </div>
   </div>
+  {
+    confirmModal &&
+    <CommonModal>
+      <div className='p-4'>
+        <h2 className='font-semibold text-lg text-center'>
+          Konfirmasi Pesanan?
+        </h2>
+
+        <div className='flex flex-wrap justify-evenly gap-10 mt-4'>
+          <button type='button' 
+            className='bg-gray-400 hover:bg-red-600 disabled:hover:bg-gray-400 w-28 py-3 rounded-full text-white 
+            transition-all duration-200'
+            onClick={() => setConfirmModal(false)}
+            disabled={confirmOrderFetching}
+          >
+            Batal
+          </button>
+          <button type='button' 
+            className='bg-gradient-to-br from-primary to-primary/40 hover:to-primary/70 disabled:from-gray-400 
+            disabled:to-gray-200 w-28 py-3 rounded-full text-white transition-all duration-200'
+            disabled={confirmOrderFetching}
+            onClick={confirmOrderHandler}
+          >
+            Konfirmasi
+          </button>
+        </div>
+      </div>
+    </CommonModal>
+  }
   {
     error &&
     <CommonErrorModal text={error} onClick={() => Router.reload()} />

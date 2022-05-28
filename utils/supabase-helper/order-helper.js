@@ -89,7 +89,8 @@ const OrderHelper = {
   getCustomerOrders: async (customerId) => {
     const { data, error } = await supabase.from(TABLE_NAME.ONLINE_ORDERS)
       .select(`*, orderdetail (*, ${TABLE_NAME.PRODUCTS} (*))`)
-      .eq('userId', customerId);
+      .eq('userId', customerId)
+      .order('id', { ascending: false })
     return { data, error }
   },
 

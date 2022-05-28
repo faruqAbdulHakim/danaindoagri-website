@@ -26,6 +26,7 @@ const API_ENDPOINT = {
     GET_COST: `https://api.rajaongkir.com/${RAJAONGKIR.ACCOUNT_TYPE}/cost`
   },
   ORDER: '/api/order',
+  ORDER_ARRIVED_CONFIRMATION: '/api/order/arrived',
   ORG_ORDER: '/api/org/order',
   ORG_CONFIRMATION: '/api/org/order/confirmation',
   ORG_CONFIRMED_ORDER: '/api/org/order/confirmed',
