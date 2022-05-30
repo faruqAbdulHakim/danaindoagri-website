@@ -115,7 +115,7 @@ const OrderHelper = {
   getOnlineOrder: async (page, searchText) => {
     const { data: userList } = await supabase.from(TABLE_NAME.USERS)
       .select('id, fullName')
-      .ilike('fullName', `%${searchText}%`)
+      .ilike('fullName', `%${searchText}%`);
     
     const idList = userList.map((User) => User.id);
 
@@ -129,7 +129,7 @@ const OrderHelper = {
         *,
         ${TABLE_NAME.PRODUCTS} (*)
       ),
-      ${TABLE_NAME.USERS} (*)
+      ${TABLE_NAME.USERS}:userId (*)
       `)
       .in('userId', idList)
       .order(
@@ -196,6 +196,23 @@ const OrderHelper = {
         .eq('id', offlineOrderId)
         .single();
       return { data, error }
+  },
+
+  getOrderDetails: async (page) => {
+    const totalDataEachPage = 5;
+    const begin = (page-1)*totalDataEachPage;
+    const end = begin + (totalDataEachPage - 1);
+    const { data, error } = await supabase.from(TABLE_NAME.ORDER_DETAIL)
+      .select(`
+      *, 
+      ${TABLE_NAME.PRODUCTS} (*)
+      `)
+      .order(
+        `id`, { ascending: false }
+      )
+      .range(begin, end)
+
+    return { data, error }
   },
 
   getUnconfirmedOrder: async (page, searchText, proofAvailability) => {

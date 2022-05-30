@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
+import { AiOutlineLineChart } from 'react-icons/ai';
 import { RiDashboardLine } from 'react-icons/ri';
 import { BiUserCircle } from 'react-icons/bi';
 import { BsBoxSeam, BsCart2, BsBank, BsCheck2All } from 'react-icons/bs';
@@ -35,7 +36,7 @@ export default function CommonSidebar({ User }) {
               'Pemilik Usaha'
             }
           </h2>
-          <div className='flex-1 flex flex-col justify-between space-y-2 lg:mt-6 mb-4'>
+          <div className='flex flex-col gap-8 justify-between lg:mt-6 mb-4 h-[calc(100vh-170px)] overflow-scroll no-scroll'>
             <div className='space-y-1'>
               {generateNavLink(NavLinkList, pathname)}
             </div>
@@ -128,6 +129,11 @@ function getNavLinkList(roleName) {
       text: 'Data Customer',
       Icon: HiOutlineUserGroup,
     },
+    revenue: {
+      location: '/org/revenue',
+      text: 'Pendapatan',
+      Icon: AiOutlineLineChart,
+    },
   }
 
   if (roleName === ROLE_NAME.MARKETING) {
@@ -139,8 +145,8 @@ function getNavLinkList(roleName) {
     return { dashboard, profile, products, orders, receiptNumber }
   }
   if (roleName === ROLE_NAME.OWNER) {
-    const { dashboard, profile, products, orders, customerData } = NavLinkList;
-    return { dashboard, profile, products, orders, customerData }
+    const { dashboard, profile, products, orders, customerData, revenue } = NavLinkList;
+    return { dashboard, profile, products, orders, customerData, revenue }
   }
 }
 

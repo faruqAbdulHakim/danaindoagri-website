@@ -26,6 +26,7 @@ export default async function handler(req, res) {
       const orderType = req.query.orderType;
       if (orderType === 'online') return await getOnlineOrders(req, res);
       else if (orderType === 'offline') return await getOfflineOrders(req, res);
+      else if (orderType === 'all') return await getAllOrder(req, res);
       else throw new Error('Status order online/offline tidak terdefinisi');
     } else if (method === 'POST') {
       if (userRole !== ROLE_NAME.MARKETING) {
@@ -59,6 +60,16 @@ async function getOnlineOrders(req, res) {
 async function getOfflineOrders(req, res) {
   const page = req.query.page || 1;
   const { data, error } = await OrderHelper.getOfflineOrder(page);
+  if (error) {
+    throw new Error('Gagal mendapatkan data pemesanan');
+  }
+
+  return res.status(200).json({status: 200, message: 'Berhasil mendapatkan data pemesanan', data});
+}
+
+async function getAllOrder(req, res) {
+  const page = req.query.page || 1;
+  const { data, error } = await OrderHelper.getOrderDetails(page);
   if (error) {
     throw new Error('Gagal mendapatkan data pemesanan');
   }
