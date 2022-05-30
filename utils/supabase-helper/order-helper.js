@@ -215,6 +215,22 @@ const OrderHelper = {
     return { data, error }
   },
 
+  getOrderDetailById: async (id) => {
+    const { data, error } = await supabase.from(TABLE_NAME.ORDER_DETAIL)
+      .select(`
+      *, 
+      ${TABLE_NAME.PRODUCTS} (*),
+      ${TABLE_NAME.CITIES} (
+        *,
+        ${TABLE_NAME.CITY_TYPE} (*),
+        ${TABLE_NAME.PROVINCES} (*)
+      )
+      `)
+      .eq('id', id)
+      .single();
+    return { data, error }
+  },
+
   getUnconfirmedOrder: async (page, searchText, proofAvailability) => {
     const { data: userList } = await supabase.from(TABLE_NAME.USERS)
       .select('id, fullName')

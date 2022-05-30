@@ -137,8 +137,8 @@ function getNavLinkList(roleName) {
   }
 
   if (roleName === ROLE_NAME.MARKETING) {
-    const { dashboard, profile, products, orders, confirmation, customerData } = NavLinkList;
-    return { dashboard, profile, products, orders, confirmation, customerData }
+    const { dashboard, profile, products, orders, confirmation, customerData, revenue } = NavLinkList;
+    return { dashboard, profile, products, orders, confirmation, customerData, revenue }
   }
   if (roleName === ROLE_NAME.PRODUCTION) {
     const { dashboard, profile, products, orders, receiptNumber } = NavLinkList;

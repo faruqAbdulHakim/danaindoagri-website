@@ -25,7 +25,8 @@ export async function getServerSideProps({ req, res }) {
     }
   }
 
-  if (User.role.roleName !== ROLE_NAME.OWNER) {
+  const userRole = User.role.roleName;
+  if (userRole !== ROLE_NAME.OWNER && userRole !== ROLE_NAME.MARKETING) {
     return {
       redirect: {
         destination: '/',
