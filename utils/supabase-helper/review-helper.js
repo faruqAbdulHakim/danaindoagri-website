@@ -32,6 +32,16 @@ const ReviewHelper = {
       .single();
     return { data, error };
   },
+
+  async getReviewsByProductId(productId) {
+    const { data, error } = await supabase.from(TABLE_NAME.REVIEW)
+      .select(`
+        *,
+        ${TABLE_NAME.USERS}:userId (*)
+      `)
+      .eq('productId', productId)
+    return { data, error }
+  }
 }
 
 export default ReviewHelper

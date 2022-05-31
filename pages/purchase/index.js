@@ -8,7 +8,7 @@ import CONFIG from '@/global/config';
 
 const { ROLE_NAME } = CONFIG.SUPABASE;
 
-export default function PurchasePage({ User, purchaseList }) {
+export default function PurchasePage({ User }) {
  return <>
     {/* decoration */}
     <div className='-z-10'>
@@ -35,7 +35,7 @@ export async function getServerSideProps({ req, res }) {
   const { User } = await authMiddleware(req, res);
 
   const userRole = User?.role?.roleName;
-  if (userRole === ROLE_NAME.MARKETING || userRole === ROLE_NAME.OWNER || userRole === ROLE_NAME.PRODUCTION) {
+  if (userRole !== ROLE_NAME.CUSTOMERS) {
     return {
       redirect: {
         destination: '/org/dashboard',

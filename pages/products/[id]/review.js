@@ -1,21 +1,21 @@
 import SideToSideProductLayout from '@/components/layouts/side-to-side-product';
-import ProductDetailScreen from '@/components/screens/products/product-detail-screen';
+import ProductReviewScreen from '@/components/screens/products/product-review-screen';
 import authMiddleware from '@/utils/middleware/auth-middleware';
 import ProductsHelper from '@/utils/supabase-helper/products-helper';
+import ReviewHelper from '@/utils/supabase-helper/review-helper';
 
-export default function ProductDetail({ User, Product }) {
+export default function ProductReviewPage({ User, Product, reviewList }) {
   return <>
     <SideToSideProductLayout Product={Product} User={User}>
-      <ProductDetailScreen Product={Product}/>
+      <ProductReviewScreen Product={Product} reviewList={reviewList} />
     </SideToSideProductLayout>
   </>
 }
 
 export async function getServerSideProps({ req, res, params }) {
-  const productId = params.id;
   const { User } = await authMiddleware(req, res);
 
-  const {data: Product} = await ProductsHelper.getProductById(productId);
+  const { data: Product } = await ProductsHelper.getProductById(params.id);
   if (!Product) {
     return {
       redirect: {
@@ -25,11 +25,14 @@ export async function getServerSideProps({ req, res, params }) {
       props: {},
     }
   }
-  
+
+  const { data: reviewList } = await ReviewHelper.getReviewsByProductId(params.id);
+
   return {
     props: {
       User: User || null,
       Product,
-    },
-  };
+      reviewList,
+    }
+  }
 }

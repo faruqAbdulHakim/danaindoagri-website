@@ -13,7 +13,7 @@ export default function RevenueDetailScreen({ OrderDetail }) {
   return <>
   <div className='bg-white/80 backdrop-blur-md h-full'>
     <div className='h-[calc(100vh-90px)] p-6 overflow-scroll'>
-    <button type='button' className='text-sm text-slate-600 flex items-center gap-2
+        <button type='button' className='text-sm text-slate-600 flex items-center gap-2
           hover:opacity-70 active:opacity-40 transition-all'
           onClick={() => Router.back()}>
           <FaArrowLeft /> Kembali

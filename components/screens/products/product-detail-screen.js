@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 export default function ProductDetailScreen({ Product }) {
   return <>
-    <div className='bg-white/90 backdrop-blur-md'>
+    <div className='bg-white/80 backdrop-blur-md'>
       <div className='py-6 pl-6 pr-10 h-full max-h-[calc(100vh-90px)] overflow-auto'>
         <h1 className='text-2xl sm:text-3xl mt-4 font-semibold'>
           {Product.name}

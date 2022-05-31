@@ -71,7 +71,7 @@ export default function AddReviewScreen({ Order, Review }) {
           }}
           disabled={exist}
         >
-            <AiFillStar size={26} className={`${formValues.rating >= 1 ? 'text-primary' : 'text-slate-300 hover:text-slate-400'} 
+            <AiFillStar size={26} className={`${formValues.rating >= 1 ? 'text-yellow-500' : 'text-slate-300 hover:text-slate-400'} 
             active:scale-125 transition-all`} />
         </button>
         <button type='button'
@@ -80,7 +80,7 @@ export default function AddReviewScreen({ Order, Review }) {
           }}
           disabled={exist}
         >
-            <AiFillStar size={26} className={`${formValues.rating >= 2 ? 'text-primary' : 'text-slate-300 hover:text-slate-400'} 
+            <AiFillStar size={26} className={`${formValues.rating >= 2 ? 'text-yellow-500' : 'text-slate-300 hover:text-slate-400'} 
             active:scale-125 transition-all`} />
         </button>
         <button type='button'
@@ -89,7 +89,7 @@ export default function AddReviewScreen({ Order, Review }) {
           }}
           disabled={exist}
         >
-            <AiFillStar size={26} className={`${formValues.rating >= 3 ? 'text-primary' : 'text-slate-300 hover:text-slate-400'} 
+            <AiFillStar size={26} className={`${formValues.rating >= 3 ? 'text-yellow-500' : 'text-slate-300 hover:text-slate-400'} 
             active:scale-125 transition-all`} />
         </button>
         <button type='button'
@@ -98,7 +98,7 @@ export default function AddReviewScreen({ Order, Review }) {
           }}
           disabled={exist}
         >
-            <AiFillStar size={26} className={`${formValues.rating >= 4 ? 'text-primary' : 'text-slate-300 hover:text-slate-400'} 
+            <AiFillStar size={26} className={`${formValues.rating >= 4 ? 'text-yellow-500' : 'text-slate-300 hover:text-slate-400'} 
             active:scale-125 transition-all`} />
         </button>
         <button type='button'
@@ -107,7 +107,7 @@ export default function AddReviewScreen({ Order, Review }) {
           }}
           disabled={exist}
         >
-            <AiFillStar size={26} className={`${formValues.rating >= 5 ? 'text-primary' : 'text-slate-300 hover:text-slate-400'} 
+            <AiFillStar size={26} className={`${formValues.rating >= 5 ? 'text-yellow-500' : 'text-slate-300 hover:text-slate-400'} 
             active:scale-125 transition-all`} />
         </button>
       </div>
