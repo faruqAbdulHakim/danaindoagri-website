@@ -14,6 +14,7 @@ const CONFIG = {
       OFFLINE_ORDERS: 'offlineorders',
       ORDER_DETAIL: 'orderdetail',
       REVIEW: 'review',
+      EXPENSES: 'expenses',
     },
     ROLE_NAME: {
       CUSTOMERS: 'customer',
@@ -22,19 +23,21 @@ const CONFIG = {
       OWNER: 'pemilik usaha',
     },
     BUCKETS: {
-
       AVATARS: {
         BUCKETS_NAME: 'avatars',
-        AVATAR_BASE_URL: 'https://zjksleeilkmawgxpibva.supabase.co/storage/v1/object/public/avatars',
+        AVATAR_BASE_URL:
+          'https://zjksleeilkmawgxpibva.supabase.co/storage/v1/object/public/avatars',
       },
       PRODUCTS: {
         BUCKETS_NAME: 'products',
-        PRODUCTS_BASE_URL: 'https://zjksleeilkmawgxpibva.supabase.co/storage/v1/object/public/products'
+        PRODUCTS_BASE_URL:
+          'https://zjksleeilkmawgxpibva.supabase.co/storage/v1/object/public/products',
       },
       PROOF_OF_PAYMENT: {
         BUCKETS_NAME: 'proofofpayment',
-        BASE_URL: 'https://zjksleeilkmawgxpibva.supabase.co/storage/v1/object/public/proofofpayment'
-      }
+        BASE_URL:
+          'https://zjksleeilkmawgxpibva.supabase.co/storage/v1/object/public/proofofpayment',
+      },
     },
   },
   JWT: {
@@ -48,6 +51,6 @@ const CONFIG = {
     API_KEY: process.env.RAJAONGKIR_API_KEY,
     ACCOUNT_TYPE: 'starter',
   },
-}
+};
 
 export default CONFIG;

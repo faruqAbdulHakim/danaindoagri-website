@@ -9,12 +9,13 @@ const API_ENDPOINT = {
   USERS_PROFILE_UPDATE: '/api/users',
   USERS_CHANGE_PASSWORD: '/api/users/change-password',
   USERS_CHANGE_ADDRESS: '/api/users/change-address',
-  USERS_UPDATE_AVATAR: (userId) => 
-    `/api/users/update-avatar?userId=${userId}`,
-  GET_USERS: (roleQuery, searchQuery) => 
+  USERS_UPDATE_AVATAR: (userId) => `/api/users/update-avatar?userId=${userId}`,
+  GET_USERS: (roleQuery, searchQuery) =>
     `/api/users?roleQuery=${roleQuery}&searchQuery=${searchQuery || ''}`,
-  MANAGE_EMPLOYEE: (editType, employeeId) => 
-    `/api/owner/manage-employee?editType=${editType || ''}&employeeId=${employeeId || ''}`,
+  MANAGE_EMPLOYEE: (editType, employeeId) =>
+    `/api/owner/manage-employee?editType=${editType || ''}&employeeId=${
+      employeeId || ''
+    }`,
   PRODUCTS: '/api/products',
   ADDRESS: {
     GET_PROVINCES: '/api/address/provinces',
@@ -23,7 +24,7 @@ const API_ENDPOINT = {
   RAJAONGKIR: {
     MYAPI_GET_COST: '/api/rajaongkir',
     // cors issues use this api endpoint in server side
-    GET_COST: `https://api.rajaongkir.com/${RAJAONGKIR.ACCOUNT_TYPE}/cost`
+    GET_COST: `https://api.rajaongkir.com/${RAJAONGKIR.ACCOUNT_TYPE}/cost`,
   },
   ORDER: '/api/order',
   ORDER_ARRIVED_CONFIRMATION: '/api/order/arrived',
@@ -33,6 +34,7 @@ const API_ENDPOINT = {
   ORG_CONFIRMED_ORDER: '/api/org/order/confirmed',
   ORG_RECEIPT_NUMBER: '/api/org/order/receipt-number',
   PROOF_OF_PAYMENT: '/api/order/proof-of-payment',
-}
+  EXPENSES: '/api/org/expenses',
+};
 
 export default API_ENDPOINT;
