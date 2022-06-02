@@ -21,11 +21,7 @@ export default function ExpensesScreen({ userRole }) {
     setFetching(true);
     ExpensesFetcher.fetchAllExpenses()
       .then(({ data, error, route }) => {
-        if (data)
-          setExpenses([
-            { id: 1, name: 'abc', date: '1-1-2001', qty: 2, cost: 2000 },
-            { id: 1, name: 'def', date: '1-1-2001', qty: 2, cost: 2000 },
-          ]);
+        if (data) setExpenses(data);
         else if (error) setError(error);
         else if (route) Router.push(route);
       })
@@ -58,7 +54,14 @@ export default function ExpensesScreen({ userRole }) {
           </div>
         )}
       </div>
-      {form && <ExpenseForm {...form} setForm={setForm}></ExpenseForm>}
+      {form && (
+        <ExpenseForm
+          {...form}
+          setForm={setForm}
+          setSuccess={setSuccess}
+          setError={setError}
+        ></ExpenseForm>
+      )}
       {success && (
         <CommonSuccessModal text={success} onClick={() => Router.reload()} />
       )}

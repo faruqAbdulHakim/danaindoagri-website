@@ -28,6 +28,14 @@ export default async function handler(req, res) {
           throw new Error('Invalid Content-Type');
         }
         return await addExpense(req, res);
+      case 'PUT':
+        if (userRole !== ROLE_NAME.MARKETING) {
+          throw new Error('Tidak memiliki hak akses');
+        }
+        if (req.headers['content-type'] !== 'application/json') {
+          throw new Error('Invalid Content-Type');
+        }
+        return await editExpense(req, res);
       default:
         throw new Error('Invalid Method');
     }
@@ -60,4 +68,23 @@ async function addExpense(req, res) {
   return res
     .status(200)
     .json({ status: 200, message: 'Berhasil menambahkan data pengeluaran' });
+}
+
+async function editExpense(req, res) {
+  const { id, name, date, qty, cost } = req.body;
+
+  const someNull = [id, name, date, qty, cost].some((val) => {
+    return val === '' || val === undefined;
+  });
+
+  if (someNull) {
+    throw new Error('Lengkapi Formulir');
+  }
+  const { error } = await ExpensesHelper.edit({ id, name, date, qty, cost });
+  if (error) {
+    throw new Error('Gagal mengubah data pengeluaran');
+  }
+  return res
+    .status(200)
+    .json({ status: 200, message: 'Berhasil mengubah data pengeluaran' });
 }

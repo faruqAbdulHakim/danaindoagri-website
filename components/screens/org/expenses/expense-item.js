@@ -1,6 +1,10 @@
 import Link from 'next/link';
 
-export default function ExpenseItem({ expense, setForm }) {
+import CONFIG from '@/global/config';
+
+const { ROLE_NAME } = CONFIG.SUPABASE;
+
+export default function ExpenseItem({ expense, setForm, userRole }) {
   return (
     <div className="border p-4 shadow-md rounded-md mb-3 bg-white/50 flex items-center justify-between">
       <div className="w-40 overflow-clip">
@@ -28,13 +32,15 @@ export default function ExpenseItem({ expense, setForm }) {
             Detail
           </a>
         </Link>
-        <button
-          className="px-4 py-2 rounded-full bg-primary text-white 
+        {userRole === ROLE_NAME.MARKETING && (
+          <button
+            className="px-4 py-2 rounded-full bg-primary text-white 
           hover:opacity-70 active:opacity-40 transition-all"
-          onClick={() => setForm({ action: 'edit', id: expense.id })}
-        >
-          Ubah
-        </button>
+            onClick={() => setForm({ action: 'edit', expense: expense })}
+          >
+            Ubah
+          </button>
+        )}
       </div>
     </div>
   );

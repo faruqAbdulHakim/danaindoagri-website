@@ -19,9 +19,16 @@ export default function ExpensesList({
     >
       {fetching ? (
         <p className="font-semibold animate-bounce text-primary">Loading...</p>
+      ) : expenses.length === 0 ? (
+        <p className="text-sm text-slate-600">Data Pengeluaran kosong</p>
       ) : (
         expenses.map((expense) => (
-          <ExpenseItem expense={expense} key={expense.id} setForm={setForm} />
+          <ExpenseItem
+            expense={expense}
+            key={expense.id}
+            setForm={setForm}
+            userRole={userRole}
+          />
         ))
       )}
     </div>

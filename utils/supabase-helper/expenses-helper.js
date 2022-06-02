@@ -14,6 +14,14 @@ const ExpensesHelper = {
       .insert([{ name, date, qty, cost }])
       .single();
   },
+
+  async edit({ id, name, date, qty, cost }) {
+    return await supabase
+      .from(TABLE_NAME.EXPENSES)
+      .update({ name, date, qty, cost })
+      .match({ id })
+      .single();
+  },
 };
 
 export default ExpensesHelper;
