@@ -7,6 +7,7 @@ import { BiUserCircle } from 'react-icons/bi';
 import { BsBoxSeam, BsCart2, BsBank, BsCheck2All } from 'react-icons/bs';
 import { HiOutlineUserGroup } from 'react-icons/hi';
 import { MdOutlineConfirmationNumber } from 'react-icons/md';
+import { IoWalletOutline } from 'react-icons/io5';
 
 import CONFIG from '@/global/config';
 
@@ -16,7 +17,6 @@ export default function CommonSidebar({ User }) {
   const router = useRouter();
   const { pathname } = router;
 
-  // navlink except for owner
   const roleName = User?.role?.roleName;
   const NavLinkList = getNavLinkList(roleName);
   const OwnerNavLinkList = getOwnerNavLinkList();
@@ -58,22 +58,22 @@ export default function CommonSidebar({ User }) {
 function generateNavLink(NavLink, pathname) {
   return (
     <>
-      {Object.entries(NavLink).map(([key, val]) => {
-        const { Icon } = val;
-        const isActive = pathname.includes(val.location);
+      {NavLink.map((navlink) => {
+        const isActive = pathname.includes(navlink.location);
+
         return (
-          <div key={key} className="relative">
+          <div key={navlink.text} className="relative">
             {isActive && (
-              <div className="bg-white h-2 w-full absolute -top-2 left-0">
-                <div className="bg-primary h-full w-full rounded-br-3xl"></div>
-              </div>
+              <>
+                <div className="bg-white h-2 w-full absolute -top-2 left-0">
+                  <div className="bg-primary h-full w-full rounded-br-3xl"></div>
+                </div>
+                <div className="bg-white h-2 w-full absolute -bottom-2 left-0">
+                  <div className="bg-primary h-full w-full rounded-tr-3xl"></div>
+                </div>
+              </>
             )}
-            {isActive && (
-              <div className="bg-white h-2 w-full absolute -bottom-2 left-0">
-                <div className="bg-primary h-full w-full rounded-tr-3xl"></div>
-              </div>
-            )}
-            <Link href={val.location}>
+            <Link href={navlink.location}>
               <a
                 className={`flex items-center py-3 pl-3 lg:pl-6 pr-1 lg:pr-10
               ${
@@ -83,8 +83,8 @@ function generateNavLink(NavLink, pathname) {
               }
             `}
               >
-                <Icon size={20} className="mr-2" />
-                <span className="hidden lg:block">{val.text}</span>
+                <navlink.Icon size={20} className="mr-2" />
+                <span className="hidden lg:block">{navlink.text}</span>
               </a>
             </Link>
           </div>
@@ -94,57 +94,44 @@ function generateNavLink(NavLink, pathname) {
   );
 }
 
-function getNavLinkList(roleName) {
-  const NavLinkList = {
-    dashboard: {
-      location: '/org/dashboard',
-      text: 'Dashboard',
-      Icon: RiDashboardLine,
-    },
-    profile: {
-      location: '/org/profile',
-      text: 'Profile',
-      Icon: BiUserCircle,
-    },
-    products: {
-      location: '/org/products',
-      text: 'Produk',
-      Icon: BsBoxSeam,
-    },
-    orders: {
-      location: '/org/orders',
-      text: 'Pemesanan',
-      Icon: BsCart2,
-    },
-    confirmation: {
-      location: '/org/confirmation',
-      text: 'Konfirmasi',
-      Icon: BsCheck2All,
-    },
-    receiptNumber: {
-      location: '/org/receipt-number',
-      text: 'Nomor Resi',
-      Icon: MdOutlineConfirmationNumber,
-    },
-    customerData: {
-      location: '/org/customer-data',
-      text: 'Data Customer',
-      Icon: HiOutlineUserGroup,
-    },
-    revenue: {
-      location: '/org/revenue',
-      text: 'Pendapatan',
-      Icon: AiOutlineLineChart,
-    },
-    expenses: {
-      location: '/org/expenses',
-      text: 'Pengeluaran',
-      Icon: AiOutlineFileText,
-    },
+function customLink(location, text, Icon) {
+  return {
+    location,
+    text,
+    Icon,
   };
+}
+
+function getNavLinkList(roleName) {
+  const dashboard = customLink('/org/dashboard', 'Dashboard', RiDashboardLine);
+  const profile = customLink('/org/profile', 'Profil', BiUserCircle);
+  const products = customLink('/org/products', 'Produk', BsBoxSeam);
+  const orders = customLink('/org/orders', 'Pemesanan', BsCart2);
+  const confirmation = customLink(
+    '/org/confirmation',
+    'Konfirmasi',
+    BsCheck2All
+  );
+  const receiptNumber = customLink(
+    '/org/receipt-number',
+    'Nomor Resi',
+    MdOutlineConfirmationNumber
+  );
+  const customerData = customLink(
+    '/org/customer-data',
+    'Data Customer',
+    HiOutlineUserGroup
+  );
+  const revenue = customLink('/org/revenue', 'Pendapatan', AiOutlineLineChart);
+  const expenses = customLink(
+    '/org/expenses',
+    'Pengeluaran',
+    AiOutlineFileText
+  );
+  const finances = customLink('/org/finances', 'Keuangan', IoWalletOutline);
 
   if (roleName === ROLE_NAME.MARKETING) {
-    const {
+    return [
       dashboard,
       profile,
       products,
@@ -153,24 +140,14 @@ function getNavLinkList(roleName) {
       customerData,
       revenue,
       expenses,
-    } = NavLinkList;
-    return {
-      dashboard,
-      profile,
-      products,
-      orders,
-      confirmation,
-      customerData,
-      revenue,
-      expenses,
-    };
+      finances,
+    ];
   }
   if (roleName === ROLE_NAME.PRODUCTION) {
-    const { dashboard, profile, products, orders, receiptNumber } = NavLinkList;
-    return { dashboard, profile, products, orders, receiptNumber };
+    return [dashboard, profile, products, orders, receiptNumber];
   }
   if (roleName === ROLE_NAME.OWNER) {
-    const {
+    return [
       dashboard,
       profile,
       products,
@@ -178,30 +155,21 @@ function getNavLinkList(roleName) {
       customerData,
       revenue,
       expenses,
-    } = NavLinkList;
-    return {
-      dashboard,
-      profile,
-      products,
-      orders,
-      customerData,
-      revenue,
-      expenses,
-    };
+      finances,
+    ];
   }
 }
 
 function getOwnerNavLinkList() {
-  return {
-    manageMarketing: {
-      location: '/org/owner/manage-marketing',
-      text: 'Div. Marketing',
-      Icon: BsBank,
-    },
-    manageProduction: {
-      location: '/org/owner/manage-production',
-      text: 'Div. Produksi',
-      Icon: BsBank,
-    },
-  };
+  const manageMarketing = customLink(
+    '/org/owner/manage-marketing',
+    'Div. Marketing',
+    BsBank
+  );
+  const manageProduction = customLink(
+    '/org/owner/manage-production',
+    'Div. Produksi',
+    BsBank
+  );
+  return [manageMarketing, manageProduction];
 }

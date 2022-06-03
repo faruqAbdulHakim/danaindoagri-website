@@ -34,6 +34,7 @@ const API_ENDPOINT = {
   ORG_CONFIRMED_ORDER: '/api/org/order/confirmed',
   ORG_RECEIPT_NUMBER: '/api/org/order/receipt-number',
   PROOF_OF_PAYMENT: '/api/order/proof-of-payment',
+  REVENUE: '/api/org/revenue',
   EXPENSES: '/api/org/expenses',
 };
 
