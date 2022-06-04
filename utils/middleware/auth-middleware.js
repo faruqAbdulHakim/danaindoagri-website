@@ -11,28 +11,37 @@ const authMiddleware = async (req, res) => {
   let User;
   try {
     const { accessToken, refreshToken } = req.cookies;
-    const { decoded: decodedAccessToken } = JwtVerify(accessToken, ACCESS_TOKEN_SECRET);
-  
+    const { decoded: decodedAccessToken } = JwtVerify(
+      accessToken,
+      ACCESS_TOKEN_SECRET
+    );
+
     if (decodedAccessToken) {
       delete decodedAccessToken.iat;
       delete decodedAccessToken.exp;
       User = decodedAccessToken;
     } else {
       // if access token error, refreshed with refresh token
-      const { decoded: decodedRefreshToken } = JwtVerify(refreshToken, REFRESH_TOKEN_SECRET);
+      const { decoded: decodedRefreshToken } = JwtVerify(
+        refreshToken,
+        REFRESH_TOKEN_SECRET
+      );
       if (!decodedRefreshToken) throw new Error();
-    
+
       const { id, sessionToken } = decodedRefreshToken;
       const { data: newUser } = await UsersHelper.getUserById(id);
       if (newUser?.sessionToken !== sessionToken) throw new Error();
-    
+
       const {
-        accessToken: newAccessToken, 
-        refreshToken: newRefreshToken, 
-        newSessionToken
+        accessToken: newAccessToken,
+        refreshToken: newRefreshToken,
+        newSessionToken,
       } = AuthHelper.generateJwtToken(newUser);
-    
-      const { error: updateTokenError } = await AuthHelper.updateSessionToken(id, newSessionToken);
+
+      const { error: updateTokenError } = await AuthHelper.updateSessionToken(
+        id,
+        newSessionToken
+      );
       if (updateTokenError) throw new Error();
 
       CookiesHelper.updateToken(res, newAccessToken, newRefreshToken);
@@ -48,6 +57,6 @@ const authMiddleware = async (req, res) => {
     CookiesHelper.clearToken(res);
     return { User: null };
   }
-}
+};
 
 export default authMiddleware;

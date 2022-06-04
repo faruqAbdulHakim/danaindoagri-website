@@ -30,10 +30,11 @@ export default function FinancesScreen() {
     ]);
     promises
       .then(([a, b]) => {
+        console.log(a, b);
         if (a.error) throw new Error(a.error);
         if (b.error) throw new Error(b.error);
-        if (a.route) Router.push(a.route);
-        if (b.route) Router.push(b.route);
+        // if (a.route) Router.push(a.route);
+        // if (b.route) Router.push(b.route);
 
         const expenses = a.data.map((expense) => {
           return { id: expense.id, date: expense.date, cost: expense.cost };
@@ -78,7 +79,13 @@ export default function FinancesScreen() {
         ) : show === 'list' ? (
           <FinancesList setShow={setShow} finances={finances} format={format} />
         ) : (
-          show === 'graph' && <FinancesGraph setShow={setShow} />
+          show === 'graph' && (
+            <FinancesGraph
+              setShow={setShow}
+              finances={finances}
+              format={format}
+            />
+          )
         )}
       </div>
       {error && <CommonErrorModal text={error} onClick={() => Router.back()} />}
@@ -133,7 +140,15 @@ function getFinances(expenses, revenues, format) {
       break;
   }
 
-  return Object.entries(obj).map(([key, val]) => {
-    return { date: key, ...val };
-  });
+  return Object.entries(obj)
+    .map(([key, val]) => {
+      return {
+        date: key,
+        revenue: val.revenue || 0,
+        expense: val.expense || 0,
+      };
+    })
+    .sort((a, b) => {
+      return a.date < b.date ? -1 : 1;
+    });
 }
