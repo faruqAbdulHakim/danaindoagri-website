@@ -7,7 +7,7 @@ const { PROOF_OF_PAYMENT } = BUCKETS;
 const { DEFAULT_ORIGIN } = CONFIG.RAJAONGKIR;
 
 const OrderHelper = {
-  CustomerCreateOrder: async (body) => {
+  async CustomerCreateOrder(body) {
     const orderDetail = {
       productId: body.productId,
       qty: body.qty,
@@ -19,27 +19,20 @@ const OrderHelper = {
       productPrice: body.productPrice,
       codePrice: body.codePrice,
       etd: body.etd,
-    }
-    const { 
-      data: orderDetailData, 
-      error: insertOrderDetailError
-    } = await supabase
-      .from(TABLE_NAME.ORDER_DETAIL)
-      .insert([orderDetail]);
+    };
+    const { data: orderDetailData, error: insertOrderDetailError } =
+      await supabase.from(TABLE_NAME.ORDER_DETAIL).insert([orderDetail]);
 
     if (insertOrderDetailError || orderDetailData.length === 0) {
-      return { error: 'Gagal menambahkan data detail order'}
+      return { error: 'Gagal menambahkan data detail order' };
     }
 
     const orderDetailId = orderDetailData[0].id;
     const onlineOrder = {
       userId: body.userId,
       orderDetailId,
-    }
-    const { 
-      data, 
-      error 
-    } = await supabase
+    };
+    const { data, error } = await supabase
       .from(TABLE_NAME.ONLINE_ORDERS)
       .insert([onlineOrder]);
 
@@ -47,13 +40,13 @@ const OrderHelper = {
       await supabase
         .from(TABLE_NAME.ORDER_DETAIL)
         .delete()
-        .match({ id: orderDetailId })
+        .match({ id: orderDetailId });
     }
 
     return { data, error };
   },
 
-  createOfflineOrder: async (body) => {
+  async createOfflineOrder(body) {
     const { productId, productPrice, qty } = body;
     const orderDetail = {
       productId,
@@ -67,36 +60,44 @@ const OrderHelper = {
       codePrice: 0,
       etd: '0',
     };
-    const { data: orderDetailData, error: orderDetailErr } = await supabase.from(TABLE_NAME.ORDER_DETAIL)
+    const { data: orderDetailData, error: orderDetailErr } = await supabase
+      .from(TABLE_NAME.ORDER_DETAIL)
       .insert([orderDetail])
+      .single();
     if (orderDetailErr || orderDetailData.length === 0) {
-      return { error: 'Gagal menambahkan data'}
+      return { error: 'Gagal menambahkan data' };
     }
-    
+
     const orderDetailId = orderDetailData[0].id;
-    const { data, error } = await supabase.from(TABLE_NAME.OFFLINE_ORDERS)
-      .insert([{orderDetailId}])
+    const { data, error } = await supabase
+      .from(TABLE_NAME.OFFLINE_ORDERS)
+      .insert([{ orderDetailId }])
+      .single();
     if (data.length === 0) {
-      await supabase.from(TABLE_NAME.ORDER_DETAIL)
+      await supabase
+        .from(TABLE_NAME.ORDER_DETAIL)
         .delete()
-        .match({id: orderDetailId})
-      return { error: 'Gagal menambahkan data'}
+        .match({ id: orderDetailId });
+      return { error: 'Gagal menambahkan data' };
     }
 
     return { data, error };
   },
 
-  getCustomerOrders: async (customerId) => {
-    const { data, error } = await supabase.from(TABLE_NAME.ONLINE_ORDERS)
+  async getCustomerOrders(customerId) {
+    const { data, error } = await supabase
+      .from(TABLE_NAME.ONLINE_ORDERS)
       .select(`*, orderdetail (*, ${TABLE_NAME.PRODUCTS} (*))`)
       .eq('userId', customerId)
-      .order('id', { ascending: false })
-    return { data, error }
+      .order('id', { ascending: false });
+    return { data, error };
   },
 
-  getCustomerOrderById: async (customerId, orderId) => {
-    const { data, error } = await supabase.from(TABLE_NAME.ONLINE_ORDERS)
-      .select(`
+  async getCustomerOrderById(customerId, orderId) {
+    const { data, error } = await supabase
+      .from(TABLE_NAME.ONLINE_ORDERS)
+      .select(
+        `
         *, orderdetail (
           *, 
           ${TABLE_NAME.CITIES} (
@@ -105,43 +106,48 @@ const OrderHelper = {
             ${TABLE_NAME.PROVINCES} (*)
           ), 
           ${TABLE_NAME.PRODUCTS} (*)
-        )`)
+        )`
+      )
       .eq('userId', customerId)
       .eq('id', orderId)
       .single();
     return { data, error };
-  }, 
+  },
 
-  getOnlineOrder: async (page, searchText) => {
-    const { data: userList } = await supabase.from(TABLE_NAME.USERS)
+  async getOnlineOrder(page, searchText) {
+    const { data: userList } = await supabase
+      .from(TABLE_NAME.USERS)
       .select('id, fullName')
       .ilike('fullName', `%${searchText}%`);
-    
+
     const idList = userList.map((User) => User.id);
 
     const totalDataEachPage = 5;
-    const begin = (page-1)*totalDataEachPage;
+    const begin = (page - 1) * totalDataEachPage;
     const end = begin + (totalDataEachPage - 1);
-    const { data, error } = await supabase.from(TABLE_NAME.ONLINE_ORDERS)
-      .select(`
+    const { data, error } = await supabase
+      .from(TABLE_NAME.ONLINE_ORDERS)
+      .select(
+        `
       *, 
       ${TABLE_NAME.ORDER_DETAIL} (
         *,
         ${TABLE_NAME.PRODUCTS} (*)
       ),
       ${TABLE_NAME.USERS}:userId (*)
-      `)
-      .in('userId', idList)
-      .order(
-        `id`, { ascending: false }
+      `
       )
-      .range(begin, end)
-    return { data, error }
+      .in('userId', idList)
+      .order(`id`, { ascending: false })
+      .range(begin, end);
+    return { data, error };
   },
 
-  getOnlineOrderById: async (onlineOrderId) => {
-    const { data, error } = await supabase.from(TABLE_NAME.ONLINE_ORDERS)
-      .select(`
+  async getOnlineOrderById(onlineOrderId) {
+    const { data, error } = await supabase
+      .from(TABLE_NAME.ONLINE_ORDERS)
+      .select(
+        `
       *, 
       ${TABLE_NAME.ORDER_DETAIL} (
         *,
@@ -152,36 +158,40 @@ const OrderHelper = {
         ),
         ${TABLE_NAME.PRODUCTS} (*)
       ),
-      ${TABLE_NAME.USERS} (*)
-      `)
+      ${TABLE_NAME.USERS}:userId (*)
+      `
+      )
       .eq('id', onlineOrderId)
       .single();
-    return { data, error }
+    return { data, error };
   },
 
-  getOfflineOrder: async (page) => {    
+  async getOfflineOrder(page) {
     const totalDataEachPage = 5;
-    const begin = (page-1)*totalDataEachPage;
+    const begin = (page - 1) * totalDataEachPage;
     const end = begin + (totalDataEachPage - 1);
-    const { data, error } = await supabase.from(TABLE_NAME.OFFLINE_ORDERS)
-      .select(`
+    const { data, error } = await supabase
+      .from(TABLE_NAME.OFFLINE_ORDERS)
+      .select(
+        `
       *, 
       ${TABLE_NAME.ORDER_DETAIL} (
         *,
         ${TABLE_NAME.PRODUCTS} (*)
       )
-      `)
-      .order(
-        `id`, { ascending: false }
+      `
       )
-      .range(begin, end)
+      .order(`id`, { ascending: false })
+      .range(begin, end);
 
-    return { data, error }
+    return { data, error };
   },
 
-  getOfflineOrderById: async (offlineOrderId) => {    
-      const { data, error } = await supabase.from(TABLE_NAME.OFFLINE_ORDERS)
-        .select(`
+  async getOfflineOrderById(offlineOrderId) {
+    const { data, error } = await supabase
+      .from(TABLE_NAME.OFFLINE_ORDERS)
+      .select(
+        `
         *, 
         ${TABLE_NAME.ORDER_DETAIL} (
           *,
@@ -192,32 +202,36 @@ const OrderHelper = {
           ),
           ${TABLE_NAME.PRODUCTS} (*)
         )
-        `)
-        .eq('id', offlineOrderId)
-        .single();
-      return { data, error }
+        `
+      )
+      .eq('id', offlineOrderId)
+      .single();
+    return { data, error };
   },
 
-  getOrderDetails: async (page) => {
+  async getOrderDetails(page) {
     const totalDataEachPage = 5;
-    const begin = (page-1)*totalDataEachPage;
+    const begin = (page - 1) * totalDataEachPage;
     const end = begin + (totalDataEachPage - 1);
-    const { data, error } = await supabase.from(TABLE_NAME.ORDER_DETAIL)
-      .select(`
+    const { data, error } = await supabase
+      .from(TABLE_NAME.ORDER_DETAIL)
+      .select(
+        `
       *, 
       ${TABLE_NAME.PRODUCTS} (*)
-      `)
-      .order(
-        `id`, { ascending: false }
+      `
       )
-      .range(begin, end)
+      .order(`id`, { ascending: false })
+      .range(begin, end);
 
-    return { data, error }
+    return { data, error };
   },
 
-  getOrderDetailById: async (id) => {
-    const { data, error } = await supabase.from(TABLE_NAME.ORDER_DETAIL)
-      .select(`
+  async getOrderDetailById(id) {
+    const { data, error } = await supabase
+      .from(TABLE_NAME.ORDER_DETAIL)
+      .select(
+        `
       *, 
       ${TABLE_NAME.PRODUCTS} (*),
       ${TABLE_NAME.CITIES} (
@@ -225,111 +239,126 @@ const OrderHelper = {
         ${TABLE_NAME.CITY_TYPE} (*),
         ${TABLE_NAME.PROVINCES} (*)
       )
-      `)
+      `
+      )
       .eq('id', id)
       .single();
-    return { data, error }
-  },
-
-  getUnconfirmedOrder: async (page, searchText, proofAvailability) => {
-    const { data: userList } = await supabase.from(TABLE_NAME.USERS)
-      .select('id, fullName')
-      .ilike('fullName', `%${searchText}%`)
-
-    const idList = userList.map((User) => User.id);
-
-    const totalDataEachPage = 5;
-    const begin = (page-1)*totalDataEachPage;
-    const end = begin + (totalDataEachPage - 1);
-    const query = supabase.from(TABLE_NAME.ONLINE_ORDERS)
-      .select(`
-      *, 
-      ${TABLE_NAME.ORDER_DETAIL}!inner(
-        *,
-        ${TABLE_NAME.PRODUCTS} (*)
-      ),
-      ${TABLE_NAME.USERS} (*)
-      `)
-      .eq(`${TABLE_NAME.ORDER_DETAIL}.status`, 'belum dibayar')
-      .in('userId', idList)
-      .order('id', { ascending: false })
-      .range(begin, end)
-    
-    let data, error;
-    if (proofAvailability) {
-      const {data: a, error: b} = await query.neq('proofOfPayment', null)
-      data = a; error = b;
-    } else {
-      const {data: a, error: b} = await query.is('proofOfPayment', null)
-      data = a; error = b;
-    }
-
-    return { data, error }
-  },
-
-  getConfirmedOrder: async (page, searchText) => {
-    const { data: userList } = await supabase.from(TABLE_NAME.USERS)
-      .select('id, fullName')
-      .ilike('fullName', `%${searchText}%`)
-
-    const idList = userList.map((User) => User.id);
-
-    const totalDataEachPage = 5;
-    const begin = (page-1)*totalDataEachPage;
-    const end = begin + (totalDataEachPage - 1);
-    const { data, error } = await supabase.from(TABLE_NAME.ONLINE_ORDERS)
-      .select(`
-      *, 
-      ${TABLE_NAME.ORDER_DETAIL}!inner(
-        *,
-        ${TABLE_NAME.PRODUCTS} (*)
-      ),
-      ${TABLE_NAME.USERS} (*)
-      `)
-      .eq(`${TABLE_NAME.ORDER_DETAIL}.status`, 'dikonfirmasi')
-      .in('userId', idList)
-      .order('id', { ascending: false })
-      .range(begin, end)
-    
-    return { data, error }
-  },
-
-  updateCustomerOrder: async (updatedData, orderId) => {
-    const { data, error } = await supabase.from(TABLE_NAME.ONLINE_ORDERS)
-      .update(updatedData)
-      .match({ id: orderId });
-    if (data.length === 0) return { error: 'Gagal update' }
     return { data, error };
   },
 
-  updateOrderDetail: async (updatedData, orderDetailId) => {
-    const { data, error } = await supabase.from(TABLE_NAME.ORDER_DETAIL)
+  async getUnconfirmedOrder(page, searchText, proofAvailability) {
+    const { data: userList } = await supabase
+      .from(TABLE_NAME.USERS)
+      .select('id, fullName')
+      .ilike('fullName', `%${searchText}%`);
+
+    const idList = userList.map((User) => User.id);
+
+    const totalDataEachPage = 5;
+    const begin = (page - 1) * totalDataEachPage;
+    const end = begin + (totalDataEachPage - 1);
+    const query = supabase
+      .from(TABLE_NAME.ONLINE_ORDERS)
+      .select(
+        `
+      *, 
+      ${TABLE_NAME.ORDER_DETAIL}!inner(
+        *,
+        ${TABLE_NAME.PRODUCTS} (*)
+      ),
+      ${TABLE_NAME.USERS}:userId (*)
+      `
+      )
+      .eq(`${TABLE_NAME.ORDER_DETAIL}.status`, 'belum dibayar')
+      .in('userId', idList)
+      .order('id', { ascending: false })
+      .range(begin, end);
+
+    let data, error;
+    if (proofAvailability) {
+      const { data: a, error: b } = await query.neq('proofOfPayment', null);
+      data = a;
+      error = b;
+    } else {
+      const { data: a, error: b } = await query.is('proofOfPayment', null);
+      data = a;
+      error = b;
+    }
+
+    return { data, error };
+  },
+
+  async getConfirmedOrder(page, searchText) {
+    const { data: userList } = await supabase
+      .from(TABLE_NAME.USERS)
+      .select('id, fullName')
+      .ilike('fullName', `%${searchText}%`);
+
+    const idList = userList.map((User) => User.id);
+
+    const totalDataEachPage = 5;
+    const begin = (page - 1) * totalDataEachPage;
+    const end = begin + (totalDataEachPage - 1);
+    const { data, error } = await supabase
+      .from(TABLE_NAME.ONLINE_ORDERS)
+      .select(
+        `
+      *, 
+      ${TABLE_NAME.ORDER_DETAIL}!inner(
+        *,
+        ${TABLE_NAME.PRODUCTS} (*)
+      ),
+      ${TABLE_NAME.USERS}:userId (*)
+      `
+      )
+      .eq(`${TABLE_NAME.ORDER_DETAIL}.status`, 'dikonfirmasi')
+      .in('userId', idList)
+      .order('id', { ascending: false })
+      .range(begin, end);
+
+    return { data, error };
+  },
+
+  async updateCustomerOrder(updatedData, orderId) {
+    const { data, error } = await supabase
+      .from(TABLE_NAME.ONLINE_ORDERS)
+      .update(updatedData)
+      .match({ id: orderId });
+    if (data.length === 0) return { error: 'Gagal update' };
+    return { data, error };
+  },
+
+  async updateOrderDetail(updatedData, orderDetailId) {
+    const { data, error } = await supabase
+      .from(TABLE_NAME.ORDER_DETAIL)
       .update(updatedData)
       .match({ id: orderDetailId })
       .single();
     return { data, error };
   },
 
-  confirmCustomerOrder: async (orderDetailId) => {
-    const { error: unavailableProof } = await supabase.from(TABLE_NAME.ONLINE_ORDERS)
+  async confirmCustomerOrder(orderDetailId) {
+    const { error: unavailableProof } = await supabase
+      .from(TABLE_NAME.ONLINE_ORDERS)
       .select('*')
       .eq('orderDetailId', orderDetailId)
       .neq('proofOfPayment', null)
       .single();
     if (unavailableProof) {
-      return { error: 'Bukti belum diunggah'}
+      return { error: 'Bukti belum diunggah' };
     }
-    
-    const { data, error } = await supabase.from(TABLE_NAME.ORDER_DETAIL)
+
+    const { data, error } = await supabase
+      .from(TABLE_NAME.ORDER_DETAIL)
       .update({ status: 'dikonfirmasi' })
-      .match({ id: orderDetailId, status: 'belum dibayar' })
+      .match({ id: orderDetailId, status: 'belum dibayar' });
     if (data.length === 0) {
-      return { error: 'Gagal menemukan detail order yang akan diubah'}
+      return { error: 'Gagal menemukan detail order yang akan diubah' };
     }
-    return { data, error }
+    return { data, error };
   },
 
-  uploadProofOfPayment: async (filename, file, filetype) => {
+  async uploadProofOfPayment(filename, file, filetype) {
     const { data, error } = await supabase.storage
       .from(PROOF_OF_PAYMENT.BUCKETS_NAME)
       .upload(filename, file, {
@@ -339,18 +368,18 @@ const OrderHelper = {
     return { data, error };
   },
 
-  deleteProofOfPayment: async (filename) => {
+  async deleteProofOfPayment(filename) {
     let error;
     const { data } = await supabase.storage
       .from(PROOF_OF_PAYMENT.BUCKETS_NAME)
       .remove([filename]);
- 
+
     if (data.length === 0) {
       error = 'Tidak ada file yang dihapus';
     }
-    
-    return { data, error };
-  }
-}
 
-export default OrderHelper
+    return { data, error };
+  },
+};
+
+export default OrderHelper;

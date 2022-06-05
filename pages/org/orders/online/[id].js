@@ -7,11 +7,13 @@ import OrderHelper from '@/utils/supabase-helper/order-helper';
 const { ROLE_NAME } = CONFIG.SUPABASE;
 
 export default function OnlineOrderDetail({ User, Order }) {
-  return <>
-    <OrganizationLayout User={User}>
-      <OnlineOrderDetailScreen Order={Order} />
-    </OrganizationLayout>
-  </>
+  return (
+    <>
+      <OrganizationLayout User={User}>
+        <OnlineOrderDetailScreen Order={Order} />
+      </OrganizationLayout>
+    </>
+  );
 }
 
 export async function getServerSideProps({ req, res, params }) {
@@ -23,9 +25,9 @@ export async function getServerSideProps({ req, res, params }) {
         permanent: false,
       },
       props: {},
-    }
+    };
   }
-  
+
   const userRole = User.role.roleName;
   if (userRole === ROLE_NAME.CUSTOMERS) {
     return {
@@ -34,23 +36,26 @@ export async function getServerSideProps({ req, res, params }) {
         permanent: false,
       },
       props: {},
-    }
+    };
   }
-  
-  const { data: Order, error } = await OrderHelper.getOnlineOrderById(params.id);
+
+  const { data: Order, error } = await OrderHelper.getOnlineOrderById(
+    params.id
+  );
   if (error) {
     return {
       redirect: {
         destination: '/404',
         permanent: false,
       },
-      props: {}
-    }
+      props: {},
+    };
   }
 
   return {
     props: {
-      User, Order,
-    }
-  }
+      User,
+      Order,
+    },
+  };
 }
