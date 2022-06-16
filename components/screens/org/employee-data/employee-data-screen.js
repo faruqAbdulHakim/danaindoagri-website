@@ -8,6 +8,8 @@ import { FiSearch } from 'react-icons/fi';
 import CONFIG from '@/global/config';
 import CommonErrorModal from '@/components/common/common-error-modal';
 import UserFetcher from '@/utils/functions/users-fetcher';
+import CommonModal from '@/components/common/common-modal';
+import CommonSuccessModal from '@/components/common/common-success-modal';
 
 
 const { ROLE_NAME } = CONFIG.SUPABASE;
@@ -15,32 +17,38 @@ const { ROLE_NAME } = CONFIG.SUPABASE;
 export default function EmployeeDataScreen( { role } ) {
   const searchInputRef = useRef(null);
   const [employeeList, setEmployeeList] = useState([]);
-  const [isFetching, setIsFetching] = useState(false);
-  const [isError, setIsError] = useState('');
+  const [fetching, setFetching] = useState(false);
+  const [success, setSuccess] = useState('');
+  const [error, setError] = useState('');
+  const [employeeId, setEmployeeId] = useState(null);
 
   const employeeRole = role === ROLE_NAME.MARKETING ? 'Divisi Marketing' :
       role === ROLE_NAME.PRODUCTION ? 'Divisi Produksi' : 'unknown';
 
+  const onEmployeeDelete = (employeeId) => {
+    setEmployeeId(employeeId);
+  }
+
   const searchFormSubitHandler = (event) => {
     event.preventDefault();
-    setIsFetching(true);
+    setFetching(true);
     UserFetcher.getUserByRole(role, searchInputRef.current.value).then(({data, error, route}) => {
       if (route) Router.push(route);
-      else if (error) setIsError(error);
+      else if (error) setError(error);
       else setEmployeeList(data);
     }).finally(() => {
-      setIsFetching(false);
+      setFetching(false);
     });
   }
 
   useEffect(() => {
-    setIsFetching(true);
+    setFetching(true);
     UserFetcher.getUserByRole(role, searchInputRef.current.value).then(({data, error, route}) => {
       if (route) Router.push(route);
-      else if (error) setIsError(error);
+      else if (error) setError(error);
       else setEmployeeList(data);
     }).finally(() => {
-      setIsFetching(false);
+      setFetching(false);
     });
   }, [role]);
 
@@ -72,29 +80,37 @@ export default function EmployeeDataScreen( { role } ) {
 
       <div className='mt-4 h-full border border-slate-300 shadow-md rounded-lg'>
         {
-          isFetching ?
+          fetching ?
           <p className='text-center mt-4'>Memuat data ...</p>
           :
           <div className='grid md:grid-cols-2 lg:grid-cols-3 justify-items-center
           h-full gap-4 p-4 overflow-auto'>
             {
               employeeList.map((employee, idx) => {
-                return <EmployeeCard key={idx} employee={employee} role={employeeRole} />
+                return <EmployeeCard key={idx} employee={employee} role={employeeRole} onDelete={onEmployeeDelete}/>
               })
             }
           </div>
         }
       </div>
     </div>
-
     {
-      isError &&
-      <CommonErrorModal onClick={() => setIsError('')} text={isError} />
+      employeeId &&
+      <EmployeeDeleteConfirmation employeeId={employeeId} setEmployeeId={setEmployeeId}
+        setError={setError} setSuccess={setSuccess}/>
+    }
+    {
+      error &&
+      <CommonErrorModal onClick={() => setError('')} text={error} />
+    }
+    {
+      success &&
+      <CommonSuccessModal onClick={() => Router.reload()} text={success}/>
     }
   </>
 }
 
-function EmployeeCard({ employee, role }) {
+function EmployeeCard({ employee, role, onDelete }) {
   return <>
     <div className='bg-white border shadow-md p-4 rounded-xl w-full max-w-[320px] h-max'>
       <div className='text-center'>
@@ -119,10 +135,53 @@ function EmployeeCard({ employee, role }) {
         </Link>
         <button type='button' className='border hover:bg-red-500 hover:text-white rounded-full 
           px-4 py-2 min-w-[120px]
-          active:opacity-40 transition-all'>
+          active:opacity-40 transition-all'
+          onClick={() => onDelete(employee.id)}>
           Hapus
         </button>
       </div>
     </div>
   </>
+}
+
+function EmployeeDeleteConfirmation({ employeeId, setEmployeeId, setError, setSuccess }) {
+  const [fetching, setFetching] = useState(false);
+
+  const deleteHandler = () => {
+    setFetching(true);
+    UserFetcher.deleteEmployee(employeeId)
+      .then(({ data, error, route }) => {
+        if (data) setSuccess(data);
+        else if (error) setError(error);
+        else if (route) Router.push(route);
+      })
+      .catch((e) => setError(e.message))
+      .finally(() => setFetching(false));
+  }
+
+  return <CommonModal>
+    <div className='p-4'>
+      <h2 className='font-semibold text-lg'>
+        Yakin ingin menghapus akun karyawan?
+      </h2>
+      <div className='flex flex-wrap justify-evenly gap-10 mt-4'>
+        <button type='button' 
+          className='bg-gray-400 hover:bg-red-600 disabled:hover:bg-gray-400 w-28 py-3 rounded-full text-white 
+          transition-all duration-200'
+          onClick={() => setEmployeeId(null)}
+          disabled={fetching}
+        >
+          Batal
+        </button>
+        <button type='button' 
+          className='bg-gradient-to-br from-red-600 to-red-600/40 hover:to-red-600/70 disabled:from-gray-400 
+          disabled:to-gray-200 w-28 py-3 rounded-full text-white transition-all duration-200'
+          onClick={deleteHandler}
+          disabled={fetching}
+        >
+          Hapus
+        </button>
+      </div>
+    </div>
+  </CommonModal>
 }

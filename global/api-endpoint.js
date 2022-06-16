@@ -16,6 +16,7 @@ const API_ENDPOINT = {
     `/api/owner/manage-employee?editType=${editType || ''}&employeeId=${
       employeeId || ''
     }`,
+  EMPLOYEE_DELETE: '/api/owner/manage-employee',
   PRODUCTS: '/api/products',
   ADDRESS: {
     GET_PROVINCES: '/api/address/provinces',

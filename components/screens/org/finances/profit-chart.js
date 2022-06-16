@@ -1,34 +1,9 @@
-import { useEffect } from 'react';
-
-import {
-  Chart,
-  Title,
-  Legend,
-  SubTitle,
-  Tooltip,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Filler,
-} from 'chart.js';
+import 'chart.js/auto';
 import { Line } from 'react-chartjs-2';
 
 import DateHelper from '@/utils/functions/date-helper';
 
 export default function ProfitChart({ finances, format }) {
-  useEffect(() => {
-    Chart.register(Title);
-    Chart.register(Legend);
-    Chart.register(SubTitle);
-    Chart.register(Tooltip);
-    Chart.register(CategoryScale);
-    Chart.register(LinearScale);
-    Chart.register(PointElement);
-    Chart.register(LineElement);
-    Chart.register(Filler);
-  }, []);
-
   return (
     <Line
       options={{
@@ -40,29 +15,8 @@ export default function ProfitChart({ finances, format }) {
             position: 'top',
             align: 'center',
           },
-          title: {
-            display: true,
-            padding: {
-              bottom: 20,
-            },
-            text:
-              format.format === 'daily'
-                ? `Pendapatan ${DateHelper.monthString(format.month)} ${
-                    format.year
-                  }`
-                : format.format === 'monthly'
-                ? `Pendapatan Tahun ${format.year}`
-                : 'Pendapatan Tahunan',
-            position: 'top',
-            align: 'start',
-            color: 'black',
-            font: {
-              size: '18px',
-            },
-          },
           legend: {
-            display: true,
-            position: 'bottom',
+            display: false,
           },
         },
       }}

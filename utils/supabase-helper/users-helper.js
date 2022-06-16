@@ -56,7 +56,6 @@ const UsersHelper = {
     return { data, error };
   },
 
-  
   getUserByEmail: async (email) => {
     const { data, error } = await supabase.from(TABLE_NAME.USERS)
     .select(`
@@ -93,7 +92,6 @@ const UsersHelper = {
     return { data, error };
   },
 
-
   updateUserOneField: async (name, value, userId) => {
     const { data, error } = await supabase.from(TABLE_NAME.USERS)
       .update({[name]: value})
@@ -101,7 +99,6 @@ const UsersHelper = {
       
     return { data, error };
   },
-
 
   updateUserById: async (form, userId) => {
     const { data, error } = await supabase.from(TABLE_NAME.USERS)
@@ -120,6 +117,13 @@ const UsersHelper = {
       });
 
     return { data, error };
+  },
+
+  deleteUser: async (userId) => {
+    return await supabase.from(TABLE_NAME.USERS)
+      .update({ deleted: true })
+      .match({ id: userId })
+      .single();
   },
 }
 

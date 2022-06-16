@@ -35,6 +35,8 @@ export default async function handler(req, res) {
       return await AddNewEmployee(req, res);
     } else if (method === 'PUT') {
       return await EditEmployee(req, res);
+    } else if (method === 'DELETE') {
+      return await DeleteEmployee(req, res);
     } else {
       throw new Error('Invalid Method');
     }
@@ -107,4 +109,18 @@ async function EditEmployee(req, res) {
    throw new Error('[SERVER] Gagal mengubah data');
   }
   return res.status(200).json({status: 200, message: 'Berhasil mengubah data karyawan'});
+}
+
+async function DeleteEmployee(req, res) {
+  const employeeId = req.body.employeeId;
+  if (!employeeId) {
+    throw new Error('Employee Id tidak terdefinisi');
+  }
+
+  const { error } = await UsersHelper.deleteUser(employeeId);
+  if (error) {
+    throw new Error('Gagal menghapus akun');
+  }
+  
+  res.status(200).json({ status: 200, message: 'Berhasil menghapus akun'});
 }

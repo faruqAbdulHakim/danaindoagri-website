@@ -35,6 +35,11 @@ export default async function handler(req, res) {
       throw new Error('Password yang anda masukkan salah.');
     }
 
+    // apabila status telah dihapus
+    if (User.deleted) {
+      throw new Error('Akun telah dihapus');
+    }
+
     // generate jwt for session auth
     const { accessToken, refreshToken, newSessionToken } = AuthHelper.generateJwtToken(User);
     const { error: updateTokenError } = await AuthHelper.updateSessionToken(User.id, newSessionToken);

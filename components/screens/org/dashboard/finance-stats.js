@@ -1,26 +1,16 @@
 import Router from 'next/router';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
-import FinancesGraph from './finances-graph';
-import FinancesList from './finances-list';
 import ExpensesFetcher from '@/utils/functions/expenses-fetcher';
 import RevenueFetcher from '@/utils/functions/revenue-fetcher';
-import CommonErrorModal from '@/components/common/common-error-modal';
-import FinancesFormatInput from './finances-format-input';
 import FinancesFormat from '@/utils/functions/finances-format';
+import ProfitChart from '../finances/profit-chart';
 
-export default function FinancesScreen() {
-  const [show, setShow] = useState('list');
-  const [expenses, setExpenses] = useState([]);
-  const [revenues, setRevenues] = useState([]);
-  const [format, setFormat] = useState({
-    format: 'daily',
-    month: new Date().getMonth() + 1,
-    year: new Date().getFullYear(),
-  });
-  const [finances, setFinances] = useState([]);
+export default function FinanceStats({ setError, format }) {
   const [fetching, setFetching] = useState(false);
-  const [error, setError] = useState('');
+  const [revenues, setRevenues] = useState([]);
+  const [expenses, setExpenses] = useState([]);
+  const [finances, setFinances] = useState([]);
 
   useEffect(() => {
     setFetching(true);
@@ -58,36 +48,26 @@ export default function FinancesScreen() {
       })
       .catch((e) => setError(e.message))
       .finally(() => setFetching(false));
-  }, []);
+  }, [setError]);
 
   useEffect(() => {
     setFinances(FinancesFormat.getFinances(expenses, revenues, format));
   }, [expenses, revenues, format]);
-
   return (
-    <div className="bg-white/80 backdrop-blur-md p-6 h-full">
-      <h1 className="text-lg font-semibold">Data Keuangan</h1>
-      <div className="mt-4">
-        <FinancesFormatInput format={format} setFormat={setFormat} />
+    <div className="p-6 h-full flex flex-col">
+      <div>
+        <h2 className="font-semibold text-lg mb-2">Statistik Keuangan</h2>
+        <hr />
       </div>
-      <div className="mt-2">
+      <div className="flex-1 mt-4">
         {fetching ? (
-          <p className="text-primary font-semibold animate-bounce">
-            Loading...
-          </p>
-        ) : show === 'list' ? (
-          <FinancesList setShow={setShow} finances={finances} format={format} />
+          <div className="flex justify-center items-center h-full">
+            <p className="text-primary animate-bounce">Loading</p>
+          </div>
         ) : (
-          show === 'graph' && (
-            <FinancesGraph
-              setShow={setShow}
-              finances={finances}
-              format={format}
-            />
-          )
+          <ProfitChart finances={finances} format={format} />
         )}
       </div>
-      {error && <CommonErrorModal text={error} onClick={() => Router.back()} />}
     </div>
   );
 }
