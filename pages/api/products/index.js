@@ -21,18 +21,26 @@ handler.get(async (req, res) => {
       if (error) {
         throw new Error('Gagal mendapatkan data product');
       }
-      return res.status(200).json({status: 200, message: 'Berhasil mendapatkan data product', data});
+      return res.status(200).json({
+        status: 200,
+        message: 'Berhasil mendapatkan data product',
+        data,
+      });
     }
 
     const { data, error } = await ProductsHelper.getAllProducts();
     if (error) {
-      throw new Error ('Gagal mendapatkan data products');
+      throw new Error('Gagal mendapatkan data products');
     }
-    res.status(200).json({status: 200, message: 'Berhasil mendapatkan data products', data})  
+    res.status(200).json({
+      status: 200,
+      message: 'Berhasil mendapatkan data products',
+      data,
+    });
   } catch (e) {
-    res.status(400).json({status: 400, message: e.message})
+    res.status(400).json({ status: 400, message: e.message });
   }
-})
+});
 
 handler.post(async (req, res) => {
   try {
@@ -40,12 +48,18 @@ handler.post(async (req, res) => {
 
     const { User } = await authMiddleware(req, res);
     if (!User) {
-      return res.status(300).json({status: 300, message: 'JWT ERROR', location: '/login'})
+      return res
+        .status(300)
+        .json({ status: 300, message: 'JWT ERROR', location: '/login' });
     }
 
     const role = User?.role?.roleName;
     if (role !== ROLE_NAME.MARKETING) {
-      return res.status(300).json({status: 300, message: 'Tidak Memiliki hak akses', location: '/'})
+      return res.status(300).json({
+        status: 300,
+        message: 'Tidak Memiliki hak akses',
+        location: '/',
+      });
     }
 
     if (Object.entries(files).length === 0) {
@@ -58,37 +72,44 @@ handler.post(async (req, res) => {
     }
 
     // manage price data
-    const { wsPrice: stringWsPrice, ...productForm} = body;
+    const { wsPrice: stringWsPrice, ...productForm } = body;
     const wsPrice = JSON.parse(stringWsPrice);
-    
+
     let latestMaxQty = 1;
     wsPrice.forEach((X, idx) => {
-      
-      Object.entries(X).forEach(([key,val], idx) => {
+      Object.entries(X).forEach(([key, val], idx) => {
         if (val === '') {
-          throw new Error(`Terdapat inputan kosong pada harga grosir ke ${idx + 1}`);
+          throw new Error(
+            `Terdapat inputan kosong pada harga grosir ke ${idx + 1}`
+          );
         }
         X[key] = parseInt(X[key]);
-      })
+      });
 
       if (X.minQty >= X.maxQty) {
-        throw new Error(`Error harga grosir ke ${idx +1}, maximum quantity harus lebih besar`);
+        throw new Error(
+          `Error harga grosir ke ${idx + 1}, maximum quantity harus lebih besar`
+        );
       }
       if (X.minQty <= latestMaxQty) {
-        throw new Error(`Periksa kembali minimum quantity harga grosir ke ${idx + 1}`);
+        throw new Error(
+          `Periksa kembali minimum quantity harga grosir ke ${idx + 1}`
+        );
       }
       latestMaxQty = X.maxQty;
     });
 
-
     // insert image file
-    const {filepath, mimetype, size} = files.file;
+    const { filepath, mimetype, size } = files.file;
     if (size > 1024 * 1024) {
       throw new Error('Maksimal file gambar berukuran 1MB');
     }
     const fileName = `products${new Date().getTime()}`;
     const rawData = fs.readFileSync(filepath);
-    const { data: { Key }, error: uploadFileError } = await ProductsHelper.uploadImage(rawData, fileName, mimetype);
+    const {
+      data: { Key },
+      error: uploadFileError,
+    } = await ProductsHelper.uploadImage(rawData, fileName, mimetype);
     if (uploadFileError) {
       throw new Error('Gagal mengupload gambar produk');
     }
@@ -98,7 +119,9 @@ handler.post(async (req, res) => {
     };
 
     // insert product
-    const { data, error: insertProductError } = await ProductsHelper.addProduct(Product);
+    const { data, error: insertProductError } = await ProductsHelper.addProduct(
+      Product
+    );
     if (insertProductError) {
       throw new Error('Gagal menambahkan produk ke tabel database');
     }
@@ -109,17 +132,21 @@ handler.post(async (req, res) => {
       wsPrice.forEach((X) => {
         X.productId = productId;
       });
-      const { error: insertWsPriceError } = await ProductsHelper.addProductWsPrice(wsPrice);
+      const { error: insertWsPriceError } =
+        await ProductsHelper.addProductWsPrice(wsPrice);
+
       if (insertWsPriceError) {
         throw new Error('Gagal menambahkan harga grosir ke tabel database');
       }
     }
 
-    res.status(201).json({status: 201, message: 'Berhasil menambahkan data produk'});
+    res
+      .status(201)
+      .json({ status: 201, message: 'Berhasil menambahkan data produk' });
   } catch (e) {
-    res.status(400).json({status: 400, message: e.message});
+    res.status(400).json({ status: 400, message: e.message });
   }
-})
+});
 
 handler.put(async (req, res) => {
   try {
@@ -127,12 +154,18 @@ handler.put(async (req, res) => {
 
     const { User } = await authMiddleware(req, res);
     if (!User) {
-      return res.status(300).json({status: 300, message: 'JWT ERROR', location: '/login'})
+      return res
+        .status(300)
+        .json({ status: 300, message: 'JWT ERROR', location: '/login' });
     }
-    
+
     const role = User?.role?.roleName;
     if (role !== ROLE_NAME.MARKETING) {
-      return res.status(300).json({status: 300, message: 'Tidak Memiliki hak akses', location: '/'})
+      return res.status(300).json({
+        status: 300,
+        message: 'Tidak Memiliki hak akses',
+        location: '/',
+      });
     }
 
     const isImageEdited = Object.entries(files).length !== 0;
@@ -146,24 +179,29 @@ handler.put(async (req, res) => {
     }
 
     // manage price data
-    const { wsPrice: stringWsPrice, ...productForm} = body;
+    const { wsPrice: stringWsPrice, ...productForm } = body;
     const wsPrice = JSON.parse(stringWsPrice);
-    
+
     let latestMaxQty = 1;
     wsPrice.forEach((X, idx) => {
-      
-      Object.entries(X).forEach(([key,val], idx) => {
+      Object.entries(X).forEach(([key, val], idx) => {
         if (val === '') {
-          throw new Error(`Terdapat inputan kosong pada harga grosir ke ${idx + 1}`);
+          throw new Error(
+            `Terdapat inputan kosong pada harga grosir ke ${idx + 1}`
+          );
         }
         X[key] = parseInt(X[key]);
-      })
+      });
 
       if (X.minQty >= X.maxQty) {
-        throw new Error(`Error harga grosir ke ${idx +1}, maximum quantity harus lebih besar`);
+        throw new Error(
+          `Error harga grosir ke ${idx + 1}, maximum quantity harus lebih besar`
+        );
       }
       if (X.minQty <= latestMaxQty) {
-        throw new Error(`Periksa kembali minimum quantity harga grosir ke ${idx + 1}`);
+        throw new Error(
+          `Periksa kembali minimum quantity harga grosir ke ${idx + 1}`
+        );
       }
       latestMaxQty = X.maxQty;
     });
@@ -175,7 +213,7 @@ handler.put(async (req, res) => {
 
     const { productId, productImgUrl } = query;
     if (isImageEdited) {
-      const {filepath, mimetype, size} = files.file;
+      const { filepath, mimetype, size } = files.file;
       if (size > 1024 * 1024) {
         throw new Error('Maksimal file gambar berukuran 1MB');
       }
@@ -183,15 +221,20 @@ handler.put(async (req, res) => {
       if (productImgUrl === '') {
         throw new Error('[SERVER] productImgUrl undefined');
       }
-  
-      const { error: deleteImageError } = await ProductsHelper.deleteImage(productImgUrl);
+
+      const { error: deleteImageError } = await ProductsHelper.deleteImage(
+        productImgUrl
+      );
       if (deleteImageError) {
         throw new Error('Gagal mengubah data [DELETE IMAGE ERROR]');
       }
 
       const fileName = `products${new Date().getTime()}`;
       const rawData = fs.readFileSync(filepath);
-      const { data: {Key}, error: uploadImageError } = await ProductsHelper.uploadImage(rawData, fileName, mimetype);
+      const {
+        data: { Key },
+        error: uploadImageError,
+      } = await ProductsHelper.uploadImage(rawData, fileName, mimetype);
       if (uploadImageError) {
         throw new Error('Gagal mengupload gambar produk');
       }
@@ -199,7 +242,10 @@ handler.put(async (req, res) => {
       Product.imgUrl = Key.split('/').pop();
     }
 
-    const { error: updateProductError } = await ProductsHelper.updateProduct(productId, Product);
+    const { error: updateProductError } = await ProductsHelper.updateProduct(
+      productId,
+      Product
+    );
     if (updateProductError) {
       throw new Error('Gagal mengubah data produk ke tabel database');
     }
@@ -207,31 +253,40 @@ handler.put(async (req, res) => {
     // update wspirce
     if (wsPrice.length > 0) {
       wsPrice.forEach((X) => {
+        delete X.id;
         X.productId = productId;
       });
-      const { error: deleteProductWsPrice } = await ProductsHelper.deleteProductWsPrice(productId);
+
+      const { error: deleteProductWsPrice } =
+        await ProductsHelper.deleteProductWsPrice(productId);
+
       if (deleteProductWsPrice) {
         throw new Error('Gagal mengubah harga grosir ke tabel database');
       }
-      const { error: insertWsPriceError } = await ProductsHelper.addProductWsPrice(wsPrice);
+      const { error: insertWsPriceError } =
+        await ProductsHelper.addProductWsPrice(wsPrice);
+
       if (insertWsPriceError) {
         throw new Error('Gagal mengubah harga grosir ke tabel database');
       }
     }
 
-    res.status(200).json({status: 200, message: 'Berhasil mengubah data produk'});
+    res
+      .status(200)
+      .json({ status: 200, message: 'Berhasil mengubah data produk' });
   } catch (e) {
-    res.status(400).json({status: 400, message: e.message});
+    res.status(400).json({ status: 400, message: e.message });
   }
-})
-
+});
 
 handler.patch(async (req, res) => {
   try {
     const { User } = await authMiddleware(req, res);
 
     if (!User) {
-      return res.status(300).json({status: 300, message: 'JWT ERROR', location: '/login'})
+      return res
+        .status(300)
+        .json({ status: 300, message: 'JWT ERROR', location: '/login' });
     }
 
     const userRole = User.role.roleName;
@@ -244,28 +299,31 @@ handler.patch(async (req, res) => {
       }
 
       if (!body.productId) {
-         throw new Error('undefined productId');
+        throw new Error('undefined productId');
       }
 
-      const { error } = await ProductsHelper.updateProduct(body.productId, { stock: body.stock });
+      const { error } = await ProductsHelper.updateProduct(body.productId, {
+        stock: body.stock,
+      });
       if (error) {
-        throw new Error('Gagal mengubah data stok')
+        throw new Error('Gagal mengubah data stok');
       }
 
-      return res.status(200).json({status: 200, message: 'Berhasil mengubah data stok produk'})
+      return res
+        .status(200)
+        .json({ status: 200, message: 'Berhasil mengubah data stok produk' });
     }
 
     throw new Error('Tidak ada data yang diperbarui');
   } catch (e) {
-    res.status(400).json({status: 400, message: e.message});
+    res.status(400).json({ status: 400, message: e.message });
   }
-})
-
+});
 
 export const config = {
   api: {
     bodyParser: false,
   },
-}
+};
 
 export default handler;
