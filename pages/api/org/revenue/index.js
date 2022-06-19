@@ -13,7 +13,7 @@ export default async function handler(req, res) {
   }
 
   const userRole = User.role.roleName;
-  if (userRole !== ROLE_NAME.MARKETING && userRole !== ROLE_NAME.OWNER) {
+  if (userRole === ROLE_NAME.CUSTOMERS) {
     throw new Error('Tidak memiliki hak akses');
   }
 

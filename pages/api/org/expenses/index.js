@@ -16,7 +16,7 @@ export default async function handler(req, res) {
     const userRole = User.role.roleName;
     switch (req.method) {
       case 'GET':
-        if (userRole !== ROLE_NAME.OWNER && userRole !== ROLE_NAME.MARKETING) {
+        if (userRole === ROLE_NAME.CUSTOMERS) {
           throw new Error('Tidak memiliki hak akses');
         }
         return await getAllExpenses(res);
