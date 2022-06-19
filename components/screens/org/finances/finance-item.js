@@ -25,7 +25,9 @@ export default function FinanceItem({ date, expense, revenue, format }) {
         <p className="text-primary">Rp {revenue || 0}</p>
       </div>
       <div className="w-40 overflow-clip">
-        <p className="text-xs text-slate-600">Keuntungan</p>
+        <p className="text-xs text-slate-600">
+          {profit >= 0 ? 'Keuntungan' : 'Kerugian'}
+        </p>
         <p className={`${profit >= 0 ? 'text-primary' : 'text-red-600'}`}>
           Rp {profit}
         </p>
