@@ -46,6 +46,14 @@ export default function ProfitSummary({ setError }) {
         });
 
         const l = [];
+        console.log(
+          FinancesFormat.getFinances(expenses, revenues, {
+            format: 'daily',
+            month,
+            year,
+          }),
+          DateHelper.getTodayDate()
+        );
         l.push(
           FinancesFormat.getFinances(expenses, revenues, {
             format: 'daily',

@@ -9,6 +9,7 @@ import CommonSuccessModal from '@/components/common/common-success-modal';
 import CommonErrorModal from '@/components/common/common-error-modal';
 import AuthFetcher from '@/utils/functions/auth-fetcher';
 import AddressFetcher from '@/utils/functions/address-fetcher';
+import DateHelper from '@/utils/functions/date-helper';
 
 export default function RegisterForm() {
   const [formValues, setFormValues] = useState({
@@ -30,14 +31,6 @@ export default function RegisterForm() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [fetching, setFetching] = useState(false);
-
-  const getTodayDate = () => {
-    const todayTime = new Date();
-    const year = todayTime.getFullYear();
-    const month = todayTime.getMonth();
-    const date = todayTime.getDate();
-    return `${year}-${month < 10 ? '0'+month : month}-${date < 10 ? '0'+date : date}`
-  }
 
   const inputHandler = (event) => {
     const { name, value } = event.target;
@@ -129,7 +122,7 @@ export default function RegisterForm() {
             </div>
             <div className='flex flex-col'>
                 <CommonLabel text='Tanggal Lahir' id='dob'/>
-                <CommonInput type='date' max={getTodayDate()} id='dob' 
+                <CommonInput type='date' max={DateHelper.getTodayDate()} id='dob' 
                   name='dob' value={formValues.dob} onChange={inputHandler} />
             </div>
             <div className='flex flex-col'>

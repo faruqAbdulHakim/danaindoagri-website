@@ -88,9 +88,16 @@ export default function RevenueListScreen() {
               <p className='text-xs text-slate-400'>
                 Total Harga
               </p>
-              <p className='text-primary'>
-                Rp {OrderDetail.productPrice + OrderDetail.shipmentPrice + OrderDetail.codePrice}
-              </p>
+              {
+                OrderDetail.status === 'belum dibayar' ?
+                <p>
+                  Belum Dibayar
+                </p>
+                :
+                <p className='text-primary'>
+                  Rp {OrderDetail.productPrice + OrderDetail.shipmentPrice + OrderDetail.codePrice}
+                </p>
+              }
             </div>
           </div>
         })
