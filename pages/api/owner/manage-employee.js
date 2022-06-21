@@ -47,6 +47,15 @@ export default async function handler(req, res) {
 
 async function AddNewEmployee(req, res) {
   const body = req.body;
+
+  if (/\d/g.test(body.fullName)) {
+    throw new Error('Nama tidak dapat mengandung angka');
+  }
+
+  if (/[A-Za-z]/gi.test(body.tel)) {
+    throw new Error('Nomor Telepon harus terdiri dari angka saja');
+  }
+
   if (body.password.length < 8) {
     throw new Error('Panjang password minimal 8 karakter');
   }
@@ -86,6 +95,14 @@ async function EditEmployee(req, res) {
     const { data: roleId, error: getRoleError } = await UsersHelper.getRoleIdByRoleName(body?.roleName);
     if (getRoleError) {
       throw new Error('[Server] Gagal menemukan roleId');
+    }
+
+    if (/\d/g.test(body.fullName)) {
+      throw new Error('Nama tidak dapat mengandung angka');
+    }
+
+    if (/[A-Za-z]/gi.test(body.tel)) {
+      throw new Error('Nomor Telepon harus terdiri dari angka saja');
     }
 
     delete body.roleName;

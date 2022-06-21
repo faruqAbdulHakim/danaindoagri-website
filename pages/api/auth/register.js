@@ -17,6 +17,14 @@ export default async function handler(req, res) {
     if (isSomeFormNull) {
       throw new Error('Harap lengkapi formulir pendaftaran');
     }
+
+    if (/\d/g.test(formRegister.fullName)) {
+      throw new Error('Nama tidak dapat mengandung angka');
+    }
+
+    if (/[A-Za-z]/gi.test(formRegister.tel)) {
+      throw new Error('Nomor Telepon harus terdiri dari angka saja');
+    }
   
     if (formRegister.password.length < 8) {
       throw new Error('Panjang password minimal 8 karakter');

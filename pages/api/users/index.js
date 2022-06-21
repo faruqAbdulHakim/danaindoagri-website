@@ -79,6 +79,13 @@ async function UpdateUser(req, res) {
     return res.status(300).json({status: 300, message: 'JWT ERROR', location: '/login'})
   }
 
+  if (name === 'fullName' && /\d/g.test(value)) {
+    throw new Error('Nama tidak dapat berupa angka');
+  }
+  if (name === 'tel' && /[A-Za-z]/gi.test(value)) {
+    throw new Error('Nomor Telepon harus berupa angka');
+  }
+
   const { error: updateDataError } = await UsersHelper.updateUserOneField(name, value, User.id);
   
   if (updateDataError) {
